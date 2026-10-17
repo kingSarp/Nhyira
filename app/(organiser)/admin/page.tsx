@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { HeadcountCards } from "@/components/organiser/HeadcountCards";
 import { HouseholdList } from "@/components/organiser/HouseholdList";
 import { adminHref, FILTERS, SearchAndFilters, type StatusFilter } from "@/components/organiser/SearchAndFilters";
-import { Button, Icon } from "@/components/ui";
+import { Button, Icon, Notice } from "@/components/ui";
 import { wedding } from "@/lib/content/wedding";
-import { getHeadcount, listHouseholds } from "@/lib/data";
+import { getHeadcount, getInvitation, listHouseholds } from "@/lib/data";
 import { longDate } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -24,6 +25,9 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
     declined: all.filter((h) => h.status === "declined").length,
   };
   const replied = all.length - counts.waiting;
+  const toSend = all.filter((h) => !h.sentAt && h.phone).length;
+  const toRemind = all.filter((h) => h.sentAt && h.status === "waiting").length;
+  const saved = typeof sp.saved === "string" ? await getInvitation(sp.saved) : null;
   const filterLabel = FILTERS.find((f) => f.value === status)?.label;
 
   return (
@@ -36,12 +40,51 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
         </p>
       </div>
 
+      {saved && (
+        <Notice tone="success" icon="check" title={`${saved.householdName} saved`}>
+          <Link href={`/i/${saved.token}`} target="_blank">View their invite</Link>
+          {saved.phone && !saved.sentAt && (
+            <>
+              {" · "}
+              <a href={`/admin/send/${saved.token}`} target="_blank" rel="noopener noreferrer">
+                Send it on WhatsApp now
+              </a>
+            </>
+          )}
+        </Notice>
+      )}
+      {typeof sp.imported === "string" && (
+        <Notice tone="success" icon="check" title={`${sp.imported} households added`}>
+          Next: <Link href="/admin/send">send their invites</Link>.
+        </Notice>
+      )}
+      {typeof sp.removed === "string" && <Notice tone="info" icon="check">{sp.removed} was removed from the guest list.</Notice>}
+
       <HeadcountCards headcount={headcount} />
 
       <section aria-label="Households" className="flex flex-col gap-6">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <Button href="/admin/guests/new" className="!h-11 gap-1.5 !px-4 text-[14px]">
+            <Icon name="plus" size={16} /> Add<span className="hidden sm:inline"> household</span>
+          </Button>
+          <Button href="/admin/guests/import" variant="secondary" className="!h-11 gap-1.5 !px-4 text-[14px]">
+            <Icon name="upload" size={16} /> Import
+          </Button>
+          {(toSend > 0 || toRemind > 0) && (
+            <Button href={toSend > 0 ? "/admin/send" : "/admin/send?mode=remind"} variant="whatsapp" className="col-span-2 !h-11">
+              {toSend > 0 ? `Send invites · ${toSend}` : `Send reminders · ${toRemind}`}
+            </Button>
+          )}
+        </div>
+
         <SearchAndFilters q={q} status={status} counts={counts} />
 
-        {households.length > 0 ? (
+        {all.length === 0 ? (
+          <section className="flex flex-col items-center gap-3.5 bg-panel px-3 py-12 text-center">
+            <p className="m-0 text-[18px]">Your guest list is empty</p>
+            <p className="m-0 text-[16px] text-ink-2">Add households one by one, or import your whole list from a spreadsheet.</p>
+          </section>
+        ) : households.length > 0 ? (
           <>
             <HouseholdList households={households} />
             <p className="m-0 text-center text-[14px] text-ink-2 lg:text-left">

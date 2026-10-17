@@ -16,7 +16,8 @@ export function AdminTabs({ pending }: { pending: number }) {
     <nav aria-label="Dashboard" className="-mx-5 overflow-x-auto border-b border-line px-5 lg:mx-0 lg:px-0">
       <ul className="m-0 flex list-none gap-7 p-0">
         {tabs.map((t) => {
-          const active = t.href === "/admin" ? path === "/admin" : path.startsWith(t.href);
+          const active =
+            t.href === "/admin" ? path === "/admin" || path.startsWith("/admin/guests") || path.startsWith("/admin/send") : path.startsWith(t.href);
           return (
             <li key={t.href}>
               <Link

@@ -1,7 +1,7 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
 import { wedding, type EventId } from "@/lib/content/wedding";
-import { toWhatsAppNumber } from "@/lib/format";
+import { newToken, phoneKey } from "./ids";
 import { store } from "./mock";
 import type { Invitation, JoinRequest, RequestStatus, SignupLink, SignupLinkKind, SignupLinkState } from "./types";
 
@@ -10,21 +10,6 @@ import type { Invitation, JoinRequest, RequestStatus, SignupLink, SignupLinkKind
 
 function code(prefix: string) {
   return `${prefix}-${randomBytes(6).toString("base64url").toLowerCase().replace(/[^a-z0-9]/g, "x")}`;
-}
-
-function newToken(name: string) {
-  const slug = name
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 24);
-  return `${slug || "guest"}-${randomBytes(6).toString("hex")}`;
-}
-
-/** Normalised number used to stop the same phone registering twice. */
-function phoneKey(phone: string | null | undefined) {
-  return toWhatsAppNumber(phone) ?? "";
 }
 
 export async function getSignupLinks(): Promise<Record<SignupLinkKind, SignupLink>> {

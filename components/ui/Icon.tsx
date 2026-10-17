@@ -29,6 +29,10 @@ const paths = {
   whatsapp: <path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.4A8.5 8.5 0 1 1 21 11.5z" />,
   check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
   chevron: <path d="m6 9 6 6 6-6" />,
+  pencil: <path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4" />,
+  plus: <path d="M12 5v14M5 12h14" />,
+  upload: <path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />,
+  send: <path d="M21 3 10 14M21 3l-7 18-4-7-7-4 18-7z" />,
   copy: (
     <>
       <rect x="9" y="9" width="11" height="11" rx="1" />

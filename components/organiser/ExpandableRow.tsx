@@ -16,7 +16,7 @@ export function ExpandableRow({
   label,
   className,
 }: {
-  select: ReactNode;
+  select?: ReactNode;
   summary: ReactNode;
   actions: ReactNode;
   panel: ReactNode;
@@ -27,8 +27,14 @@ export function ExpandableRow({
   const [open, setOpen] = useState(false);
   const id = useId();
   return (
-    <li className={cn("grid grid-cols-[20px_minmax(0,1fr)_auto] items-start gap-x-3 border-b border-line py-1.5", className)}>
-      <div className="pt-[14px]">{select}</div>
+    <li
+      className={cn(
+        "grid items-start gap-x-3 border-b border-line py-1.5",
+        select ? "grid-cols-[20px_minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1fr)_auto]",
+        className,
+      )}
+    >
+      {select && <div className="pt-[14px]">{select}</div>}
       <button
         type="button"
         aria-expanded={open}
@@ -41,7 +47,7 @@ export function ExpandableRow({
         <span className="min-w-0 flex-1">{summary}</span>
       </button>
       <div className="flex gap-1.5 pt-0.5">{actions}</div>
-      <div id={id} hidden={!open} className="col-span-2 col-start-2 pb-3">
+      <div id={id} hidden={!open} className={cn("col-span-2 pb-3", select ? "col-start-2" : undefined)}>
         {panel}
       </div>
     </li>

@@ -3,18 +3,19 @@ import { Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { Household } from "@/lib/data/types";
 import { toWhatsAppNumber } from "@/lib/format";
-import { inviteMessage } from "@/lib/households";
 
-export function HouseholdActions({ household, inline }: { household: Household; inline?: boolean }) {
+/** Send on WhatsApp (recorded as sent) + View invite. Used in notices and the send queue. */
+export function HouseholdActions({ household, kind = "invite", inline }: { household: Household; kind?: "invite" | "reminder"; inline?: boolean }) {
   const wa = toWhatsAppNumber(household.phone);
   return (
     <div className={cn("flex items-center gap-4", inline ? "flex-col items-end gap-1 whitespace-nowrap" : "flex-wrap")}>
       {wa ? (
-        <Button variant="whatsapp" href={`https://wa.me/${wa}?text=${encodeURIComponent(inviteMessage(household))}`} external>
-          Send on WhatsApp<span className="sr-only"> to {household.householdName}</span>
+        <Button variant="whatsapp" href={`/admin/send/${household.token}?kind=${kind}`} external>
+          {kind === "reminder" ? "Send reminder" : "Send on WhatsApp"}
+          <span className="sr-only"> to {household.householdName}</span>
         </Button>
       ) : (
-        <Button variant="whatsapp" disabled>
+        <Button variant="whatsapp" href={`/admin/guests/${household.token}`}>
           Add a phone number to send
         </Button>
       )}

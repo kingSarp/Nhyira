@@ -53,7 +53,13 @@ app/
     login/page.tsx           /login       Sign in, link sent, expired
     admin/
       layout.tsx             Header + tabs (Guests · Requests · Sign-up links)
-      page.tsx               /admin           Guests: headcount, search, households
+      page.tsx               /admin           Guests: headcount, toolbar, search, one-line household list
+      guests/new/            /admin/guests/new         Add a household
+      guests/[token]/        /admin/guests/<token>     Edit or remove a household
+      guests/import/         /admin/guests/import      Paste or upload a spreadsheet, preview, add
+      guests/actions.ts      Household and import server actions
+      send/page.tsx          /admin/send               One-at-a-time WhatsApp queue (invites, reminders)
+      send/[token]/route.ts  Records "sent", then redirects to wa.me
       requests/page.tsx      /admin/requests  Inbox list: one line per request, ✓/✕ per row, bulk approve/decline; tap a name for details and seats
       links/page.tsx         /admin/links     Turn shared links on/off, new link, open-link settings
       actions.ts             Organiser server actions
@@ -69,9 +75,12 @@ lib/
     types.ts                 Invitation, EventResponse, Household, Headcount
     index.ts                 The data API screens call (getInvitation, listHouseholds…)
     signups.ts               Shared links, join requests, open sign-ups
+    households.ts            Add, edit, remove, import households; mark sent
+    ids.ts                   Personal-link tokens, phone normalisation
     mock.ts                  Seed data + in-memory store (globalThis). Replaced by Supabase next phase.
   rsvp.ts                    RSVP field names, parsing, validation (shared by form and action)
   signup-forms.ts            Request and open sign-up parsing, validation
+  household-forms.ts         Household form + spreadsheet (CSV/TSV) parsing and validation
   households.ts              Dashboard answer lines, WhatsApp message
   site.ts                    Public site URL
   fonts.ts                   next/font/local definitions
@@ -124,6 +133,8 @@ For review, `?preview=closed` forces 1e anywhere except Vercel production.
 
 Organiser `/login` states come from search params (`?sent=1&email=`, `?error=link`). In the frontend phase no email is sent; a "Preview only" box on the link-sent screen opens `/admin` or the expired state (hidden on Vercel production). In the backend phase the email leaves the URL and Supabase Auth sends the link.
 
+**Guest list.** Organisers add households one by one or import a spreadsheet (header row with Name, Greeting, Phone, Side, Engagement, Church, Reception, in any order; pasted from Excel/Sheets as tabs, or a CSV file). The import shows rows to fix first; only valid, non-duplicate rows are added, all at once. A phone number can belong to one household. Editing seats below the names already given keeps the first names. Sending goes through `/admin/send/<token>`, which stamps `sentAt` so the list shows "Not sent / Sent today", and the send queue walks through unsent invites, then "sent, no reply" reminders.
+
 Dashboard filters and search are URL search params (`?q=&status=`), so they are shareable and work without JS. Households show as cards below 1024px and as a table above. "Send on WhatsApp" opens `wa.me/<number>` with the invite message and the household's link (`lib/households.ts`); set `NEXT_PUBLIC_SITE_URL` so the link points at the live site.
 
 ## 7. Conventions
@@ -143,7 +154,7 @@ Dashboard filters and search are URL search params (`?q=&status=`), so they are 
 
 ## 9. Next phase (not started)
 
-1. Supabase project: `invitations` (+ `source`), `join_requests`, `signup_links` (code, enabled, events, limit, retired codes); RLS on with no policies (server-only access). Open sign-up's limit and duplicate-phone checks run in one transaction.
+1. Supabase project: `invitations` (+ `source`, `sent_at`, unique normalised phone), `join_requests`, `signup_links` (code, enabled, events, limit, retired codes); RLS on with no policies (server-only access). Open sign-up's limit and duplicate-phone checks run in one transaction.
 2. `lib/data` reads Supabase; `submitRsvp` server action with validation against seat limits.
 3. Email magic-link auth for `/admin`, allowlist from `ADMIN_EMAILS`, session refresh in `proxy.ts`.
 4. `opengraph-image.tsx` per household.

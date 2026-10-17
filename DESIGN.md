@@ -85,7 +85,8 @@ Built in `components/ui/`. Every one reads semantic tokens only, so it works on 
 | `ErrorSummary` | White box, 1px error border, title + jump links to each problem field. | RSVP with errors |
 | `CoupleNames` | "Yaw *&* Lady": display italic with a Great Vibes ampersand. Sizes `hero`, `lg`, `md`. | Guest screens |
 | `Photo` | `next/image` fill, cover, optional bottom scrim and caption (year + label). Placeholder fill `line`. | Hero, story, thanks |
-| `Icon` | Inline stroke SVGs: alert, mail, lock, search, close, whatsapp. `aria-hidden` unless labelled. | All |
+| `ExpandableRow` | One-line list row for long organiser lists: optional tick box, a summary button that opens a full-width details panel, round icon actions (≥ 44px). Used by Guests and Requests. | Dashboard |
+| `Icon` | Inline stroke SVGs: alert, mail, lock, search, close, whatsapp, check, chevron, copy, users, pencil, plus, upload, send. `aria-hidden` unless labelled. | All |
 
 Focus is always visible: 2px accent outline, 3px offset.
 
@@ -129,4 +130,5 @@ Couple photos live in `public/images/`. They are **stand-ins** from the design c
 | `/login` | organiser | 4a sign in · 4b link sent · 4c link expired |
 | `/admin` | organiser | 5a dashboard mobile + desktop · 5b search, no matches |
 | `/admin/requests`, `/admin/links` | organiser | Requests and Sign-up links tabs (no board; built from the system) |
+| `/admin/guests/new`, `/admin/guests/<token>`, `/admin/guests/import`, `/admin/send` | organiser | Add/edit household, import, send queue (no board; built from the system) |
 | `/styleguide` | both | Tokens and components (development only) |

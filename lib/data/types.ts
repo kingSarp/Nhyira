@@ -20,6 +20,8 @@ export type Invitation = {
   respondedAt: string | null;
   /** Missing = added by the couple ("list"). */
   source?: InviteSource;
+  /** Last time an organiser opened WhatsApp to send this invite. */
+  sentAt?: string | null;
 };
 
 export type ReplyStatus = "waiting" | "attending" | "declined";
