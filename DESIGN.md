@@ -17,7 +17,7 @@ The approved R1 screens use two related looks. They share semantic token names, 
 | **guest** | Invite, RSVP states, thanks, returning, closed, not found, home, WhatsApp preview | A printed invitation: warm cream paper, full-bleed photos of the couple, italic Cormorant display, burgundy accent | `app/(guest)/layout.tsx` → `data-surface="guest"` |
 | **organiser** | Sign in, link sent, expired link, dashboard | Watercolor Garden: white paper, charcoal ink, quiet uppercase labels, one burgundy accent | `app/(organiser)/layout.tsx` → `data-surface="organiser"` |
 
-Why two: guests see the invitation once and should feel celebrated; Auntie Efua uses the dashboard often and needs it calm and scannable. They stay one family through the same serif body, the same burgundy family, pill buttons and 2px-radius inputs.
+Why two: guests see the invitation once and should feel celebrated; Auntie Efua uses the dashboard often and needs it calm and scannable. **Decision (17 Oct 2026): the dashboard stays a separate, professional tool**, not a themed copy of the invite. They stay one family through the same serif body, the same burgundy family, pill buttons and 2px-radius inputs.
 
 ## 2. Colour
 
@@ -100,7 +100,7 @@ Focus is always visible: 2px accent outline, 3px offset.
 
 ## 6. Imagery
 
-Couple photos live in `public/images/` (placeholders from the design canvas until the couple supplies finals). Always `next/image` with `sizes`, `object-cover` and a set focal point (`object-position`), because guests load them over mobile data. `roses.png` is the decorative sprig: `alt=""`.
+Couple photos live in `public/images/`. They are **stand-ins** from the design canvas; the finals will be uploaded by an admin from the dashboard in the backend phase (ARCHITECTURE.md §9). Always `next/image` with `sizes`, `object-cover` and a set focal point (`object-position`), because guests load them over mobile data. `roses.png` is the decorative sprig: `alt=""`.
 
 ## 7. Do and don't
 

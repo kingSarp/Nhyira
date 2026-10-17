@@ -12,6 +12,7 @@ export const mockInvitations: Invitation[] = [
   {
     token: "kwame-ama-boateng-0001",
     householdName: "Kwame & Ama Boateng",
+    greeting: "Kwame & Ama",
     phone: "024 000 0000",
     side: "Groom's family",
     seats: { engagement: 2, wedding: 2, reception: 2 },
@@ -36,6 +37,7 @@ export const mockInvitations: Invitation[] = [
   {
     token: "rev-mrs-addo-0000000003",
     householdName: "Rev. & Mrs Addo",
+    greeting: "Rev. & Mrs Addo",
     phone: "026 000 0000",
     side: "Bride's family",
     seats: { wedding: 2, reception: 2 },
@@ -62,6 +64,7 @@ export const mockInvitations: Invitation[] = [
   {
     token: "esi-mensah-000000000005",
     householdName: "Esi Mensah",
+    greeting: "Esi",
     phone: "055 000 0000",
     side: "Bride's friends",
     seats: { wedding: 1, reception: 1 },

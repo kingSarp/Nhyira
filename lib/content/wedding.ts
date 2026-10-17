@@ -30,6 +30,8 @@ export const wedding = {
   partners: ["Yaw", "Lady"] as const,
   monogram: ["Y", "L"] as const,
   tagline: "Come witness the beginning of our forever.",
+  /** Follows the guest's name on the invite. */
+  inviteLine: "come witness the beginning of our forever.",
   city: "Accra, Ghana",
   /** The main wedding day, shown as 13 · 02 · 2027 */
   date: "2027-02-13",
@@ -76,6 +78,8 @@ export const wedding = {
     },
   ] satisfies WeddingEvent[],
 
+  // Stand-in photos. In the backend phase admins upload the finals from the
+  // dashboard and these paths come from storage instead.
   images: {
     hero: { src: "/images/hero-portrait.jpg", alt: "Yaw and Lady, portrait", focus: "45% 20%" },
     roses: { src: "/images/roses.png", alt: "" },

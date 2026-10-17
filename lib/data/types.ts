@@ -9,6 +9,8 @@ export type EventResponse = {
 export type Invitation = {
   token: string;
   householdName: string;
+  /** How the invite greets them, e.g. "Kwame & Ama". Defaults to householdName. */
+  greeting?: string;
   phone: string | null;
   side: string | null;
   /** Seats allowed per event. Missing or 0 = not invited to that event. */

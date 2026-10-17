@@ -33,6 +33,7 @@ app/
     page.tsx                 /            Home, save the date
     i/[token]/
       page.tsx               /i/[token]   Invite + RSVP (states 1a–1e)
+      actions.ts             submitRsvp server action
       not-found.tsx          Invitation not found
       opengraph-image.tsx    WhatsApp preview card (next phase)
   (organiser)/               data-surface="organiser"
@@ -51,6 +52,7 @@ lib/
     types.ts                 Invitation, EventResponse, Household, Headcount
     index.ts                 The data API screens call (getInvitation, listHouseholds…)
     mock.ts                  Mock households. Replaced by Supabase in the next phase.
+  rsvp.ts                    RSVP field names, parsing, validation (shared by form and action)
   fonts.ts                   next/font/local definitions
   format.ts                  Date and phone formatting (en-GB, Africa/Accra)
   cn.ts                      className joiner
@@ -91,9 +93,13 @@ Each guest state is the same route rendered from data, not a separate page:
 | 1a First open | invitation found, no response, RSVP open |
 | 1b Errors | server returned field errors for the submitted form |
 | 1c Submitted | response just saved (redirect with `?sent=1`) |
-| 1d Returning | response exists, RSVP open |
+| 1d Returning | response exists, RSVP open (`?view=full` shows the whole invite with the form pre-filled) |
 | 1e Closed | now is past `wedding.rsvpDeadline` |
 | 2 Not found | token unknown → `notFound()` |
+
+For review, `?preview=closed` forces 1e anywhere except Vercel production.
+
+**RSVP form flow.** `components/guest/RsvpForm.tsx` (client) posts to `submitRsvp` (`actions.ts`). The action parses and validates with `lib/rsvp.ts`, then calls `saveResponse` and redirects to `?sent=1`. On errors it returns the submitted values and an error list; the form restores them, shows the summary and moves focus to it. Seat-name fields reveal with CSS (`:has(:checked)`), so the form works before JS loads; "Add a guest", "Remove" and "Same names as" need JS.
 
 Organiser `/login` states come from search params (`?sent=1`, `?error=link`). Dashboard filters and search are URL search params (`?q=&status=`), so they are shareable and work without JS.
 
@@ -118,4 +124,5 @@ Organiser `/login` states come from search params (`?sent=1`, `?error=link`). Da
 2. `lib/data` reads Supabase; `submitRsvp` server action with validation against seat limits.
 3. Email magic-link auth for `/admin`, allowlist from `ADMIN_EMAILS`, session refresh in `proxy.ts`.
 4. `opengraph-image.tsx` per household.
-5. Deploy to Vercel, run the 15–20 household validation test.
+5. **Photo uploads from the dashboard** (admin only): Supabase Storage bucket, an upload screen under `/admin/photos`, and `lib/content` image slots read from the bucket instead of `public/images/`. The current photos are stand-ins until then.
+6. Deploy to Vercel, run the 15–20 household validation test.

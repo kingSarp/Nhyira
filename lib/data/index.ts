@@ -1,7 +1,7 @@
 import "server-only";
 import { wedding, type EventId } from "@/lib/content/wedding";
 import { mockInvitations } from "./mock";
-import type { Headcount, Household, Invitation, ReplyStatus } from "./types";
+import type { EventResponse, Headcount, Household, Invitation, ReplyStatus } from "./types";
 
 export type * from "./types";
 
@@ -10,6 +10,22 @@ export type * from "./types";
 
 export async function getInvitation(token: string): Promise<Invitation | null> {
   return mockInvitations.find((i) => i.token === token) ?? null;
+}
+
+/**
+ * Saves a household's reply. Mock: updates the in-memory list, so replies
+ * last until the dev server restarts. Backend phase: an UPDATE in Supabase.
+ */
+export async function saveResponse(
+  token: string,
+  reply: { responses: Partial<Record<EventId, EventResponse>>; note: string | null },
+): Promise<boolean> {
+  const inv = mockInvitations.find((i) => i.token === token);
+  if (!inv) return false;
+  inv.responses = reply.responses;
+  inv.note = reply.note;
+  inv.respondedAt = new Date().toISOString();
+  return true;
 }
 
 export function replyStatus(inv: Invitation): ReplyStatus {

@@ -12,7 +12,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Nhyira is a wedding invitation and RSVP site for a Ghanaian wedding. Each household opens a personal link from WhatsApp, sees its events and seat limit, and RSVPs without an account. Family organisers sign in to a dashboard for the headcount.
 
-**Phase: frontend only.** Build screens against `lib/data` (mock data). Do not add Supabase, auth, API routes or server actions that persist anything until the backend phase starts.
+**Phase: frontend only.** Build screens against `lib/data` (mock data, held in memory). Server actions may validate and call `lib/data`, but nothing may write to a real database, storage bucket or auth provider until the backend phase starts.
 
 ## Read first
 
@@ -30,8 +30,8 @@ npm run build   # must pass before you call anything done
 
 ## Rules
 
-- **Tokens only.** Use `bg-paper`, `text-ink`, `text-ink-2`, `bg-accent`, `border-border`, the `type-*` utilities, and so on. No hex values, arbitrary colours or raw font sizes in components.
-- **Surfaces.** Guest pages live in `app/(guest)`, organiser pages in `app/(organiser)`. Components must not assume a surface.
+- **Tokens only for colour.** Use `bg-paper`, `text-ink`, `text-ink-2`, `bg-accent`, `border-border` and so on; no hex values or arbitrary colours in components (event dress-colour swatches are content, not style). Prefer the `type-*` utilities; a one-off text size is fine when a design board specifies it.
+- **Surfaces.** Guest pages live in `app/(guest)`, organiser pages in `app/(organiser)`. Components must not assume a surface. The organiser dashboard is a separate, professional tool: calm, dense, scannable. Don't carry guest flourishes (photos, script greetings) into it.
 - **Primitives first.** Reuse `components/ui/*`. If a screen needs something new and reusable, add it there and show it on `/styleguide`.
 - **Server Components by default.** `"use client"` only for leaf components that change state before submit.
 - **Forms work without JavaScript.** Native `<form>`, `<label>`, `<fieldset>`/`<legend>`, radio inputs.
