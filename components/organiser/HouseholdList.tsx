@@ -3,11 +3,14 @@ import type { Household } from "@/lib/data/types";
 import { answerLines } from "@/lib/households";
 import { HouseholdActions } from "./HouseholdActions";
 
+const sourceLabel = { request: "via request", open: "via open sign-up" } as const;
+
 function Meta({ h }: { h: Household }) {
   return (
     <>
       {h.side && <>{h.side} · </>}
       <span className="whitespace-nowrap">{h.phone ?? "no phone"}</span>
+      {h.source && h.source !== "list" && <> · {sourceLabel[h.source]}</>}
     </>
   );
 }
@@ -29,7 +32,7 @@ function Answers({ h }: { h: Household }) {
 export function HouseholdList({ households }: { households: Household[] }) {
   return (
     <>
-      <ul aria-label="Households" className="m-0 flex list-none flex-col p-0 lg:hidden">
+      <ul aria-label="Household list" className="m-0 flex list-none flex-col p-0 lg:hidden">
         {households.map((h) => (
           <li key={h.token} className="flex flex-col gap-2.5 border-b border-line py-[18px]">
             <div className="flex items-start justify-between gap-3">

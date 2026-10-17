@@ -28,6 +28,19 @@ const paths = {
   close: <path d="M6 6l12 12M18 6 6 18" />,
   whatsapp: <path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.4A8.5 8.5 0 1 1 21 11.5z" />,
   check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
+  chevron: <path d="m6 9 6 6 6-6" />,
+  copy: (
+    <>
+      <rect x="9" y="9" width="11" height="11" rx="1" />
+      <path d="M5 15V5a1 1 0 0 1 1-1h10" />
+    </>
+  ),
+  users: (
+    <>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6" />
+    </>
+  ),
 } as const;
 
 export type IconName = keyof typeof paths;

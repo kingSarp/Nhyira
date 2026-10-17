@@ -4,6 +4,7 @@ import { mockInvitations, mockOrganiser } from "./mock";
 import type { EventResponse, Headcount, Household, Invitation, ReplyStatus } from "./types";
 
 export type * from "./types";
+export * from "./signups";
 
 // The only data API screens may call. Today it reads mock data; in the backend
 // phase the bodies switch to Supabase and the signatures stay the same.

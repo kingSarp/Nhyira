@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
+import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 import { Icon } from "./Icon";
 
@@ -75,6 +75,37 @@ export function TextArea({
         className={cn(control, "min-h-24 py-3 leading-normal")}
         {...textarea}
       />
+      {error && <FieldError id={errorId}>{error}</FieldError>}
+    </div>
+  );
+}
+
+export function SelectField({
+  id,
+  label,
+  error,
+  className,
+  children,
+  ...select
+}: LabelProps & SelectHTMLAttributes<HTMLSelectElement> & { id: string }) {
+  const errorId = `${id}-error`;
+  return (
+    <div className={cn("flex flex-col gap-1.5", className)}>
+      <label htmlFor={id} className="type-label text-ink-2">
+        {label}
+      </label>
+      <div className="relative">
+        <select
+          id={id}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          className={cn(control, "h-[52px] appearance-none pr-10")}
+          {...select}
+        >
+          {children}
+        </select>
+        <Icon name="chevron" className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-ink-2" />
+      </div>
       {error && <FieldError id={errorId}>{error}</FieldError>}
     </div>
   );

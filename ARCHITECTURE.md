@@ -8,6 +8,16 @@ A personal invitation per household, opened from a WhatsApp link. Guests see the
 
 **Current phase: frontend only.** Screens are built against typed mock data behind a data layer (`lib/data`). Supabase, auth and server actions come next, behind the same functions, so screens don't change when the backend lands.
 
+### Three ways in
+
+| Way in | URL | Who sets the seats | Couple can switch off |
+|---|---|---|---|
+| Personal invite (guest list) | `/i/<token>` | The couple, when adding the household | No, always on |
+| Request a place | `/request/<code>` | The couple, when approving the request | Yes |
+| Open sign-up, one seat | `/join/<code>` | Fixed: 1 seat per event the couple ticks | Yes, plus an optional sign-up limit |
+
+Both shared links start **off**. "Make a new link" retires the current `<code>` for good (it shows "no longer taking sign-ups" forever) and issues a new one, left off. Approved requests and open sign-ups become ordinary invitations with their own `/i/<token>`, marked `source: "request" | "open"`. A phone number can hold only one invitation or pending request.
+
 ## 2. Stack
 
 | Layer | Choice | Notes |
@@ -35,11 +45,18 @@ app/
       page.tsx               /i/[token]   Invite + RSVP (states 1a–1e)
       actions.ts             submitRsvp server action
       not-found.tsx          Invitation not found
+    request/[code]/          /request/<code>  Request a place (form, sent, closed)
+    join/[code]/             /join/<code>     Open one-seat sign-up (form, full, closed)
       opengraph-image.tsx    WhatsApp preview card (next phase)
   (organiser)/               data-surface="organiser"
     layout.tsx
     login/page.tsx           /login       Sign in, link sent, expired
-    admin/page.tsx           /admin       Dashboard
+    admin/
+      layout.tsx             Header + tabs (Guests · Requests · Sign-up links)
+      page.tsx               /admin           Guests: headcount, search, households
+      requests/page.tsx      /admin/requests  Approve (set seats) or decline requests
+      links/page.tsx         /admin/links     Turn shared links on/off, new link, open-link settings
+      actions.ts             Organiser server actions
   styleguide/page.tsx        /styleguide  Tokens + components, dev only
 components/
   ui/                        Design-system primitives. No data fetching, no copy.
@@ -51,8 +68,10 @@ lib/
   data/
     types.ts                 Invitation, EventResponse, Household, Headcount
     index.ts                 The data API screens call (getInvitation, listHouseholds…)
-    mock.ts                  Mock households. Replaced by Supabase in the next phase.
+    signups.ts               Shared links, join requests, open sign-ups
+    mock.ts                  Seed data + in-memory store (globalThis). Replaced by Supabase next phase.
   rsvp.ts                    RSVP field names, parsing, validation (shared by form and action)
+  signup-forms.ts            Request and open sign-up parsing, validation
   households.ts              Dashboard answer lines, WhatsApp message
   site.ts                    Public site URL
   fonts.ts                   next/font/local definitions
@@ -124,7 +143,7 @@ Dashboard filters and search are URL search params (`?q=&status=`), so they are 
 
 ## 9. Next phase (not started)
 
-1. Supabase project, `invitations` table, RLS on with no policies (server-only access).
+1. Supabase project: `invitations` (+ `source`), `join_requests`, `signup_links` (code, enabled, events, limit, retired codes); RLS on with no policies (server-only access). Open sign-up's limit and duplicate-phone checks run in one transaction.
 2. `lib/data` reads Supabase; `submitRsvp` server action with validation against seat limits.
 3. Email magic-link auth for `/admin`, allowlist from `ADMIN_EMAILS`, session refresh in `proxy.ts`.
 4. `opengraph-image.tsx` per household.

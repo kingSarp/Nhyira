@@ -1,4 +1,4 @@
-import type { Invitation } from "./types";
+import type { Invitation, JoinRequest, SignupLink } from "./types";
 
 // Mock households for building screens. Replaced by Supabase in the backend
 // phase; nothing outside lib/data may import this file.
@@ -11,7 +11,7 @@ import type { Invitation } from "./types";
 /** The signed-in organiser, until real auth exists. */
 export const mockOrganiser = { email: "efua.owusu@example.com" };
 
-export const mockInvitations: Invitation[] = [
+const seedInvitations: Invitation[] = [
   {
     token: "kwame-ama-boateng-0001",
     householdName: "Kwame & Ama Boateng",
@@ -86,3 +86,50 @@ export const mockInvitations: Invitation[] = [
     respondedAt: null,
   },
 ];
+
+const seedRequests: JoinRequest[] = [
+  {
+    id: "req-0001",
+    name: "Kojo Antwi",
+    phone: "024 222 0000",
+    partySize: 2,
+    side: "Groom's friends",
+    message: "Yaw's football teammate from Legon. Would love to come with my wife.",
+    status: "pending",
+    createdAt: "2026-12-06T10:15:00Z",
+    decidedAt: null,
+    token: null,
+  },
+  {
+    id: "req-0002",
+    name: "Adwoa Sarpong",
+    phone: "050 333 0000",
+    partySize: 1,
+    side: "Bride's friends",
+    message: null,
+    status: "pending",
+    createdAt: "2026-12-07T08:40:00Z",
+    decidedAt: null,
+    token: null,
+  },
+];
+
+// Both shared links start switched off.
+const seedLinks: Record<"request" | "open", SignupLink> = {
+  request: { kind: "request", code: "ask-7f3k9q2m", enabled: false, events: [], limit: null, retiredCodes: [] },
+  open: { kind: "open", code: "join-4h8w2x6p", enabled: false, events: ["engagement", "wedding", "reception"], limit: null, retiredCodes: [] },
+};
+
+/**
+ * One in-memory store per server process, kept on globalThis so every route
+ * and server action sees the same data. Resets when the server restarts.
+ */
+type Store = { invitations: Invitation[]; requests: JoinRequest[]; links: typeof seedLinks };
+const g = globalThis as unknown as { __nhyiraStore?: Store };
+export const store: Store = (g.__nhyiraStore ??= {
+  invitations: structuredClone(seedInvitations),
+  requests: structuredClone(seedRequests),
+  links: structuredClone(seedLinks),
+});
+
+export const mockInvitations = store.invitations;

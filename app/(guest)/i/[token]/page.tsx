@@ -91,6 +91,11 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
         </header>
         <section aria-label="Your reply" className="flex flex-col px-7 pt-10">
           <p className="m-0 mb-7 text-center text-ink-2">We can&apos;t wait to celebrate with you.</p>
+          {sp.new === "1" && (
+            <Notice tone="info" icon="check" title="This page is your invitation" className="mb-7">
+              Save this link or add it to your home screen. Open it again any time to see the details or change your reply.
+            </Notice>
+          )}
           <ReplySummary events={events} invitation={invitation} />
         </section>
         <section className="flex flex-col items-center gap-[18px] px-7 pt-10 pb-14">

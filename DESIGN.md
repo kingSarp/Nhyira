@@ -124,6 +124,9 @@ Couple photos live in `public/images/`. They are **stand-ins** from the design c
 | `/i/[token]` | guest | 1a first open · 1b filling in, errors · 1c submitted · 1d returning · 1e closed |
 | `/i/[token]` (unknown) | guest | 2 · Invitation not found |
 | `/i/[token]/opengraph-image` | guest | 6 · WhatsApp preview, with and without photo |
+| `/request/<code>` | guest | Request a place: form, sent, closed (no board; built from the system) |
+| `/join/<code>` | guest | Open one-seat sign-up: form, full, closed (no board; built from the system) |
 | `/login` | organiser | 4a sign in · 4b link sent · 4c link expired |
 | `/admin` | organiser | 5a dashboard mobile + desktop · 5b search, no matches |
+| `/admin/requests`, `/admin/links` | organiser | Requests and Sign-up links tabs (no board; built from the system) |
 | `/styleguide` | both | Tokens and components (development only) |
