@@ -1,12 +1,17 @@
 import "server-only";
 import { wedding, type EventId } from "@/lib/content/wedding";
-import { mockInvitations } from "./mock";
+import { mockInvitations, mockOrganiser } from "./mock";
 import type { EventResponse, Headcount, Household, Invitation, ReplyStatus } from "./types";
 
 export type * from "./types";
 
 // The only data API screens may call. Today it reads mock data; in the backend
 // phase the bodies switch to Supabase and the signatures stay the same.
+
+/** Who is signed in to the dashboard. Backend phase: the Supabase session. */
+export async function getOrganiser(): Promise<{ email: string } | null> {
+  return mockOrganiser;
+}
 
 export async function getInvitation(token: string): Promise<Invitation | null> {
   return mockInvitations.find((i) => i.token === token) ?? null;

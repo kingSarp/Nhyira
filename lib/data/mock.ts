@@ -8,6 +8,9 @@ import type { Invitation } from "./types";
 //   asante-family-000000002 no reply yet (first open)
 //   mr-yeboah-0000000000004 declined everything
 
+/** The signed-in organiser, until real auth exists. */
+export const mockOrganiser = { email: "efua.owusu@example.com" };
+
 export const mockInvitations: Invitation[] = [
   {
     token: "kwame-ama-boateng-0001",

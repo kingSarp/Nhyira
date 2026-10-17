@@ -53,6 +53,8 @@ lib/
     index.ts                 The data API screens call (getInvitation, listHouseholds…)
     mock.ts                  Mock households. Replaced by Supabase in the next phase.
   rsvp.ts                    RSVP field names, parsing, validation (shared by form and action)
+  households.ts              Dashboard answer lines, WhatsApp message
+  site.ts                    Public site URL
   fonts.ts                   next/font/local definitions
   format.ts                  Date and phone formatting (en-GB, Africa/Accra)
   cn.ts                      className joiner
@@ -101,7 +103,9 @@ For review, `?preview=closed` forces 1e anywhere except Vercel production.
 
 **RSVP form flow.** `components/guest/RsvpForm.tsx` (client) posts to `submitRsvp` (`actions.ts`). The action parses and validates with `lib/rsvp.ts`, then calls `saveResponse` and redirects to `?sent=1`. On errors it returns the submitted values and an error list; the form restores them, shows the summary and moves focus to it. Seat-name fields reveal with CSS (`:has(:checked)`), so the form works before JS loads; "Add a guest", "Remove" and "Same names as" need JS.
 
-Organiser `/login` states come from search params (`?sent=1`, `?error=link`). Dashboard filters and search are URL search params (`?q=&status=`), so they are shareable and work without JS.
+Organiser `/login` states come from search params (`?sent=1&email=`, `?error=link`). In the frontend phase no email is sent; a "Preview only" box on the link-sent screen opens `/admin` or the expired state (hidden on Vercel production). In the backend phase the email leaves the URL and Supabase Auth sends the link.
+
+Dashboard filters and search are URL search params (`?q=&status=`), so they are shareable and work without JS. Households show as cards below 1024px and as a table above. "Send on WhatsApp" opens `wa.me/<number>` with the invite message and the household's link (`lib/households.ts`); set `NEXT_PUBLIC_SITE_URL` so the link points at the live site.
 
 ## 7. Conventions
 

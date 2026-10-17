@@ -7,6 +7,8 @@ export type WeddingEvent = {
   /** Matches the keys of a household's `seats`. */
   id: "engagement" | "wedding" | "reception";
   name: string;
+  /** Short label for the dashboard, e.g. "Church". */
+  shortName: string;
   /** ISO date, YYYY-MM-DD */
   date: string;
   /** Display time, e.g. "10:00 AM" */
@@ -43,6 +45,7 @@ export const wedding = {
     {
       id: "engagement",
       name: "The Engagement",
+      shortName: "Engagement",
       date: "2027-02-12",
       time: "10:00 AM",
       venue: "Family House, East Legon",
@@ -55,6 +58,7 @@ export const wedding = {
     {
       id: "wedding",
       name: "The Wedding",
+      shortName: "Church",
       date: "2027-02-13",
       time: "9:00 AM",
       venue: "Christ the King Church",
@@ -67,6 +71,7 @@ export const wedding = {
     {
       id: "reception",
       name: "The Reception",
+      shortName: "Reception",
       date: "2027-02-13",
       time: "2:00 PM",
       venue: "Movenpick Ambassador Hotel",
