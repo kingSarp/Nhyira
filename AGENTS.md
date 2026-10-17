@@ -7,3 +7,40 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Nhyira — agent guide
+
+Nhyira is a wedding invitation and RSVP site for a Ghanaian wedding. Each household opens a personal link from WhatsApp, sees its events and seat limit, and RSVPs without an account. Family organisers sign in to a dashboard for the headcount.
+
+**Phase: frontend only.** Build screens against `lib/data` (mock data). Do not add Supabase, auth, API routes or server actions that persist anything until the backend phase starts.
+
+## Read first
+
+1. [ARCHITECTURE.md](ARCHITECTURE.md): folders, rendering model, data seam, conventions.
+2. [DESIGN.md](DESIGN.md): surfaces, tokens, type roles, components, screen map.
+3. [docs/design/tokens.json](docs/design/tokens.json): exact values. Wins over DESIGN.md.
+
+## Commands
+
+```bash
+npm run dev     # http://localhost:3000 — /styleguide shows tokens and components
+npm run lint
+npm run build   # must pass before you call anything done
+```
+
+## Rules
+
+- **Tokens only.** Use `bg-paper`, `text-ink`, `text-ink-2`, `bg-accent`, `border-border`, the `type-*` utilities, and so on. No hex values, arbitrary colours or raw font sizes in components.
+- **Surfaces.** Guest pages live in `app/(guest)`, organiser pages in `app/(organiser)`. Components must not assume a surface.
+- **Primitives first.** Reuse `components/ui/*`. If a screen needs something new and reusable, add it there and show it on `/styleguide`.
+- **Server Components by default.** `"use client"` only for leaf components that change state before submit.
+- **Forms work without JavaScript.** Native `<form>`, `<label>`, `<fieldset>`/`<legend>`, radio inputs.
+- **Accessibility is part of done:** visible focus, ≥ 44px targets, errors linked with `aria-describedby`, one `<h1>` per page, meaning never by colour alone.
+- **Mobile first:** check 360px and 390px; dashboard also at 1280px.
+- **No invented content.** Wedding facts come from `lib/content/wedding.ts`; unknowns are `[PLACEHOLDER]`.
+- **No new dependencies** without saying why the platform can't do it.
+- Don't edit `docs/design/source/` (reference only) or `app/fonts/` (self-hosted, OFL).
+
+## When you finish a change
+
+Run lint and build, look at the affected screens at phone width, and list what you changed and anything you couldn't do.

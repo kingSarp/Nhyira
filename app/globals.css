@@ -1,26 +1,231 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Nhyira design tokens. Source of truth: docs/design/tokens.json.
+ * Components use the semantic names below (bg-paper, text-ink-2, border-border…);
+ * the surface (data-surface on a layout wrapper) decides their values.
+ */
+
+/* ---------- Surface: guest (default) ---------- */
+:root,
+[data-surface="guest"] {
+  --paper: #fbf7f0;
+  --panel: #f3e9da;
+  --field: #ffffff;
+  --ink: #2b2321;
+  --ink-2: #5a4e48;
+  --placeholder: #6b5e57;
+  --border: #9a8d84;
+  --line: #dccfbf;
+  --accent: #6e1423;
+  --accent-hover: #560f1b;
+  --on-accent: #fbf7f0;
+  --eyebrow: #8a6a3b;
+  --script: #9c5d6e;
+  --success: #4f6b4a;
+  --success-tint: #e7eee5;
+  --error: #a3261f;
+  --error-tint: #f8e3e0;
+  --quiet-tint: #ece3d6;
+  --scrim: 43 35 33; /* #2B2321 as RGB channels for the photo scrim */
+
+  --control-h: 56px;
+  --label-size: 12px;
+  --label-track: 0.14em;
+  --button-size: 15px;
+  --button-track: 0.2em;
 }
 
+/* ---------- Surface: organiser ---------- */
+[data-surface="organiser"] {
+  --paper: #ffffff;
+  --panel: #fdf4ef;
+  --field: #ffffff;
+  --ink: #3a3a3a;
+  --ink-2: #5e5e5e;
+  --placeholder: #5e5e5e;
+  --border: #8c8c8c;
+  --line: #d9d6d3;
+  --accent: #7a1f33;
+  --accent-hover: #5e1726;
+  --on-accent: #ffffff;
+  --eyebrow: #5e5e5e;
+  --script: #3a3a3a;
+  --success: #4f6b4a;
+  --success-tint: #e7eee5;
+  --error: #a3261f;
+  --error-tint: #f8e3e0;
+  --quiet-tint: #f1efed;
+  --scrim: 58 58 58;
+
+  --control-h: 52px;
+  --label-size: 14px;
+  --label-track: 0.08em;
+  --button-size: 16px;
+  --button-track: 0.14em;
+}
+
+/* ---------- Tailwind theme ---------- */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-field: var(--field);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-placeholder: var(--placeholder);
+  --color-border: var(--border);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  --color-eyebrow: var(--eyebrow);
+  --color-script: var(--script);
+  --color-success: var(--success);
+  --color-success-tint: var(--success-tint);
+  --color-error: var(--error);
+  --color-error-tint: var(--error-tint);
+  --color-quiet-tint: var(--quiet-tint);
+
+  --font-display: var(--font-cormorant), Georgia, serif;
+  --font-script: var(--font-great-vibes), cursive;
+  --font-serif: var(--font-source-serif), Georgia, serif;
+  --font-sans: var(--font-source-serif), Georgia, serif;
+
+  --radius-input: 2px;
+
+  --shadow-float: 0 4px 16px rgb(58 58 58 / 0.12);
+  --shadow-overlay: 0 12px 40px rgb(58 58 58 / 0.16);
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ---------- Base ---------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  [data-surface] {
+    background: var(--paper);
+    color: var(--ink);
+  }
+  a {
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  a:hover {
+    color: var(--accent-hover);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  ::placeholder {
+    color: var(--placeholder);
+    opacity: 1;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---------- Type roles (see DESIGN.md §3) ---------- */
+@utility type-hero {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 68px;
+  line-height: 0.95;
+}
+@utility type-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 42px;
+  line-height: 1.05;
+}
+@utility type-event {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.1;
+}
+@utility type-legend {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.2;
+}
+@utility type-greeting {
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 1.1;
+  color: var(--script);
+}
+@utility type-eyebrow {
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--eyebrow);
+}
+@utility type-dateline {
+  font-size: 14px;
+  letter-spacing: 0.4em;
+}
+@utility type-label {
+  font-size: var(--label-size);
+  line-height: 1.4;
+  letter-spacing: var(--label-track);
+  text-transform: uppercase;
+}
+@utility type-button {
+  font-size: var(--button-size);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: var(--button-track);
+  text-transform: uppercase;
+}
+@utility type-meta {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+@utility type-org-title {
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+@utility type-stat {
+  font-size: 32px;
+  line-height: 1;
+}
+
+/* Photo scrim: transparent at the top, deep at the bottom. */
+@utility scrim {
+  background: linear-gradient(
+    180deg,
+    rgb(var(--scrim) / 0) 0%,
+    rgb(var(--scrim) / 0.55) 50%,
+    rgb(var(--scrim) / 0.82) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
