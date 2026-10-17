@@ -54,7 +54,7 @@ app/
     admin/
       layout.tsx             Header + tabs (Guests · Requests · Sign-up links)
       page.tsx               /admin           Guests: headcount, search, households
-      requests/page.tsx      /admin/requests  Compact list: approve/decline per row or in bulk; "Adjust seats" per row
+      requests/page.tsx      /admin/requests  Inbox list: one line per request, ✓/✕ per row, bulk approve/decline; tap a name for details and seats
       links/page.tsx         /admin/links     Turn shared links on/off, new link, open-link settings
       actions.ts             Organiser server actions
   styleguide/page.tsx        /styleguide  Tokens + components, dev only

@@ -68,7 +68,9 @@ export async function updateRequestLink({ events }: { events: EventId[] }) {
 
 /** Seats a request gets if the couple approves without adjusting. */
 export function defaultSeats(req: JoinRequest, link: SignupLink): Partial<Record<EventId, number>> {
-  return Object.fromEntries(link.events.map((id) => [id, req.partySize]));
+  // No events chosen yet (or settings from before this existed): all events.
+  const events = link.events.length ? link.events : wedding.events.map((e) => e.id);
+  return Object.fromEntries(events.map((id) => [id, req.partySize]));
 }
 
 function phoneTaken(phone: string) {

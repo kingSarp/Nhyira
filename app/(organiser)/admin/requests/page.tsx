@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BulkBar } from "@/components/organiser/BulkBar";
+import { ExpandableRow } from "@/components/organiser/ExpandableRow";
 import { HouseholdActions } from "@/components/organiser/HouseholdActions";
 import { Badge, Icon, Notice } from "@/components/ui";
 import { wedding } from "@/lib/content/wedding";
@@ -23,90 +24,104 @@ const when = (iso: string) =>
 
 const people = (n: number) => `${n} ${n === 1 ? "person" : "people"}`;
 
-/** Small pill buttons for list rows (the big pills are for single actions). */
+/** Small pill buttons for the bulk bar. */
 const rowBtn =
   "inline-flex h-11 items-center rounded-full px-4 text-[15px] font-semibold border transition-colors duration-150";
 const approveCls = `${rowBtn} border-accent bg-accent text-on-accent hover:bg-accent-hover`;
 const declineCls = `${rowBtn} border-border bg-field text-ink hover:bg-panel`;
 
-/** "2 seats, all events" or "2 seats: Church, Reception". */
+/** Round icon buttons for each row: ✓ approve, ✕ decline. */
+const iconBtn = "inline-flex size-11 flex-none items-center justify-center rounded-full border transition-colors duration-150";
+
+/** "2 seats at every event" or "2 seats: Church, Reception". */
 function seatSummary(seats: Partial<Record<string, number>>) {
   const invited = wedding.events.filter((e) => seats[e.id]);
-  if (!invited.length) return "no seats";
+  if (!invited.length) return "No seats";
   const counts = new Set(invited.map((e) => seats[e.id]));
   if (counts.size === 1) {
-    const n = invited[0] && seats[invited[0].id]!;
+    const n = seats[invited[0].id]!;
     const label = `${n} ${n === 1 ? "seat" : "seats"}`;
-    return invited.length === wedding.events.length ? `${label}, all events` : `${label}: ${invited.map((e) => e.shortName).join(", ")}`;
+    return invited.length === wedding.events.length ? `${label} at every event` : `${label}: ${invited.map((e) => e.shortName).join(", ")}`;
   }
   return invited.map((e) => `${e.shortName} ${seats[e.id]}`).join(", ");
 }
 
+/** Columns shared by the header and every row on wide screens. */
+const cols = "lg:grid lg:grid-cols-[minmax(0,1.3fr)_100px_76px_minmax(0,2fr)] lg:gap-x-5";
+
 function RequestRow({ r, link }: { r: JoinRequest; link: SignupLink }) {
   const seats = defaultSeats(r, link);
   return (
-    <li className="grid grid-cols-[28px_1fr] gap-x-3 gap-y-2 border-b border-line py-4 lg:grid-cols-[28px_minmax(220px,1.1fr)_96px_minmax(0,1.6fr)_72px_200px] lg:items-start lg:gap-x-5 lg:px-4 lg:hover:bg-panel">
-      <input
-        type="checkbox"
-        name="ids"
-        value={r.id}
-        aria-label={`Select ${r.name}`}
-        className="mt-1 size-5 accent-accent"
-      />
-
-      <div className="min-w-0">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="m-0 text-[17px] font-normal">{r.name}</h3>
-          <Badge tone="waiting" className="lg:hidden">
-            {people(r.partySize)}
-          </Badge>
-        </div>
-        <p className="m-0 text-[14px] text-ink-2">
-          {[r.side, r.phone].filter(Boolean).join(" · ")}
-          <span className="lg:hidden"> · {when(r.createdAt)}</span>
-        </p>
-        <details className="group mt-1">
-          <summary className="flex min-h-9 cursor-pointer list-none items-center gap-1 text-[14px] text-ink-2 hover:text-ink [&::-webkit-details-marker]:hidden">
-            <Icon name="chevron" size={14} className="transition-transform group-open:rotate-180" />
-            {seatSummary(seats)} · <span className="text-accent underline underline-offset-[3px]">Adjust seats</span>
-          </summary>
-          <div className="mt-2 flex flex-wrap gap-3 bg-panel p-3">
-            {wedding.events.map((e) => (
-              <label key={e.id} className="flex flex-col gap-1 text-[13px] text-ink-2">
-                {e.shortName}
-                <input
-                  type="number"
-                  name={`seats_${r.id}_${e.id}`}
-                  min={0}
-                  max={10}
-                  inputMode="numeric"
-                  defaultValue={seats[e.id] ?? 0}
-                  className="h-10 w-16 rounded-input border border-border bg-field px-2 text-[16px] text-ink focus:border-2 focus:border-accent focus:px-[7px] focus:outline-none"
-                />
-              </label>
-            ))}
-            <p className="m-0 w-full text-[13px] text-ink-2">0 = not invited to that event. Then press Approve.</p>
+    <ExpandableRow
+      label={`details for ${r.name}`}
+      className="lg:px-4 lg:hover:bg-panel"
+      select={<input type="checkbox" name="ids" value={r.id} aria-label={`Select ${r.name}`} className="size-5 accent-accent" />}
+      summary={
+        <span className={`block ${cols} lg:items-center`}>
+          <span className="block min-w-0">
+            <span className="block truncate text-[16px]">{r.name}</span>
+            <span className="block truncate text-[13px] text-ink-2 lg:hidden">
+              {people(r.partySize)} · {when(r.createdAt)}
+              {r.message && " · has a message"}
+            </span>
+            <span className="hidden truncate text-[13px] text-ink-2 lg:block">{r.side ?? r.phone}</span>
+          </span>
+          <span className="hidden text-[15px] lg:block">{people(r.partySize)}</span>
+          <span className="hidden text-[14px] text-ink-2 lg:block">{when(r.createdAt)}</span>
+          <span className="hidden truncate text-[15px] text-ink-2 lg:block">{r.message ? <>&ldquo;{r.message}&rdquo;</> : "—"}</span>
+        </span>
+      }
+      actions={
+        <>
+          <button
+            type="submit"
+            formAction={approveRequest.bind(null, r.id)}
+            aria-label={`Approve ${r.name}`}
+            title="Approve"
+            className={`${iconBtn} border-accent bg-accent text-on-accent hover:bg-accent-hover`}
+          >
+            <Icon name="check" size={20} />
+          </button>
+          <button
+            type="submit"
+            formAction={declineRequest.bind(null, r.id)}
+            aria-label={`Decline ${r.name}`}
+            title="Decline"
+            className={`${iconBtn} border-border bg-field text-ink-2 hover:bg-panel hover:text-ink`}
+          >
+            <Icon name="close" size={18} />
+          </button>
+        </>
+      }
+      panel={
+        <div className="flex flex-col gap-3 bg-panel p-3 text-[15px] lg:flex-row lg:flex-wrap lg:items-start lg:gap-x-10">
+          <div className="flex flex-col gap-1 lg:max-w-[460px]">
+            <p className="m-0 text-ink-2">{[r.side, r.phone].filter(Boolean).join(" · ")}</p>
+            {r.message && <p className="m-0">&ldquo;{r.message}&rdquo;</p>}
           </div>
-        </details>
-      </div>
-
-      <div className="hidden pt-0.5 text-[15px] lg:block">{people(r.partySize)}</div>
-
-      <p className="col-start-2 m-0 line-clamp-2 text-[15px] text-ink lg:col-start-auto">
-        {r.message ? <>&ldquo;{r.message}&rdquo;</> : <span className="hidden text-ink-2 lg:inline">—</span>}
-      </p>
-
-      <div className="hidden pt-0.5 text-[14px] text-ink-2 lg:block">{when(r.createdAt)}</div>
-
-      <div className="col-start-2 flex gap-2 lg:col-start-auto lg:justify-end">
-        <button type="submit" formAction={approveRequest.bind(null, r.id)} className={approveCls}>
-          Approve<span className="sr-only"> {r.name}</span>
-        </button>
-        <button type="submit" formAction={declineRequest.bind(null, r.id)} className={declineCls}>
-          Decline<span className="sr-only"> {r.name}</span>
-        </button>
-      </div>
-    </li>
+          <fieldset className="m-0 border-0 p-0">
+            <legend className="mb-1.5 p-0 text-[14px] text-ink-2">If approved: {seatSummary(seats)}. Change any:</legend>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              {wedding.events.map((e) => (
+                <label key={e.id} className="flex items-center gap-2 text-[14px]">
+                  {e.shortName}
+                  <input
+                    type="number"
+                    name={`seats_${r.id}_${e.id}`}
+                    min={0}
+                    max={10}
+                    inputMode="numeric"
+                    defaultValue={seats[e.id] ?? 0}
+                    className="h-10 w-14 rounded-input border border-border bg-field px-2 text-[16px] text-ink focus:border-2 focus:border-accent focus:px-[7px] focus:outline-none"
+                  />
+                </label>
+              ))}
+            </div>
+            <p className="m-0 mt-1.5 text-[13px] text-ink-2">0 = not invited to that event.</p>
+          </fieldset>
+        </div>
+      }
+    />
   );
 }
 
@@ -135,8 +150,8 @@ export default async function RequestsPage({ searchParams }: PageProps<"/admin/r
       <div className="flex flex-col gap-1">
         <h1 className="type-org-title m-0">Requests</h1>
         <p className="m-0 max-w-[680px] text-ink-2">
-          People who asked for a place through the shared link, oldest first. Approving gives them a personal invitation
-          with the seats shown; adjust before approving if needed.
+          People who asked for a place through the shared link, oldest first. Tap a name for details or to change seats,
+          then ✓ to approve or ✕ to decline. Tick several to do them together.
         </p>
       </div>
 
@@ -206,16 +221,15 @@ export default async function RequestsPage({ searchParams }: PageProps<"/admin/r
                 Decline selected
               </button>
             </BulkBar>
-            <div
-              aria-hidden
-              className="hidden grid-cols-[28px_minmax(220px,1.1fr)_96px_minmax(0,1.6fr)_72px_200px] gap-x-5 border-b-2 border-ink px-4 py-2.5 text-[13px] uppercase tracking-[0.12em] text-ink-2 lg:grid"
-            >
-              <span />
-              <span>Name</span>
-              <span>Asked for</span>
-              <span>Message</span>
-              <span>Asked</span>
-              <span />
+            <div aria-hidden className="hidden items-center gap-3 border-b-2 border-ink px-4 py-2.5 text-[13px] uppercase tracking-[0.12em] text-ink-2 lg:flex">
+              <span className="w-5 flex-none" />
+              <span className={`flex-1 pl-5 ${cols}`}>
+                <span>Name</span>
+                <span>Asked for</span>
+                <span>Asked</span>
+                <span>Message</span>
+              </span>
+              <span className="w-[94px] flex-none text-right">Approve</span>
             </div>
             <ul className="m-0 list-none p-0">
               {pending.map((r) => (
