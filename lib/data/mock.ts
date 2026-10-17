@@ -112,11 +112,29 @@ const seedRequests: JoinRequest[] = [
     decidedAt: null,
     token: null,
   },
+  ...[
+    ["Yaa Asantewaa", "024 555 0001", 2, "Bride's colleagues", "From the bank, Ridge branch."],
+    ["Kwesi Appiah", "020 555 0002", 1, "Groom's friends", null],
+    ["Efia Boakye", "055 555 0003", 3, "Bride's family", "Auntie Lady's side, coming with my two daughters."],
+    ["Nii Armah", "026 555 0004", 1, null, null],
+    ["Akosua Darko", "050 555 0005", 2, "Bride's friends", "Secondary school mates from Wesley Girls."],
+  ].map(([name, phone, partySize, side, message], i) => ({
+    id: `req-00${i + 3}`,
+    name: name as string,
+    phone: phone as string,
+    partySize: partySize as number,
+    side: side as string | null,
+    message: message as string | null,
+    status: "pending" as const,
+    createdAt: `2026-12-0${8 + (i % 2)}T1${i}:05:00Z`,
+    decidedAt: null,
+    token: null,
+  })),
 ];
 
 // Both shared links start switched off.
 const seedLinks: Record<"request" | "open", SignupLink> = {
-  request: { kind: "request", code: "ask-7f3k9q2m", enabled: false, events: [], limit: null, retiredCodes: [] },
+  request: { kind: "request", code: "ask-7f3k9q2m", enabled: false, events: ["engagement", "wedding", "reception"], limit: null, retiredCodes: [] },
   open: { kind: "open", code: "join-4h8w2x6p", enabled: false, events: ["engagement", "wedding", "reception"], limit: null, retiredCodes: [] },
 };
 

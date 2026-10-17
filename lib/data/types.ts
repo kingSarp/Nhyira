@@ -63,7 +63,7 @@ export type SignupLink = {
   /** The secret part of the public URL. "Make a new link" replaces it for good. */
   code: string;
   enabled: boolean;
-  /** Open sign-up only: which events a sign-up gets one seat for. */
+  /** Open sign-up: events a sign-up gets one seat for. Request: events approved guests get by default. */
   events: EventId[];
   /** Open sign-up only: stop after this many sign-ups. null = no limit. */
   limit: number | null;

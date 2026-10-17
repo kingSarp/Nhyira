@@ -62,6 +62,15 @@ export async function updateOpenLink({ events, limit }: { events: EventId[]; lim
   store.links.open.limit = limit;
 }
 
+export async function updateRequestLink({ events }: { events: EventId[] }) {
+  store.links.request.events = events;
+}
+
+/** Seats a request gets if the couple approves without adjusting. */
+export function defaultSeats(req: JoinRequest, link: SignupLink): Partial<Record<EventId, number>> {
+  return Object.fromEntries(link.events.map((id) => [id, req.partySize]));
+}
+
 function phoneTaken(phone: string) {
   const key = phoneKey(phone);
   if (!key) return false;
@@ -92,10 +101,17 @@ export async function createJoinRequest(
   return { ok: true, value: req };
 }
 
-export async function listJoinRequests(status?: RequestStatus): Promise<JoinRequest[]> {
+export async function listJoinRequests(status?: RequestStatus, q?: string): Promise<JoinRequest[]> {
+  const needle = q?.trim().toLowerCase();
   return store.requests
     .filter((r) => !status || r.status === status)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    .filter((r) => !needle || [r.name, r.phone, r.side ?? "", r.message ?? ""].some((v) => v.toLowerCase().includes(needle)))
+    // Oldest first, so nobody waits longest.
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+export async function getJoinRequest(id: string) {
+  return store.requests.find((r) => r.id === id) ?? null;
 }
 
 /** Approving creates a normal personal invitation with the seats the couple set. */

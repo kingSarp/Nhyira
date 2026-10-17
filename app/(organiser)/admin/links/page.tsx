@@ -6,7 +6,7 @@ import { Badge, Button, Notice } from "@/components/ui";
 import { wedding } from "@/lib/content/wedding";
 import { countOpenSignups, getSignupLinks, listJoinRequests, type SignupLink, type SignupLinkKind } from "@/lib/data";
 import { siteUrl } from "@/lib/site";
-import { replaceLink, saveOpenLink, toggleLink } from "../actions";
+import { replaceLink, saveOpenLink, saveRequestLink, toggleLink } from "../actions";
 
 export const metadata: Metadata = { title: "Sign-up links" };
 
@@ -125,7 +125,29 @@ export default async function LinksPage({ searchParams }: PageProps<"/admin/link
           stat={`${pending.length} ${pending.length === 1 ? "request" : "requests"} waiting for you.`}
           confirming={sp.confirm === "request"}
           replaced={sp.replaced === "request"}
-        />
+        >
+          <form action={saveRequestLink} className="flex flex-col gap-4 bg-panel p-4">
+            {sp.saved === "request" && <Notice tone="success" icon="check">Settings saved.</Notice>}
+            <fieldset className="m-0 border-0 p-0">
+              <legend className="type-label mb-1 p-0">Events approved guests are invited to</legend>
+              <p className="m-0 mb-2 text-[14px] text-ink-2">Their seats match the number they asked for. You can still adjust each request.</p>
+              <div className="flex flex-col gap-1">
+                {wedding.events.map((e) => (
+                  <label key={e.id} className="flex min-h-11 items-center gap-3 text-[16px]">
+                    <input type="checkbox" name={`event_${e.id}`} defaultChecked={links.request.events.includes(e.id)} className="size-5 accent-accent" />
+                    {e.name}
+                  </label>
+                ))}
+              </div>
+              {sp.error === "request-events" && <p className="m-0 mt-1 text-[14px] text-error">Choose at least one event.</p>}
+            </fieldset>
+            <div>
+              <Button type="submit" variant="secondary">
+                Save settings
+              </Button>
+            </div>
+          </form>
+        </LinkCard>
 
         <LinkCard
           link={open}

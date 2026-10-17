@@ -16,7 +16,7 @@ A personal invitation per household, opened from a WhatsApp link. Guests see the
 | Request a place | `/request/<code>` | The couple, when approving the request | Yes |
 | Open sign-up, one seat | `/join/<code>` | Fixed: 1 seat per event the couple ticks | Yes, plus an optional sign-up limit |
 
-Both shared links start **off**. "Make a new link" retires the current `<code>` for good (it shows "no longer taking sign-ups" forever) and issues a new one, left off. Approved requests and open sign-ups become ordinary invitations with their own `/i/<token>`, marked `source: "request" | "open"`. A phone number can hold only one invitation or pending request.
+Both shared links start **off**. Requests are approved with default seats (the party size at each event ticked on the request link's settings); "Adjust seats" on a row overrides that for one person, and ticked rows can be approved or declined together. "Make a new link" retires the current `<code>` for good (it shows "no longer taking sign-ups" forever) and issues a new one, left off. Approved requests and open sign-ups become ordinary invitations with their own `/i/<token>`, marked `source: "request" | "open"`. A phone number can hold only one invitation or pending request.
 
 ## 2. Stack
 
@@ -54,7 +54,7 @@ app/
     admin/
       layout.tsx             Header + tabs (Guests · Requests · Sign-up links)
       page.tsx               /admin           Guests: headcount, search, households
-      requests/page.tsx      /admin/requests  Approve (set seats) or decline requests
+      requests/page.tsx      /admin/requests  Compact list: approve/decline per row or in bulk; "Adjust seats" per row
       links/page.tsx         /admin/links     Turn shared links on/off, new link, open-link settings
       actions.ts             Organiser server actions
   styleguide/page.tsx        /styleguide  Tokens + components, dev only
