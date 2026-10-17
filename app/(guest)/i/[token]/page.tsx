@@ -22,9 +22,14 @@ import { submitRsvp } from "./actions";
 export async function generateMetadata({ params }: PageProps<"/i/[token]">): Promise<Metadata> {
   const { token } = await params;
   const invitation = await getInvitation(token);
+  const title = invitation ? `${invitation.greeting ?? invitation.householdName}, you're invited` : "Invitation";
+  const description = `${wedding.coupleNames} would love you to celebrate with them. Tap to see the details and reply.`;
   return {
-    title: invitation ? `${invitation.greeting ?? invitation.householdName}, you're invited` : "Invitation",
+    title,
+    description,
     robots: { index: false, follow: false },
+    openGraph: { title, description, type: "website" },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

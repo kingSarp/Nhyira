@@ -40,6 +40,8 @@ export const wedding = {
   /** After this moment guests can no longer change their reply. */
   rsvpDeadline: "2027-01-31T23:59:59Z",
   contact: { name: "Auntie Efua", phone: "[PHONE NUMBER]" },
+  /** WhatsApp preview card: the couple's photo on the left (true) or the plain cream card (false). */
+  previewWithPhoto: true,
 
   events: [
     {

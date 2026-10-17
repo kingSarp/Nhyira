@@ -31,6 +31,8 @@ Both shared links start **off**. Requests are approved with default seats (the p
 
 No UI kit, no state library, no CSS-in-JS. Add a dependency only when the platform can't do it; say why in the PR.
 
+Dependencies beyond the starter: **sharp** (already installed by Next for image optimisation), used to turn the preview card into a JPEG. `next/og` only outputs PNG, which is ~600 KB for a photo card, and WhatsApp drops preview images much over ~300 KB.
+
 ## 3. Folder layout
 
 ```
@@ -41,13 +43,14 @@ app/
   (guest)/                   data-surface="guest"
     layout.tsx
     page.tsx                 /            Home, save the date
+    opengraph-image.tsx      Generic preview card (home page, shared sign-up links)
     i/[token]/
       page.tsx               /i/[token]   Invite + RSVP (states 1a–1e)
       actions.ts             submitRsvp server action
       not-found.tsx          Invitation not found
     request/[code]/          /request/<code>  Request a place (form, sent, closed)
     join/[code]/             /join/<code>     Open one-seat sign-up (form, full, closed)
-      opengraph-image.tsx    WhatsApp preview card (next phase)
+      opengraph-image.tsx    WhatsApp preview card for this household (JPEG, ~55 KB)
   (organiser)/               data-surface="organiser"
     layout.tsx
     login/page.tsx           /login       Sign in, link sent, expired
@@ -84,6 +87,8 @@ lib/
   households.ts              Dashboard answer lines, WhatsApp message
   site.ts                    Public site URL
   fonts.ts                   next/font/local definitions
+  og.tsx                     Preview-card renderer (next/og → JPEG via sharp)
+assets/og/                   WOFF fonts for the card renderer (it can't read woff2)
   format.ts                  Date and phone formatting (en-GB, Africa/Accra)
   cn.ts                      className joiner
 docs/design/
@@ -157,6 +162,5 @@ Dashboard filters and search are URL search params (`?q=&status=`), so they are 
 1. Supabase project: `invitations` (+ `source`, `sent_at`, unique normalised phone), `join_requests`, `signup_links` (code, enabled, events, limit, retired codes); RLS on with no policies (server-only access). Open sign-up's limit and duplicate-phone checks run in one transaction.
 2. `lib/data` reads Supabase; `submitRsvp` server action with validation against seat limits.
 3. Email magic-link auth for `/admin`, allowlist from `ADMIN_EMAILS`, session refresh in `proxy.ts`.
-4. `opengraph-image.tsx` per household.
-5. **Photo uploads from the dashboard** (admin only): Supabase Storage bucket, an upload screen under `/admin/photos`, and `lib/content` image slots read from the bucket instead of `public/images/`. The current photos are stand-ins until then.
-6. Deploy to Vercel, run the 15–20 household validation test.
+4. **Photo uploads from the dashboard** (admin only): Supabase Storage bucket, an upload screen under `/admin/photos`, and `lib/content` image slots read from the bucket instead of `public/images/`. The current photos are stand-ins until then.
+5. Deploy to Vercel (set `NEXT_PUBLIC_SITE_URL` so preview cards and links use the live address), run the 15–20 household validation test.
