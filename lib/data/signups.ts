@@ -4,6 +4,7 @@ import type postgres from "postgres";
 import { wedding, type EventId } from "@/lib/content/wedding";
 import { db, isUniqueViolation } from "@/lib/db";
 import { newToken, phoneKey } from "./ids";
+import { getWedding } from "./wedding";
 import {
   invitationColumns,
   toInvitation,
@@ -208,7 +209,8 @@ export async function registerOpenSignup(
   }
 }
 
-/** Events covered by the open link, in wedding order. */
-export function openLinkEvents(link: SignupLink) {
-  return wedding.events.filter((e) => link.events.includes(e.id));
+/** Events covered by the open link, in wedding order, with their details. */
+export async function openLinkEvents(link: SignupLink) {
+  const { events } = await getWedding();
+  return events.filter((e) => link.events.includes(e.id));
 }

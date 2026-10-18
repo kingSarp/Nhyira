@@ -55,16 +55,50 @@ insert into signup_links (kind, code) values
   ('open', 'join-' || substr(replace(gen_random_uuid()::text, '-', ''), 1, 10))
 on conflict (kind) do nothing;
 
+-- What organisers edit on /admin/details (names, dates, venues, times, dress
+-- colours, contact, RSVP deadline, story photo links). One row; the shape is
+-- validated in code (lib/wedding.ts). No row yet means the code defaults.
+create table if not exists wedding_details (
+  id         smallint primary key default 1 check (id = 1),
+  details    jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
 -- The site reads and writes these tables only from its server, as the database
 -- owner. Row level security with no policies means the public API keys
 -- (publishable / anon) can't see or change anything.
 alter table invitations enable row level security;
 alter table join_requests enable row level security;
 alter table signup_links enable row level security;
+alter table wedding_details enable row level security;
 
 do $$
 begin
   if exists (select 1 from pg_roles where rolname = 'anon') then
-    revoke all on invitations, join_requests, signup_links from anon, authenticated;
+    revoke all on invitations, join_requests, signup_links, wedding_details from anon, authenticated;
+  end if;
+end $$;
+
+-- Photos organisers upload (story photos), in Supabase Storage. Anyone can
+-- view them (they're on the invitations); only signed-in organisers can add or
+-- remove them. Organisers are the only accounts, because sign-ups are off
+-- (see lib/auth.ts). The site re-encodes every upload as a JPEG under 4 MB.
+do $$
+begin
+  if exists (select 1 from pg_namespace where nspname = 'storage') then
+    insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+    values ('wedding-photos', 'wedding-photos', true, 4194304, array['image/jpeg'])
+    on conflict (id) do update
+      set public = true, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+
+    drop policy if exists "Organisers read wedding photos" on storage.objects;
+    drop policy if exists "Organisers add wedding photos" on storage.objects;
+    drop policy if exists "Organisers remove wedding photos" on storage.objects;
+    create policy "Organisers read wedding photos" on storage.objects
+      for select to authenticated using (bucket_id = 'wedding-photos');
+    create policy "Organisers add wedding photos" on storage.objects
+      for insert to authenticated with check (bucket_id = 'wedding-photos');
+    create policy "Organisers remove wedding photos" on storage.objects
+      for delete to authenticated using (bucket_id = 'wedding-photos');
   end if;
 end $$;

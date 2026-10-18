@@ -14,7 +14,8 @@ import {
   TextArea,
   TextField,
 } from "@/components/ui";
-import { wedding } from "@/lib/content/wedding";
+import { getWedding } from "@/lib/data";
+import type { Wedding } from "@/lib/wedding";
 import { dotDate } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Styleguide", robots: { index: false, follow: false } };
@@ -43,7 +44,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function Surface({ name }: { name: "guest" | "organiser" }) {
+function Surface({ name, w }: { name: "guest" | "organiser"; w: Wedding }) {
   const guest = name === "guest";
   return (
     <div data-surface={name} className="flex min-w-0 flex-1 flex-col gap-8 px-5 py-10 sm:px-8">
@@ -69,8 +70,8 @@ function Surface({ name }: { name: "guest" | "organiser" }) {
       <Section title="Type">
         {guest ? (
           <div className="flex flex-col gap-4">
-            <CoupleNames size="hero" stacked as="p" />
-            <p className="type-dateline m-0">{dotDate(wedding.date)}</p>
+            <CoupleNames partners={w.partners} size="hero" stacked as="p" />
+            <p className="type-dateline m-0">{dotDate(w.date)}</p>
             <p className="type-greeting m-0">Kwame &amp; Ama</p>
             <p className="type-title m-0">Will you join us?</p>
             <p className="type-event m-0">The Reception</p>
@@ -81,7 +82,7 @@ function Surface({ name }: { name: "guest" | "organiser" }) {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <p className="m-0 font-script text-[44px] leading-tight">{wedding.coupleNames}</p>
+            <p className="m-0 font-script text-[44px] leading-tight">{w.coupleNames}</p>
             <p className="type-org-title m-0">Guest list sign in</p>
             <p className="m-0 text-[18px]">12 of 40 households have replied</p>
             <p className="type-stat m-0">
@@ -181,9 +182,9 @@ function Surface({ name }: { name: "guest" | "organiser" }) {
         <Section title="Photo with scrim and caption">
           <figure className="m-0">
             <Photo
-              src={wedding.images.hero.src}
-              alt={wedding.images.hero.alt}
-              focus={wedding.images.hero.focus}
+              src={w.images.couple.src}
+              alt={w.images.couple.alt}
+              focus={w.images.couple.focus}
               sizes="(min-width: 1024px) 50vw, 100vw"
               scrimHeight="45%"
               className="h-[360px]"
@@ -197,14 +198,15 @@ function Surface({ name }: { name: "guest" | "organiser" }) {
   );
 }
 
-export default function StyleguidePage() {
+export default async function StyleguidePage() {
   if (process.env.VERCEL_ENV === "production") notFound();
+  const w = await getWedding();
 
   return (
     <main className="flex min-h-dvh flex-col lg:flex-row">
       <h1 className="sr-only">Nhyira styleguide</h1>
-      <Surface name="guest" />
-      <Surface name="organiser" />
+      <Surface name="guest" w={w} />
+      <Surface name="organiser" w={w} />
     </main>
   );
 }

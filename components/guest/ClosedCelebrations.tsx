@@ -1,6 +1,7 @@
 import { cn } from "@/lib/cn";
 import type { Invitation } from "@/lib/data/types";
 import { shortDate } from "@/lib/format";
+import { displayTime } from "@/lib/wedding";
 import { DressColours, MapLink, type InvitedEvent } from "./EventList";
 
 /** After replies close: each event with who is going, or "Not attending". */
@@ -19,12 +20,12 @@ export function ClosedCelebrations({ events, invitation }: { events: InvitedEven
               <h3 className={cn("m-0 font-display text-[28px] font-normal leading-tight", declined && "text-ink-2")}>{e.name}</h3>
               {declined ? (
                 <p className="type-meta m-0">
-                  {shortDate(e.date)} · {e.time} · Not attending
+                  {shortDate(e.date)} · {displayTime(e.time)} · Not attending
                 </p>
               ) : (
                 <>
                   <p className="type-meta m-0">
-                    {shortDate(e.date)} · {e.time}
+                    {shortDate(e.date)} · {displayTime(e.time)}
                     <br />
                     {e.venue} · <MapLink event={e} />
                   </p>

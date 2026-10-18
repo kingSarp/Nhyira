@@ -4,8 +4,7 @@ import { HeadcountCards } from "@/components/organiser/HeadcountCards";
 import { HouseholdList } from "@/components/organiser/HouseholdList";
 import { adminHref, FILTERS, SearchAndFilters, type StatusFilter } from "@/components/organiser/SearchAndFilters";
 import { Button, Icon, Notice } from "@/components/ui";
-import { wedding } from "@/lib/content/wedding";
-import { getHeadcount, getInvitation, listHouseholds } from "@/lib/data";
+import { getHeadcount, getInvitation, listHouseholds, getWedding } from "@/lib/data";
 import { longDate } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -36,7 +35,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
         <h1 className="sr-only">Guests</h1>
         <p className="m-0 text-[18px] lg:text-[19px]">
           {replied} of {all.length} households have replied
-          <span className="hidden lg:inline"> · RSVP closes {longDate(wedding.rsvpDeadline)}</span>
+          <span className="hidden lg:inline"> · RSVP closes {longDate((await getWedding()).rsvpDeadline)}</span>
         </p>
       </div>
 

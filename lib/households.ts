@@ -1,4 +1,5 @@
 import { wedding, type EventId } from "@/lib/content/wedding";
+import type { Wedding } from "@/lib/wedding";
 import type { Invitation } from "@/lib/data/types";
 import { siteUrl } from "@/lib/site";
 import { toWhatsAppNumber } from "@/lib/format";
@@ -31,28 +32,28 @@ export function inviteUrl(token: string) {
 }
 
 /** The prefilled WhatsApp message for a household. `reminder` for a gentle nudge. */
-export function inviteMessage(inv: Invitation, kind: "invite" | "reminder" = "invite") {
+export function inviteMessage(w: Pick<Wedding, "coupleNames">, inv: Invitation, kind: "invite" | "reminder" = "invite") {
   const name = inv.greeting ?? inv.householdName;
   if (kind === "reminder") {
     return (
       `Dear ${name},\n\n` +
-      `A gentle reminder from ${wedding.coupleNames}: we'd love to know if you can join us. ` +
+      `A gentle reminder from ${w.coupleNames}: we'd love to know if you can join us. ` +
       `It takes a minute to reply here:\n\n` +
       inviteUrl(inv.token)
     );
   }
   return (
     `Dear ${name},\n\n` +
-    `${wedding.coupleNames} warmly invite you to celebrate their wedding with them. ` +
+    `${w.coupleNames} warmly invite you to celebrate their wedding with them. ` +
     `Please open your personal invitation and let us know if you can come:\n\n` +
     inviteUrl(inv.token)
   );
 }
 
 /** wa.me link with the message filled in, or null when there's no usable number. */
-export function whatsappUrl(inv: Invitation, kind: "invite" | "reminder" = "invite") {
+export function whatsappUrl(w: Pick<Wedding, "coupleNames">, inv: Invitation, kind: "invite" | "reminder" = "invite") {
   const wa = toWhatsAppNumber(inv.phone);
-  return wa ? `https://wa.me/${wa}?text=${encodeURIComponent(inviteMessage(inv, kind))}` : null;
+  return wa ? `https://wa.me/${wa}?text=${encodeURIComponent(inviteMessage(w, inv, kind))}` : null;
 }
 
 /** "Church 2 · Reception 2" */

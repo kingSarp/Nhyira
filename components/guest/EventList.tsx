@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { DressColour, WeddingEvent } from "@/lib/content/wedding";
+import type { DressColour } from "@/lib/content/wedding";
 import { shortDate } from "@/lib/format";
+import { displayTime, type WeddingEvent } from "@/lib/wedding";
 
 export type InvitedEvent = WeddingEvent & { seats: number };
 
@@ -48,7 +49,7 @@ export function EventList({ events }: { events: InvitedEvent[] }) {
               <Badge tone="seats">Admits {e.seats}</Badge>
             </div>
             <p className="type-meta m-0">
-              {shortDate(e.date)} · {e.time}
+              {shortDate(e.date)} · {displayTime(e.time)}
               <br />
               {e.venue} · <MapLink event={e} />
             </p>

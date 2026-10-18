@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SendNext } from "@/components/organiser/SendNext";
 import { Badge, FilterChip, Notice, statusLabel } from "@/components/ui";
-import { listHouseholds } from "@/lib/data";
+import { listHouseholds, getWedding } from "@/lib/data";
 import { toWhatsAppNumber } from "@/lib/format";
 import { inviteMessage, seatLine } from "@/lib/households";
 
@@ -67,7 +67,7 @@ export default async function SendPage({ searchParams }: PageProps<"/admin/send"
 
           <figure className="m-0 flex flex-col gap-1.5">
             <figcaption className="type-label text-ink-2">Message</figcaption>
-            <blockquote className="m-0 whitespace-pre-line bg-panel p-4 text-[15px]">{inviteMessage(current, kind)}</blockquote>
+            <blockquote className="m-0 whitespace-pre-line bg-panel p-4 text-[15px]">{inviteMessage(await getWedding(), current, kind)}</blockquote>
           </figure>
 
           <div className="flex flex-wrap items-center gap-4">

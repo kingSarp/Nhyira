@@ -2,11 +2,13 @@ import "server-only";
 import { wedding, type EventId } from "@/lib/content/wedding";
 import { db } from "@/lib/db";
 import { invitationColumns, toInvitation, type InvitationRow } from "./rows";
+import { getWedding } from "./wedding";
 import type { EventResponse, Headcount, Household, Invitation, ReplyStatus } from "./types";
 
 export type * from "./types";
 export * from "./signups";
 export * from "./households";
+export * from "./wedding";
 export { getOrganiser } from "@/lib/auth";
 
 // The only data API screens may call. Postgres (Supabase) on the server.
@@ -82,12 +84,12 @@ export async function getHeadcount(): Promise<Headcount[]> {
 }
 
 /** The events this household is invited to, with its seat limit for each. */
-export function invitedEvents(inv: Invitation) {
-  return wedding.events
-    .map((event) => ({ ...event, seats: inv.seats[event.id as EventId] ?? 0 }))
-    .filter((event) => event.seats > 0);
+export async function invitedEvents(inv: Invitation) {
+  const { events } = await getWedding();
+  return events.map((event) => ({ ...event, seats: inv.seats[event.id] ?? 0 })).filter((event) => event.seats > 0);
 }
 
-export function rsvpOpen(now = new Date()) {
-  return now.getTime() <= new Date(wedding.rsvpDeadline).getTime();
+export async function rsvpOpen(now = new Date()) {
+  const { rsvpClosesAt } = await getWedding();
+  return now.getTime() <= rsvpClosesAt.getTime();
 }

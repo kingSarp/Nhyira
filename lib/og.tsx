@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import sharp from "sharp";
 import { wedding } from "@/lib/content/wedding";
+import { getWedding } from "@/lib/data";
 import { dotDate } from "@/lib/format";
 
 // The WhatsApp / link preview card (design boards "6 · WhatsApp preview").
@@ -30,7 +31,7 @@ const loaded = Promise.all([
   asset("assets/og/great-vibes-latin-400-normal.woff"),
   asset("assets/og/source-serif-4-latin-400-normal.woff"),
   asset(join("public", wedding.images.roses.src)),
-  asset(join("public", wedding.images.hero.src)).catch(() => null),
+  asset(join("public", wedding.images.couple.src)).catch(() => null),
 ]).then(([corLight, corItalic, vibes, serif, roses, hero]) => ({
   fonts: [
     { name: "Cormorant", data: corLight, weight: 300 as const, style: "italic" as const },
@@ -42,8 +43,7 @@ const loaded = Promise.all([
   hero: hero ? `data:image/jpeg;base64,${hero.toString("base64")}` : null,
 }));
 
-function Names({ size }: { size: number }) {
-  const [a, b] = wedding.partners;
+function Names({ partners: [a, b], size }: { partners: readonly [string, string]; size: number }) {
   return (
     <div style={{ display: "flex", alignItems: "baseline", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 300, fontSize: size, lineHeight: 1, color: C.accent }}>
       <span>{a}</span>
@@ -58,14 +58,14 @@ function Names({ size }: { size: number }) {
  * generic card on the home page.
  */
 export async function inviteCard({ who, withPhoto = true }: { who?: string; withPhoto?: boolean }) {
-  const { fonts, roses, hero } = await loaded;
+  const [{ fonts, roses, hero }, w] = await Promise.all([loaded, getWedding()]);
   const photo = withPhoto ? hero : null;
   const lead = who ? [`${who},`, "you're invited to the wedding of"] : ["You're invited to the wedding of"];
 
   const png = new ImageResponse(
     photo ? (
       <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", background: C.paper, fontFamily: "Serif", color: C.ink }}>
-        <img src={photo} alt="" width={500} height={630} style={{ width: 500, height: 630, objectFit: "cover", objectPosition: wedding.images.hero.focus }} />
+        <img src={photo} alt="" width={500} height={630} style={{ width: 500, height: 630, objectFit: "cover", objectPosition: wedding.images.couple.focus }} />
         <img src={roses} alt="" width={220} height={253} style={{ position: "absolute", right: -10, bottom: -30, width: 220, height: 253 }} />
         <div style={{ position: "absolute", left: 540, top: 40, width: 600, height: 550, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
           <div style={{ display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 400, fontSize: who && who.length > 30 ? 26 : 30, lineHeight: 1.3, color: C.ink2, maxWidth: 580, textAlign: "center", flexDirection: "column", alignItems: "center" }}>
@@ -74,9 +74,9 @@ export async function inviteCard({ who, withPhoto = true }: { who?: string; with
             ))}
           </div>
           <div style={{ display: "flex", marginTop: 18 }}>
-            <Names size={110} />
+            <Names partners={w.partners} size={110} />
           </div>
-          <div style={{ display: "flex", marginTop: 22, fontSize: 22, letterSpacing: 6.6 }}>{dotDate(wedding.date)}</div>
+          <div style={{ display: "flex", marginTop: 22, fontSize: 22, letterSpacing: 6.6 }}>{dotDate(w.date)}</div>
         </div>
       </div>
     ) : (
@@ -91,9 +91,9 @@ export async function inviteCard({ who, withPhoto = true }: { who?: string; with
             ))}
           </div>
           <div style={{ display: "flex", marginTop: 16 }}>
-            <Names size={124} />
+            <Names partners={w.partners} size={124} />
           </div>
-          <div style={{ display: "flex", marginTop: 24, fontSize: 22, letterSpacing: 6.6 }}>{dotDate(wedding.date)}</div>
+          <div style={{ display: "flex", marginTop: 24, fontSize: 22, letterSpacing: 6.6 }}>{dotDate(w.date)}</div>
         </div>
       </div>
     ),

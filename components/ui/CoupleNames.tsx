@@ -1,5 +1,4 @@
 import { cn } from "@/lib/cn";
-import { wedding } from "@/lib/content/wedding";
 
 const sizes = {
   hero: { name: "text-[68px] leading-[0.95]", amp: "text-[52px]" },
@@ -10,19 +9,22 @@ const sizes = {
 /**
  * The couple's names ("Kay & Ama") in italic Cormorant with a Great Vibes ampersand.
  * `stacked` puts the second name on its own line, as on the hero.
+ * `partners` comes from getWedding().
  */
 export function CoupleNames({
+  partners,
   size = "lg",
   stacked,
   as: Tag = "span",
   className,
 }: {
+  partners: readonly [string, string];
   size?: keyof typeof sizes;
   stacked?: boolean;
   as?: "h1" | "h2" | "p" | "span";
   className?: string;
 }) {
-  const [a, b] = wedding.partners;
+  const [a, b] = partners;
   const s = sizes[size];
   return (
     <Tag className={cn("m-0 font-display font-light italic", s.name, className)}>

@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 
-/** Guests · Requests · Sign-up links. The active tab gets a 2px underline. */
+/** Guests · Requests · Sign-up links · Wedding details. The active tab gets a 2px underline. */
 export function AdminTabs({ pending }: { pending: number }) {
   const path = usePathname();
   const tabs = [
     { href: "/admin", label: "Guests" },
     { href: "/admin/requests", label: "Requests", count: pending },
     { href: "/admin/links", label: "Sign-up links" },
+    { href: "/admin/details", label: "Wedding details" },
   ];
   return (
     <nav aria-label="Dashboard" className="-mx-5 overflow-x-auto border-b border-line px-5 lg:mx-0 lg:px-0">

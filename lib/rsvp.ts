@@ -1,4 +1,4 @@
-import type { EventId, WeddingEvent } from "@/lib/content/wedding";
+import type { EventDef, EventId } from "@/lib/content/wedding";
 import type { EventResponse } from "@/lib/data/types";
 
 // RSVP form contract, shared by the form (field names) and the server action
@@ -7,7 +7,7 @@ import type { EventResponse } from "@/lib/data/types";
 //   names_<eventId>     = one input per seat, in order
 //   note                = optional message
 
-export type RsvpEvent = Pick<WeddingEvent, "id" | "name"> & { seats: number };
+export type RsvpEvent = Pick<EventDef, "id" | "name"> & { seats: number };
 
 export type RsvpValues = {
   answers: Partial<Record<EventId, "yes" | "no">>;

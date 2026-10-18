@@ -6,7 +6,7 @@ import { duplicateMessage, parseOpenSignup, type SignupState } from "@/lib/signu
 
 export async function submitOpenSignup(code: string, _prev: SignupState, form: FormData): Promise<SignupState> {
   const { link } = await resolveSignupLink("open", code);
-  const { values, errors, attending } = parseOpenSignup(form, openLinkEvents(link));
+  const { values, errors, attending } = parseOpenSignup(form, await openLinkEvents(link));
   if (errors) return { status: "invalid", values, errors };
 
   const result = await registerOpenSignup(code, { name: values.name, phone: values.phone, attending });

@@ -67,6 +67,7 @@ app/
       send/[token]/route.ts  Records "sent", then redirects to wa.me
       requests/page.tsx      /admin/requests  Inbox list: one line per request, ✓/✕ per row, bulk approve/decline; tap a name for details and seats
       links/page.tsx         /admin/links     Turn shared links on/off, new link, open-link settings
+      details/page.tsx       /admin/details   Edit names, dates, venues, times, dress colours, contact, deadline, story photos
       actions.ts             Organiser server actions
     auth/confirm/route.ts    /auth/confirm  Where the password-reset email link lands
   styleguide/page.tsx        /styleguide  Tokens + components, dev only
@@ -78,7 +79,9 @@ components/
   organiser/                 Dashboard sections (HeadcountCards, HouseholdList…)
   dev/                       Styleguide and screen stubs. Not used by real screens.
 lib/
-  content/wedding.ts         Couple, events, story photos, contact, deadline. Edit per wedding.
+  content/wedding.ts         Fixed structure (event ids/names) and starting values for the editable details
+  wedding.ts                 Stored details → what screens use (toWedding, normaliseDetails)
+  wedding-form.ts            /admin/details field names, parsing, validation
   data/
     types.ts                 Invitation, EventResponse, Household, Headcount
     index.ts                 The data API screens call (getInvitation, listHouseholds…)
@@ -130,8 +133,9 @@ They query Postgres directly from the server as the database owner (`DATABASE_UR
 | `invitations` | One row per household: seats and responses as JSON keyed by event id, `source`, `sent_at` |
 | `join_requests` | "Request a place" submissions; `token` links to the invitation made on approval |
 | `signup_links` | The two shared links: code, on/off, events, limit, retired codes |
+| `wedding_details` | One row: the editable wedding details as JSON (see `WeddingDetails`) |
 
-Wedding content (names, events, venues, dress colours, story photos, deadline) is static config in `lib/content/wedding.ts`, not data. Each event has an `id` that matches the keys of a household's `seats`.
+Wedding details (names, date, city, each event's date/time/venue/map link/dress colours, contact, RSVP deadline, story photos) are data: one row in `wedding_details`, edited on `/admin/details`, validated by `lib/wedding-form.ts` and read with `getWedding()` (once per request, merged over the defaults in `lib/content/wedding.ts`, so a missing or old row still renders). The three events themselves are fixed in code: each `id` matches the keys of a household's `seats`. Story photos are in the public `wedding-photos` Supabase Storage bucket; the row stores their URL and object path. Uploads are shrunk in the browser, re-encoded as JPEG with sharp on the server and written with the organiser's own session (bucket policies in `db/schema.sql` allow only signed-in users to write).
 
 ## 6. Screen states
 
@@ -159,7 +163,7 @@ Dashboard filters and search are URL search params (`?q=&status=`), so they are 
 ## 7. Conventions
 
 - **Tokens only.** No hex values or arbitrary colours in components; use `bg-paper`, `text-ink-2`, `border-border` and the `type-*` utilities. New token → add to `docs/design/tokens.json` and `globals.css` together.
-- **Copy** lives in the component that shows it, except wedding-specific facts, which come from `lib/content/wedding.ts`. Unknown facts are `[PLACEHOLDER]`, never invented.
+- **Copy** lives in the component that shows it, except wedding-specific facts, which come from `getWedding()`. Never invent them.
 - **Accessibility:** real `<button>`, `<a>`, `<label>`; fieldsets with legends for each event; errors linked by `aria-describedby`; focus visible; tap targets ≥ 44px; one `<h1>` per page.
 - **Dates** render in `en-GB`, timezone `Africa/Accra` (`lib/format.ts`).
 - **Files:** components in PascalCase files, one component per file, named exports. Pages default-export.
@@ -173,7 +177,6 @@ Dashboard filters and search are URL search params (`?q=&status=`), so they are 
 
 ## 9. Next
 
-Done: Supabase tables, `lib/data` on Postgres, email + password sign-in.
+Done: Supabase tables, `lib/data` on Postgres, email + password sign-in, wedding details and story photos editable from the dashboard.
 
-1. **Photo uploads from the dashboard** (admin only): Supabase Storage bucket, an upload screen under `/admin/photos`, and `lib/content` image slots read from the bucket instead of `public/images/`. The current photos are stand-ins until then.
-2. Deploy to Vercel (set `DATABASE_URL`, the Supabase keys and `NEXT_PUBLIC_SITE_URL`, so preview cards and links use the live address), run the 15–20 household validation test.
+1. Deploy to Vercel (set `DATABASE_URL`, the Supabase keys and `NEXT_PUBLIC_SITE_URL`, so preview cards and links use the live address), run the 15–20 household validation test.

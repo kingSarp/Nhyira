@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
 import { OpenSignupForm } from "@/components/guest/SignupForms";
 import { SignupClosed, SignupShell } from "@/components/guest/SignupShell";
-import { openLinkEvents, resolveSignupLink } from "@/lib/data";
-import { wedding } from "@/lib/content/wedding";
+import { getWedding, openLinkEvents, resolveSignupLink } from "@/lib/data";
 import { longDate, shortDate } from "@/lib/format";
+import { displayTime } from "@/lib/wedding";
 import { submitOpenSignup } from "./actions";
 
 // This is the link that gets shared on WhatsApp, so the title and description
 // are what people read under the preview card.
-export const metadata: Metadata = {
-  title: { absolute: `${wedding.coupleNames} are getting married` },
-  description: `Sign up to celebrate with us on ${longDate(wedding.date)}. One person per sign-up.`,
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const w = await getWedding();
+  return {
+    title: { absolute: `${w.coupleNames} are getting married` },
+    description: `Sign up to celebrate with us on ${longDate(w.date)}. One person per sign-up.`,
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function JoinPage({ params }: PageProps<"/join/[code]">) {
   const { code } = await params;
@@ -33,10 +36,10 @@ export default async function JoinPage({ params }: PageProps<"/join/[code]">) {
     );
   }
 
-  const events = openLinkEvents(link).map((e) => ({
+  const events = (await openLinkEvents(link)).map((e) => ({
     id: e.id,
     name: e.name,
-    when: `${shortDate(e.date)} · ${e.time} · ${e.venue}`,
+    when: `${shortDate(e.date)} · ${displayTime(e.time)} · ${e.venue}`,
   }));
 
   return (

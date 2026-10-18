@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getInvitation, getOrganiser, markSent } from "@/lib/data";
+import { getInvitation, getOrganiser, markSent, getWedding } from "@/lib/data";
 import { whatsappUrl } from "@/lib/households";
 
 /**
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/admin/send/[
   const { token } = await ctx.params;
   const kind = request.nextUrl.searchParams.get("kind") === "reminder" ? "reminder" : "invite";
   const inv = await getInvitation(token);
-  const url = inv ? whatsappUrl(inv, kind) : null;
+  const url = inv ? whatsappUrl(await getWedding(), inv, kind) : null;
   if (!inv || !url) return NextResponse.redirect(new URL(`/admin/guests/${token}`, request.url));
   await markSent(token);
   return NextResponse.redirect(url);

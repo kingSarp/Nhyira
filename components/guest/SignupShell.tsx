@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { CoupleNames } from "@/components/ui";
+import { getWedding } from "@/lib/data";
 import { ContactLine } from "./ContactLine";
 import { GuestPage } from "./GuestPage";
 import { HeroPhoto } from "./HeroPhoto";
@@ -36,10 +37,11 @@ export function SignupShell({
 }
 
 /** The link is off, replaced, full or mistyped. */
-export function SignupClosed({ title, children }: { title: string; children: ReactNode }) {
+export async function SignupClosed({ title, children }: { title: string; children: ReactNode }) {
+  const { partners } = await getWedding();
   return (
     <main className="relative mx-auto flex min-h-dvh w-full max-w-[520px] flex-col items-center justify-center gap-[22px] overflow-hidden px-9 text-center">
-      <CoupleNames size="md" as="p" className="text-[56px] text-accent" />
+      <CoupleNames partners={partners} size="md" as="p" className="text-[56px] text-accent" />
       <h1 className="type-title m-0 text-[30px] leading-tight">{title}</h1>
       <p className="m-0 text-[16px] text-ink-2">{children}</p>
       <ContactLine lead="Need help?" className="mt-2 text-[15px] text-ink-2" />

@@ -1,11 +1,12 @@
 import { Photo } from "@/components/ui";
-import { wedding } from "@/lib/content/wedding";
+import { getWedding } from "@/lib/data";
 import { ContactLine } from "./ContactLine";
 import { fullColumn } from "./sizes";
 
-export function ClosingPhoto() {
-  const img = wedding.images.closing;
-  const [a, b] = wedding.monogram;
+export async function ClosingPhoto() {
+  const w = await getWedding();
+  const img = w.images.roseBreak;
+  const [a, b] = w.monogram;
   return (
     <footer>
       <Photo src={img.src} alt={img.alt} focus={img.focus} sizes={fullColumn} scrimHeight="55%" className="h-[560px]">

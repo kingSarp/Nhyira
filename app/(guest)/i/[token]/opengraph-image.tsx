@@ -3,7 +3,7 @@ import { inviteCard, ogSize } from "@/lib/og";
 import { wedding } from "@/lib/content/wedding";
 
 // The card WhatsApp shows before the guest taps their personal link.
-export const alt = `Wedding invitation from ${wedding.coupleNames}`;
+export const alt = "Your wedding invitation";
 export const size = ogSize;
 export const contentType = "image/jpeg";
 

@@ -3,8 +3,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { CopyLink } from "@/components/organiser/CopyLink";
 import { Badge, Button, Notice } from "@/components/ui";
-import { wedding } from "@/lib/content/wedding";
-import { countOpenSignups, getSignupLinks, listJoinRequests, type SignupLink, type SignupLinkKind } from "@/lib/data";
+import { EVENTS } from "@/lib/content/wedding";
+import { countOpenSignups, getWedding, getSignupLinks, listJoinRequests, type SignupLink, type SignupLinkKind } from "@/lib/data";
 import { siteUrl } from "@/lib/site";
 import { replaceLink, saveOpenLink, saveRequestLink, toggleLink } from "../actions";
 
@@ -12,13 +12,13 @@ export const metadata: Metadata = { title: "Sign-up links" };
 
 const path = { request: "request", open: "join" } as const;
 
-function shareText(kind: SignupLinkKind, url: string) {
+function shareText(coupleNames: string, kind: SignupLinkKind, url: string) {
   return kind === "request"
-    ? `${wedding.coupleNames} are getting married! If you'd like to join us, request a place here: ${url}`
-    : `${wedding.coupleNames} are getting married! Sign up here to celebrate with us (one person per sign-up): ${url}`;
+    ? `${coupleNames} are getting married! If you'd like to join us, request a place here: ${url}`
+    : `${coupleNames} are getting married! Sign up here to celebrate with us (one person per sign-up): ${url}`;
 }
 
-function LinkCard({
+async function LinkCard({
   link,
   title,
   description,
@@ -64,7 +64,7 @@ function LinkCard({
           </Button>
         </form>
         {link.enabled && (
-          <Button variant="whatsapp" href={`https://wa.me/?text=${encodeURIComponent(shareText(link.kind, url))}`} external>
+          <Button variant="whatsapp" href={`https://wa.me/?text=${encodeURIComponent(shareText((await getWedding()).coupleNames, link.kind, url))}`} external>
             Share on WhatsApp
           </Button>
         )}
@@ -132,7 +132,7 @@ export default async function LinksPage({ searchParams }: PageProps<"/admin/link
               <legend className="type-label mb-1 p-0">Events approved guests are invited to</legend>
               <p className="m-0 mb-2 text-[14px] text-ink-2">Their seats match the number they asked for. You can still adjust each request.</p>
               <div className="flex flex-col gap-1">
-                {wedding.events.map((e) => (
+                {EVENTS.map((e) => (
                   <label key={e.id} className="flex min-h-11 items-center gap-3 text-[16px]">
                     <input type="checkbox" name={`event_${e.id}`} defaultChecked={links.request.events.includes(e.id)} className="size-5 accent-accent" />
                     {e.name}
@@ -162,7 +162,7 @@ export default async function LinksPage({ searchParams }: PageProps<"/admin/link
             <fieldset className="m-0 border-0 p-0">
               <legend className="type-label mb-2 p-0">Events a sign-up can attend</legend>
               <div className="flex flex-col gap-1">
-                {wedding.events.map((e) => (
+                {EVENTS.map((e) => (
                   <label key={e.id} className="flex min-h-11 items-center gap-3 text-[16px]">
                     <input type="checkbox" name={`event_${e.id}`} defaultChecked={open.events.includes(e.id)} className="size-5 accent-accent" />
                     {e.name}

@@ -38,7 +38,7 @@ npm run build   # must pass before you call anything done
 - **Forms work without JavaScript.** Native `<form>`, `<label>`, `<fieldset>`/`<legend>`, radio inputs.
 - **Accessibility is part of done:** visible focus, ≥ 44px targets, errors linked with `aria-describedby`, one `<h1>` per page, meaning never by colour alone.
 - **Mobile first:** check 360px and 390px; dashboard also at 1280px.
-- **No invented content.** Wedding facts come from `lib/content/wedding.ts`; unknowns are `[PLACEHOLDER]`.
+- **No invented content.** Wedding facts (names, dates, venues, times, dress colours, contact, deadline, story photos) are edited on `/admin/details` and read with `getWedding()`; `lib/content/wedding.ts` holds the fixed structure and starting values. Never hard-code them in a screen.
 - **No new dependencies** without saying why the platform can't do it.
 - Don't edit `docs/design/source/` (reference only) or `app/fonts/` (self-hosted, OFL).
 

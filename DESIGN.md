@@ -115,7 +115,7 @@ Couple photos live in `public/images/`. They are **stand-ins** from the design c
 - Add shadows, gradients (except the photo scrim) or rounded cards.
 - Use `line` or `border` colours for text.
 - Use Inter, Geist or system UI fonts.
-- Invent copy, numbers or names; use `[PLACEHOLDER]` and add it to `lib/content/wedding.ts`.
+- Invent copy, numbers or names; wedding facts come from `getWedding()` (edited on `/admin/details`).
 
 ## 8. Screen map (R1)
 

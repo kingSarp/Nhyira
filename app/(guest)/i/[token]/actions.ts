@@ -8,10 +8,10 @@ export async function submitRsvp(token: string, _prev: RsvpState, form: FormData
   const invitation = await getInvitation(token);
   if (!invitation) redirect(`/i/${token}`);
 
-  const events = invitedEvents(invitation);
+  const events = await invitedEvents(invitation);
   const values = parseRsvp(form, events);
 
-  if (!rsvpOpen()) {
+  if (!(await rsvpOpen())) {
     return { status: "failed", values, message: "Replies have closed, so this change wasn't saved." };
   }
 

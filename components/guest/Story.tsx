@@ -1,12 +1,14 @@
 import { Photo, PhotoCaption } from "@/components/ui";
-import { wedding } from "@/lib/content/wedding";
+import { STORY_SLOTS } from "@/lib/content/wedding";
+import { getWedding } from "@/lib/data";
 import { fullColumn, halfColumn } from "./sizes";
 
 /** Four story photos: one wide, two side by side, one wide. Then the rose break. Hidden until all four exist. */
-export function Story() {
-  if (wedding.story.length < 4) return null;
-  const [first, second, third, fourth] = wedding.story;
-  const card = (p: (typeof wedding.story)[number], className: string, sizes: string, small = false) => (
+export async function Story() {
+  const { story, images } = await getWedding();
+  if (story.length < STORY_SLOTS) return null;
+  const [first, second, third, fourth] = story;
+  const card = (p: (typeof story)[number], className: string, sizes: string, small = false) => (
     <figure className="m-0">
       <Photo src={p.src} alt={p.alt} focus={p.focus} sizes={sizes} scrimHeight="40%" className={className}>
         <PhotoCaption year={p.year} caption={p.caption} small={small} />
@@ -25,9 +27,9 @@ export function Story() {
         {card(fourth, "h-[520px]", fullColumn)}
       </section>
       <Photo
-        src={wedding.images.roseBreak.src}
+        src={images.roseBreak.src}
         alt=""
-        focus={wedding.images.roseBreak.focus}
+        focus={images.roseBreak.focus}
         sizes={fullColumn}
         className="mt-1.5 h-[300px]"
       />

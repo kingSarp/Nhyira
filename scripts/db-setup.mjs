@@ -18,6 +18,8 @@ try {
   console.log("Database ready.");
   console.log(`  Households: ${n}`);
   for (const l of links) console.log(`  ${l.kind} link: ${l.code} (${l.enabled ? "on" : "off"})`);
+  const [bucket] = await sql`select 1 from storage.buckets where id = 'wedding-photos'`.catch(() => []);
+  console.log(`  Photo storage: ${bucket ? "ready" : "MISSING (create the wedding-photos bucket in Supabase → Storage)"}`);
 } catch (err) {
   console.error("Setup failed:", err.message);
   process.exitCode = 1;

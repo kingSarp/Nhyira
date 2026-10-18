@@ -14,16 +14,15 @@ import { RsvpSection } from "@/components/guest/RsvpSection";
 import { Story } from "@/components/guest/Story";
 import { fullColumn } from "@/components/guest/sizes";
 import { Button, CoupleNames, Notice, Photo } from "@/components/ui";
-import { wedding } from "@/lib/content/wedding";
-import { getInvitation, invitedEvents, rsvpOpen } from "@/lib/data";
+import { getInvitation, getWedding, invitedEvents, rsvpOpen } from "@/lib/data";
 import { dayMonth } from "@/lib/format";
 import { submitRsvp } from "./actions";
 
 export async function generateMetadata({ params }: PageProps<"/i/[token]">): Promise<Metadata> {
   const { token } = await params;
-  const invitation = await getInvitation(token);
+  const [invitation, w] = await Promise.all([getInvitation(token), getWedding()]);
   const title = invitation ? `${invitation.greeting ?? invitation.householdName}, you're invited` : "Invitation";
-  const description = `${wedding.coupleNames} would love you to celebrate with them. Tap to see the details and reply.`;
+  const description = `${w.coupleNames} would love you to celebrate with them. Tap to see the details and reply.`;
   return {
     title,
     description,
@@ -40,12 +39,12 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
   if (!invitation) notFound();
 
   const name = invitation.greeting ?? invitation.householdName;
-  const events = invitedEvents(invitation);
+  const [w, events, isOpen] = await Promise.all([getWedding(), invitedEvents(invitation), rsvpOpen()]);
   const replied = !!invitation.respondedAt;
-  const deadline = dayMonth(wedding.rsvpDeadline);
+  const deadline = dayMonth(w.rsvpDeadline);
   // ?preview=closed shows the closed state for review; ignored on the live site.
   const previewClosed = sp.preview === "closed" && process.env.VERCEL_ENV !== "production";
-  const open = rsvpOpen() && !previewClosed;
+  const open = isOpen && !previewClosed;
 
   const form = (submitLabel: string) => (
     <RsvpForm
@@ -61,9 +60,9 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
   if (!open) {
     return (
       <GuestPage>
-        <HeroPhoto image={wedding.images.hero} eyebrow="See you soon" height="short" stacked={false} names="lg" />
+        <HeroPhoto eyebrow="See you soon" height="short" stacked={false} names="lg" />
         <Notice tone="info" icon="lock" className="mx-7 mt-9">
-          Replies have closed. To change yours, call {wedding.contact.name} on {wedding.contact.phone}.
+          Replies have closed. To change yours, {w.contact.phone ? `call ${w.contact.name} on ${w.contact.phone}` : `contact ${w.contact.name}`}.
         </Notice>
         <ClosedCelebrations events={events} invitation={invitation} />
         <footer className="flex justify-center px-7 py-14">
@@ -79,9 +78,9 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
       <GuestPage>
         <header>
           <Photo
-            src={wedding.images.thanks.src}
-            alt={wedding.images.thanks.alt}
-            focus={wedding.images.thanks.focus}
+            src={w.images.couple.src}
+            alt={w.images.couple.alt}
+            focus={w.images.couple.focus}
             sizes={fullColumn}
             priority
             scrimHeight="55%"
@@ -90,7 +89,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
             <div role="status" className="absolute inset-x-0 bottom-10 flex flex-col items-center gap-2 px-6 text-center text-white">
               <p className="m-0 text-[12px] uppercase tracking-[0.32em]">{name}, your reply is in</p>
               <h1 className="m-0 font-display text-[66px] font-light italic leading-none">Thank you</h1>
-              <CoupleNames size="md" as="p" className="text-[48px]" />
+              <CoupleNames partners={w.partners} size="md" as="p" className="text-[48px]" />
             </div>
           </Photo>
         </header>
@@ -118,7 +117,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
   if (replied && sp.view !== "full") {
     return (
       <GuestPage>
-        <HeroPhoto image={wedding.images.returning} height="short" stacked={false} names="md" />
+        <HeroPhoto height="short" stacked={false} names="md" />
         <section aria-label="Welcome back" className="flex flex-col items-center gap-2 px-7 pt-11 pb-2 text-center">
           <p className="type-greeting m-0 text-[30px]">Welcome back, {name}</p>
           <p className="type-meta m-0">Your reply is below. Change it until {deadline}.</p>

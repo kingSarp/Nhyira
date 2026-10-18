@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
-import { wedding } from "@/lib/content/wedding";
+import { getWedding } from "@/lib/data";
 import { dayMonth } from "@/lib/format";
 
 /** The sand-coloured RSVP panel. `heading` is omitted on the returning view. */
-export function RsvpSection({ heading = true, children }: { heading?: boolean; children: ReactNode }) {
+export async function RsvpSection({ heading = true, children }: { heading?: boolean; children: ReactNode }) {
+  const { rsvpDeadline } = await getWedding();
   return (
     <section aria-labelledby={heading ? "rsvp-title" : undefined} aria-label={heading ? undefined : "Your reply"} className="mt-14 flex flex-col gap-[26px] bg-panel px-7 py-14">
       {heading && (
@@ -11,7 +12,7 @@ export function RsvpSection({ heading = true, children }: { heading?: boolean; c
           <h2 id="rsvp-title" className="type-title m-0">
             Will you join us?
           </h2>
-          <p className="type-meta m-0">Kindly reply by {dayMonth(wedding.rsvpDeadline)}</p>
+          <p className="type-meta m-0">Kindly reply by {dayMonth(rsvpDeadline)}</p>
         </div>
       )}
       {children}

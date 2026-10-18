@@ -1,13 +1,12 @@
 import { redirect } from "next/navigation";
 import { AdminTabs } from "@/components/organiser/AdminTabs";
-import { wedding } from "@/lib/content/wedding";
-import { getOrganiser, listJoinRequests } from "@/lib/data";
+import { getOrganiser, getWedding, listJoinRequests } from "@/lib/data";
 import { signOut } from "../login/actions";
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const organiser = await getOrganiser();
   if (!organiser) redirect("/login");
-  const pending = (await listJoinRequests("pending")).length;
+  const [pending, { coupleNames }] = await Promise.all([listJoinRequests("pending").then((r) => r.length), getWedding()]);
 
   return (
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-5 pt-6 pb-12 lg:gap-8 lg:px-6 lg:pt-10 lg:pb-16">
@@ -20,7 +19,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
             </button>
           </form>
         </div>
-        <p className="m-0 font-script text-[44px] font-normal leading-tight lg:text-[56px]">{wedding.coupleNames}</p>
+        <p className="m-0 font-script text-[44px] font-normal leading-tight lg:text-[56px]">{coupleNames}</p>
       </header>
       <AdminTabs pending={pending} />
       {children}

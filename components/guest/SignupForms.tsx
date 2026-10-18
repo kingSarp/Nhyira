@@ -2,7 +2,7 @@
 
 import { startTransition, useActionState, useEffect, useRef, type FormEvent } from "react";
 import { Button, ChoiceCard, ErrorSummary, FieldError, Notice, SelectField, TextArea, TextField } from "@/components/ui";
-import { wedding, type EventId } from "@/lib/content/wedding";
+import type { EventId } from "@/lib/content/wedding";
 import { MAX_PARTY, type SignupState } from "@/lib/signup-forms";
 import { summaryTitle } from "@/lib/rsvp";
 
@@ -65,7 +65,7 @@ export function RequestForm({ action }: { action: Action }) {
           </option>
         ))}
       </SelectField>
-      <TextField id="side" name="side" label="How do you know the couple? (optional)" placeholder={`e.g. ${wedding.partners[0]}'s colleague`} maxLength={80} defaultValue={values.side} />
+      <TextField id="side" name="side" label="How do you know the couple? (optional)" placeholder="e.g. Work colleague" maxLength={80} defaultValue={values.side} />
       <TextArea id="message" name="message" label="A message for the couple (optional)" maxLength={500} defaultValue={values.message} />
       <Button type="submit" fullWidth disabled={pending}>
         {pending ? "Sending…" : "Send my request"}
