@@ -190,6 +190,7 @@ Dashboard filters and search are URL search params (`?q=&status=`), so they are 
 
 ## 9. Next
 
-Done: Supabase tables, `lib/data` on Postgres, email + password sign-in, wedding details and story photos editable from the dashboard.
+Done: Supabase tables, `lib/data` on Postgres, email + password sign-in with organiser and usher roles, deployed on Vercel (Dublin, next to the database), wedding details and photos editable from the dashboard, versioned WhatsApp preview cards, the one-link flow with QR passes and entrance check-in.
 
-1. Deploy to Vercel (set `DATABASE_URL`, the Supabase keys and `NEXT_PUBLIC_SITE_URL`, so preview cards and links use the live address), run the 15–20 household validation test.
+1. Run a full rehearsal: sign up through the shared link on a phone, open the pass, scan it on `/checkin` from an Android phone and an iPhone.
+2. Custom SMTP in Supabase (Authentication → Emails) before other organisers or ushers need password resets; the built-in sender only reaches the Supabase organisation, a few emails an hour.
