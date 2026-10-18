@@ -6,7 +6,7 @@ What Nhyira is, how the code is laid out, and the rules that keep it simple. Pro
 
 A personal invitation per household, opened from a WhatsApp link. Guests see their events and seat limit and RSVP without an account. The couple and family organisers sign in to a dashboard to see the headcount and send links.
 
-**Current phase: frontend only.** Screens are built against typed mock data behind a data layer (`lib/data`). Supabase, auth and server actions come next, behind the same functions, so screens don't change when the backend lands.
+**Current phase: backend.** Screens call a data layer (`lib/data`) that reads and writes Supabase Postgres from the server. Organisers sign in with a Supabase email link.
 
 ### Three ways in
 
@@ -26,12 +26,13 @@ Both shared links start **off**. Requests are approved with default seats (the p
 | Styling | Tailwind CSS v4, CSS-first config in `app/globals.css` | No `tailwind.config.*`. Tokens are CSS variables mapped in `@theme inline`. |
 | Fonts | `next/font/local`, files in `app/fonts/` | Self-hosted: no Google Fonts request at build or run time. |
 | Images | `next/image`, files in `public/images/` | AVIF/WebP, sized per breakpoint. |
-| Backend (next phase) | Supabase Postgres + Auth, server actions | One `invitations` table; see the plan doc §7a. |
-| Hosting (next phase) | Vercel | |
+| Database | Supabase Postgres via `postgres` (porsager) | Server only, through the transaction pooler. Schema in `db/schema.sql`. |
+| Auth | Supabase Auth email links via `@supabase/ssr` | Organisers only; guests never sign in. |
+| Hosting (next) | Vercel | |
 
 No UI kit, no state library, no CSS-in-JS. Add a dependency only when the platform can't do it; say why in the PR.
 
-Dependencies beyond the starter: **sharp** (already installed by Next for image optimisation), used to turn the preview card into a JPEG. `next/og` only outputs PNG, which is ~600 KB for a photo card, and WhatsApp drops preview images much over ~300 KB.
+Dependencies beyond the starter: **postgres** (SQL with real transactions; the open sign-up limit and phone checks need row locks, which the Supabase REST client can't do), **@supabase/ssr** + **@supabase/supabase-js** (email-link sign-in and session cookies), **sharp** (already installed by Next for image optimisation), used to turn the preview card into a JPEG. `next/og` only outputs PNG, which is ~600 KB for a photo card, and WhatsApp drops preview images much over ~300 KB.
 
 ## 3. Folder layout
 
@@ -66,7 +67,10 @@ app/
       requests/page.tsx      /admin/requests  Inbox list: one line per request, ✓/✕ per row, bulk approve/decline; tap a name for details and seats
       links/page.tsx         /admin/links     Turn shared links on/off, new link, open-link settings
       actions.ts             Organiser server actions
+    auth/confirm/route.ts    /auth/confirm  Where the sign-in email link lands
   styleguide/page.tsx        /styleguide  Tokens + components, dev only
+proxy.ts                     Refreshes the organiser session on /admin and /login
+db/schema.sql                Tables, indexes, RLS. `npm run db:setup` runs it.
 components/
   ui/                        Design-system primitives. No data fetching, no copy.
   guest/                     Guest-screen sections (Hero, Story, EventList, RsvpForm…)
@@ -80,7 +84,10 @@ lib/
     signups.ts               Shared links, join requests, open sign-ups
     households.ts            Add, edit, remove, import households; mark sent
     ids.ts                   Personal-link tokens, phone normalisation
-    mock.ts                  Seed data + in-memory store (globalThis). Replaced by Supabase next phase.
+    rows.ts                  Database rows → app types
+  db.ts                      Postgres connection (server only)
+  auth.ts                    getOrganiser(), ADMIN_EMAILS allowlist
+  supabase/server.ts         Supabase client for sign-in (cookies)
   rsvp.ts                    RSVP field names, parsing, validation (shared by form and action)
   signup-forms.ts            Request and open sign-up parsing, validation
   household-forms.ts         Household form + spreadsheet (CSV/TSV) parsing and validation
@@ -107,7 +114,7 @@ docs/design/
 
 ## 5. Data layer (the seam)
 
-Screens never import mock data or Supabase directly. They call `lib/data`:
+Screens never import `lib/db` or Supabase directly. They call `lib/data`:
 
 ```ts
 getInvitation(token: string): Promise<Invitation | null>
@@ -115,7 +122,13 @@ listHouseholds(filter?: { q?: string; status?: ReplyStatus }): Promise<Household
 getHeadcount(): Promise<Headcount[]>
 ```
 
-Today these read `lib/data/mock.ts`. Next phase they query Supabase with the service-role key on the server; signatures stay the same. Writes (`submitRsvp`, `sendMagicLink`) will be server actions in each route's `actions.ts`.
+They query Postgres directly from the server as the database owner (`DATABASE_URL`, Supabase's transaction pooler on port 6543, `prepare: false`). Row level security is on with no policies, so the public Supabase keys can't read the tables. Writes that check-then-insert (join requests, open sign-ups, approvals, household edits) run in one transaction and lock the row they depend on; a unique `phone_key` (normalised number) backs up the one-phone-one-household rule. Writes are server actions in each route's `actions.ts`.
+
+| Table | Holds |
+|---|---|
+| `invitations` | One row per household: seats and responses as JSON keyed by event id, `source`, `sent_at` |
+| `join_requests` | "Request a place" submissions; `token` links to the invitation made on approval |
+| `signup_links` | The two shared links: code, on/off, events, limit, retired codes |
 
 Wedding content (names, events, venues, dress colours, story photos, deadline) is static config in `lib/content/wedding.ts`, not data. Each event has an `id` that matches the keys of a household's `seats`.
 
@@ -136,7 +149,7 @@ For review, `?preview=closed` forces 1e anywhere except Vercel production.
 
 **RSVP form flow.** `components/guest/RsvpForm.tsx` (client) posts to `submitRsvp` (`actions.ts`). The action parses and validates with `lib/rsvp.ts`, then calls `saveResponse` and redirects to `?sent=1`. On errors it returns the submitted values and an error list; the form restores them, shows the summary and moves focus to it. Seat-name fields reveal with CSS (`:has(:checked)`), so the form works before JS loads; "Add a guest", "Remove" and "Same names as" need JS.
 
-Organiser `/login` states come from search params (`?sent=1&email=`, `?error=link`). In the frontend phase no email is sent; a "Preview only" box on the link-sent screen opens `/admin` or the expired state (hidden on Vercel production). In the backend phase the email leaves the URL and Supabase Auth sends the link.
+Organiser `/login` states come from search params (`?sent=1&email=`, `?error=link`, `?error=send`). Supabase Auth emails the link only to addresses in `ADMIN_EMAILS`; anyone else sees the same "link sent" screen. The link lands on `/auth/confirm` (token hash from our email template, or a PKCE code from Supabase's default one), which starts the session and re-checks the allowlist. `proxy.ts` renews the session cookie; `getOrganiser()` verifies it on every dashboard page and action.
 
 **Guest list.** Organisers add households one by one or import a spreadsheet (header row with Name, Greeting, Phone, Side, Engagement, Church, Reception, in any order; pasted from Excel/Sheets as tabs, or a CSV file). The import shows rows to fix first; only valid, non-duplicate rows are added, all at once. A phone number can belong to one household. Editing seats below the names already given keeps the first names. Sending goes through `/admin/send/<token>`, which stamps `sentAt` so the list shows "Not sent / Sent today", and the send queue walks through unsent invites, then "sent, no reply" reminders.
 
@@ -157,10 +170,9 @@ Dashboard filters and search are URL search params (`?q=&status=`), so they are 
 - Check each screen at 360px and 390px, and the dashboard at 1280px.
 - Guest invite page: Lighthouse performance ≥ 90 on mobile; hero image under 150 KB.
 
-## 9. Next phase (not started)
+## 9. Next
 
-1. Supabase project: `invitations` (+ `source`, `sent_at`, unique normalised phone), `join_requests`, `signup_links` (code, enabled, events, limit, retired codes); RLS on with no policies (server-only access). Open sign-up's limit and duplicate-phone checks run in one transaction.
-2. `lib/data` reads Supabase; `submitRsvp` server action with validation against seat limits.
-3. Email magic-link auth for `/admin`, allowlist from `ADMIN_EMAILS`, session refresh in `proxy.ts`.
-4. **Photo uploads from the dashboard** (admin only): Supabase Storage bucket, an upload screen under `/admin/photos`, and `lib/content` image slots read from the bucket instead of `public/images/`. The current photos are stand-ins until then.
-5. Deploy to Vercel (set `NEXT_PUBLIC_SITE_URL` so preview cards and links use the live address), run the 15–20 household validation test.
+Done: Supabase tables, `lib/data` on Postgres, email-link sign-in.
+
+1. **Photo uploads from the dashboard** (admin only): Supabase Storage bucket, an upload screen under `/admin/photos`, and `lib/content` image slots read from the bucket instead of `public/images/`. The current photos are stand-ins until then.
+2. Deploy to Vercel (set `DATABASE_URL`, the Supabase keys, `ADMIN_EMAILS` and `NEXT_PUBLIC_SITE_URL`, so preview cards and links use the live address), run the 15–20 household validation test.

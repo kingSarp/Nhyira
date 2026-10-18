@@ -1,38 +1,40 @@
 import "server-only";
 import { wedding, type EventId } from "@/lib/content/wedding";
-import { mockInvitations, mockOrganiser } from "./mock";
+import { db } from "@/lib/db";
+import { invitationColumns, toInvitation, type InvitationRow } from "./rows";
 import type { EventResponse, Headcount, Household, Invitation, ReplyStatus } from "./types";
 
 export type * from "./types";
 export * from "./signups";
 export * from "./households";
+export { getOrganiser } from "@/lib/auth";
 
-// The only data API screens may call. Today it reads mock data; in the backend
-// phase the bodies switch to Supabase and the signatures stay the same.
+// The only data API screens may call. Postgres (Supabase) on the server.
 
-/** Who is signed in to the dashboard. Backend phase: the Supabase session. */
-export async function getOrganiser(): Promise<{ email: string } | null> {
-  return mockOrganiser;
+export async function allInvitations(): Promise<Invitation[]> {
+  const sql = db();
+  const rows = await sql<InvitationRow[]>`select ${sql([...invitationColumns])} from invitations`;
+  return rows.map(toInvitation);
 }
 
 export async function getInvitation(token: string): Promise<Invitation | null> {
-  return mockInvitations.find((i) => i.token === token) ?? null;
+  const sql = db();
+  const [row] = await sql<InvitationRow[]>`select ${sql([...invitationColumns])} from invitations where token = ${token}`;
+  return row ? toInvitation(row) : null;
 }
 
-/**
- * Saves a household's reply. Mock: updates the in-memory list, so replies
- * last until the dev server restarts. Backend phase: an UPDATE in Supabase.
- */
+/** Saves a household's reply (replacing any earlier one). */
 export async function saveResponse(
   token: string,
   reply: { responses: Partial<Record<EventId, EventResponse>>; note: string | null },
 ): Promise<boolean> {
-  const inv = mockInvitations.find((i) => i.token === token);
-  if (!inv) return false;
-  inv.responses = reply.responses;
-  inv.note = reply.note;
-  inv.respondedAt = new Date().toISOString();
-  return true;
+  const sql = db();
+  const rows = await sql`
+    update invitations
+    set responses = ${sql.json(reply.responses)}, note = ${reply.note}, responded_at = now()
+    where token = ${token}
+    returning token`;
+  return rows.length > 0;
 }
 
 export function replyStatus(inv: Invitation): ReplyStatus {
@@ -40,9 +42,12 @@ export function replyStatus(inv: Invitation): ReplyStatus {
   return Object.values(inv.responses).some((r) => r?.attending) ? "attending" : "declined";
 }
 
+// A few hundred households at most, so filtering and counting happen here
+// rather than in SQL. One query per page.
+
 export async function listHouseholds(filter: { q?: string; status?: ReplyStatus } = {}): Promise<Household[]> {
   const q = filter.q?.trim().toLowerCase();
-  return mockInvitations
+  return (await allInvitations())
     .map((inv) => ({ ...inv, status: replyStatus(inv) }))
     .filter((h) => !filter.status || h.status === filter.status)
     .filter((h) => {
@@ -54,13 +59,14 @@ export async function listHouseholds(filter: { q?: string; status?: ReplyStatus 
 }
 
 export async function getHeadcount(): Promise<Headcount[]> {
+  const invitations = await allInvitations();
   return wedding.events.map((event) => {
     const id = event.id as EventId;
     let invited = 0;
     let confirmed = 0;
     let declined = 0;
     let waiting = 0;
-    for (const inv of mockInvitations) {
+    for (const inv of invitations) {
       const seats = inv.seats[id] ?? 0;
       if (!seats) continue;
       invited += seats;

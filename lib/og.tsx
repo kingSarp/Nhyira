@@ -21,7 +21,7 @@ const C = {
 export const ogSize = { width: 1200, height: 630 };
 
 const root = process.cwd();
-const asset = (p: string) => readFile(join(root, p));
+const asset = (p: string) => readFile(join(/* turbopackIgnore: true */ root, p)); // files listed in next.config outputFileTracingIncludes
 
 // Read once per server process.
 const loaded = Promise.all([

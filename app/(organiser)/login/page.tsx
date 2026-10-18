@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { SignInForm } from "@/components/organiser/SignInForm";
 import { Button, Notice } from "@/components/ui";
+import { getOrganiser } from "@/lib/auth";
+import { resendSignInLink } from "./actions";
 import { wedding } from "@/lib/content/wedding";
 
 export const metadata: Metadata = { title: "Sign in" };
@@ -23,7 +26,7 @@ function Shell({ title, lead, children }: { title: string; lead?: string; childr
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const sp = await searchParams;
   const email = typeof sp.email === "string" ? sp.email : "";
-  const showDevLink = process.env.VERCEL_ENV !== "production";
+  if (await getOrganiser()) redirect("/admin");
 
   /* 4b · Link sent */
   if (sp.sent === "1") {
@@ -34,9 +37,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         </Notice>
         <div className="flex flex-col gap-4">
           <p className="m-0 text-center text-[16px] text-ink-2">Nothing yet? Check your spam folder, or</p>
-          <form action="/login" className="contents">
-            {/* Frontend phase: resending just shows this screen again. */}
-            <input type="hidden" name="sent" value="1" />
+          <form action={resendSignInLink} className="contents">
             <input type="hidden" name="email" value={email} />
             <Button type="submit" variant="secondary" fullWidth>
               Send it again
@@ -46,19 +47,18 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
             Use a different email
           </Link>
         </div>
-        {showDevLink && (
-          <aside className="flex flex-col gap-1 border border-dashed border-border px-4 py-3.5 text-[14px] text-ink-2">
-            <span className="text-[12px] uppercase tracking-[0.12em]">Preview only: pretend to tap the email link</span>
-            <span className="flex flex-wrap gap-4">
-              <Link href="/admin" className="flex min-h-11 items-center">
-                Link works →
-              </Link>
-              <Link href={`/login?error=link&email=${encodeURIComponent(email)}`} className="flex min-h-11 items-center">
-                Link expired →
-              </Link>
-            </span>
-          </aside>
-        )}
+      </Shell>
+    );
+  }
+
+  /* Couldn't send (rate limit or Supabase error) */
+  if (sp.error === "send") {
+    return (
+      <Shell title="Guest list sign in">
+        <Notice tone="error" title="We couldn't send the link.">
+          Too many links may have gone out just now. Wait a few minutes, then try again.
+        </Notice>
+        <SignInForm email={email} submitLabel="Email me a sign-in link" />
       </Shell>
     );
   }
