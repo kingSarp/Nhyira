@@ -19,7 +19,7 @@ export type DetailsText = Omit<WeddingDetails, "story" | "couplePhoto" | "couple
 /** State of a photo upload form (main photo or a story slot). */
 export type PhotoFormState =
   | { status: "idle" }
-  | { status: "saved" }
+  | { status: "saved"; at: number }
   | { status: "invalid"; values: Record<string, string>; errors: FormErrors }
   | { status: "failed"; values: Record<string, string>; message: string };
 

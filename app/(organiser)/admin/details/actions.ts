@@ -62,7 +62,7 @@ export async function saveCouplePhoto(_prev: PhotoFormState, form: FormData): Pr
     return { status: "failed", values, message: UPLOAD_FAILED };
   }
   revalidatePath("/", "layout");
-  return { status: "saved" };
+  return { status: "saved", at: Date.now() };
 }
 
 /** Back to the built-in main photo. */
@@ -98,7 +98,7 @@ export async function saveStory(slot: number, _prev: PhotoFormState, form: FormD
   }
 
   revalidatePath("/", "layout");
-  return { status: "saved" };
+  return { status: "saved", at: Date.now() };
 }
 
 export async function removeStory(slot: number) {

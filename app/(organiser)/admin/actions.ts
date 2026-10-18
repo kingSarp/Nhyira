@@ -85,24 +85,24 @@ export async function declineSelected(form: FormData) {
 export async function saveRequestLink(form: FormData) {
   await requireOrganiser();
   const events = wedding.events.map((e) => e.id).filter((id) => form.get(`event_${id}`) === "on");
-  if (events.length === 0) redirect("/admin/links?error=request-events");
+  if (events.length === 0) redirect("/admin/links?error=request-events#request-settings");
   await updateRequestLink({ events });
   revalidatePath("/admin/links");
-  redirect("/admin/links?saved=request");
+  redirect("/admin/links?saved=request#request-settings");
 }
 
 export async function toggleLink(kind: SignupLinkKind, enabled: boolean) {
   await requireOrganiser();
   await setSignupLinkEnabled(kind, enabled);
   revalidatePath("/admin/links");
-  redirect("/admin/links");
+  redirect(`/admin/links#${kind}-title`);
 }
 
 export async function replaceLink(kind: SignupLinkKind) {
   await requireOrganiser();
   await replaceSignupLink(kind);
   revalidatePath("/admin/links");
-  redirect(`/admin/links?replaced=${kind}`);
+  redirect(`/admin/links?replaced=${kind}#${kind}-title`);
 }
 
 export async function saveOpenLink(form: FormData) {
@@ -110,8 +110,8 @@ export async function saveOpenLink(form: FormData) {
   const events = wedding.events.map((e) => e.id).filter((id) => form.get(`event_${id}`) === "on");
   const raw = String(form.get("limit") ?? "").trim();
   const limit = raw === "" ? null : Math.max(1, Math.floor(Number(raw)) || 1);
-  if (events.length === 0) redirect("/admin/links?error=events");
+  if (events.length === 0) redirect("/admin/links?error=events#open-settings");
   await updateOpenLink({ events, limit });
   revalidatePath("/admin/links");
-  redirect("/admin/links?saved=open");
+  redirect("/admin/links?saved=open#open-settings");
 }

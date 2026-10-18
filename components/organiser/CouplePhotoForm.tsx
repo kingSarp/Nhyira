@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { startTransition, useActionState, useEffect, useRef, useState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { Button, Notice } from "@/components/ui";
 import { PHOTO_FOCUS, type PhotoFocus } from "@/lib/content/wedding";
 import { shrinkPhoto } from "@/lib/shrink-photo";
@@ -31,15 +31,11 @@ export function CouplePhotoForm({
   const [state, formAction, pending] = useActionState(action, { status: "idle" });
   const [preparing, setPreparing] = useState(false);
   const [focus, setFocus] = useState<PhotoFocus>(savedFocus);
-  const [picked, setPicked] = useState<string | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
-  useEffect(() => () => void (picked && URL.revokeObjectURL(picked)), [picked]);
-  // After a save the page re-renders with the new photo; clear the chosen file.
-  useEffect(() => {
-    if (state.status !== "saved") return;
-    formRef.current?.reset();
-    setPicked(null);
-  }, [state]);
+  // The chosen file's preview belongs to the form state it was picked in, so a
+  // save (new state) drops it and the saved photo shows instead.
+  const [pick, setPick] = useState<{ url: string; state: PhotoFormState } | null>(null);
+  const picked = pick && pick.state === state ? pick.url : null;
+  useEffect(() => () => void (pick && URL.revokeObjectURL(pick.url)), [pick]);
   const busy = pending || preparing;
 
   return (
@@ -63,7 +59,8 @@ export function CouplePhotoForm({
         {state.status === "failed" && <Notice tone="error">{state.message}</Notice>}
 
         <form
-          ref={formRef}
+          // Remounts after each save, which clears the file input.
+          key={state.status === "saved" ? state.at : 0}
           action={formAction}
           onSubmit={async (e) => {
             e.preventDefault();
@@ -90,7 +87,7 @@ export function CouplePhotoForm({
               accept="image/*"
               onChange={(e) => {
                 const f = e.currentTarget.files?.[0];
-                setPicked(f ? URL.createObjectURL(f) : null);
+                setPick(f ? { url: URL.createObjectURL(f), state } : null);
               }}
               className="min-h-11 text-[15px] file:mr-3 file:min-h-11 file:cursor-pointer file:rounded-full file:border file:border-ink file:bg-transparent file:px-4 file:text-ink"
             />
