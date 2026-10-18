@@ -64,8 +64,15 @@ export function seatLine(inv: Invitation) {
     .join(" · ");
 }
 
-/** "Sent today", "Sent 3 days ago", "Not sent". */
-export function sentLabel(sentAt: string | null | undefined, now = new Date()) {
+/** Signed up through the shared link: they already have their page, so there's nothing to send. */
+export function needsInvite(inv: Pick<Invitation, "source">) {
+  return inv.source !== "open";
+}
+
+/** "Sent today", "Sent 3 days ago", "Not sent"; "Signed up via link" for self sign-ups. */
+export function sentLabel(inv: Pick<Invitation, "sentAt" | "source">, now = new Date()) {
+  if (!needsInvite(inv)) return "Signed up via link";
+  const { sentAt } = inv;
   if (!sentAt) return "Not sent";
   const days = Math.floor((now.getTime() - new Date(sentAt).getTime()) / 864e5);
   if (days <= 0) return "Sent today";

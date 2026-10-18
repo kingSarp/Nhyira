@@ -55,6 +55,10 @@ insert into signup_links (kind, code) values
   ('open', 'join-' || substr(replace(gen_random_uuid()::text, '-', ''), 1, 10))
 on conflict (kind) do nothing;
 
+-- Arrival at the entrance (/checkin). Added after launch, so added here too.
+alter table invitations add column if not exists checked_in_at timestamptz;
+alter table invitations add column if not exists checked_in_by text;
+
 -- What organisers edit on /admin/details (names, dates, venues, times, dress
 -- colours, contact, RSVP deadline, story photo links). One row; the shape is
 -- validated in code (lib/wedding.ts). No row yet means the code defaults.

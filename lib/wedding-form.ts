@@ -1,4 +1,4 @@
-import { EVENTS, PHOTO_FOCUS, type DressColour, type EventDetails, type EventId, type PhotoFocus, type WeddingDetails } from "@/lib/content/wedding";
+import { EVENTS, MAX_PROGRAMME, PHOTO_FOCUS, type DressColour, type EventDetails, type EventId, type PhotoFocus, type WeddingDetails } from "@/lib/content/wedding";
 import { toWhatsAppNumber } from "@/lib/format";
 import type { FormErrors } from "@/lib/signup-forms";
 
@@ -34,6 +34,10 @@ export function detailsToValues(d: WeddingDetails): Record<string, string> {
     contactName: d.contact.name,
     contactPhone: d.contact.phone,
   };
+  for (let i = 0; i < MAX_PROGRAMME; i++) {
+    v[`programme${i}_name`] = d.programme[i]?.name ?? "";
+    v[`programme${i}_time`] = d.programme[i]?.time ?? "";
+  }
   for (const { id } of EVENTS) {
     const e = d.events[id];
     v[`${id}_date`] = e.date;
@@ -93,30 +97,38 @@ export function parseDetailsForm(form: FormData): {
 
   const events = {} as Record<EventId, EventDetails>;
   for (const e of EVENTS) {
-    const eDate = field(`${e.id}_date`, 10);
-    if (!validDate(eDate)) add(errors, `${e.id}_date`, `${e.shortName}: enter the date.`);
+    // Everything happens on the wedding day.
+    const eDate = date;
     const time = field(`${e.id}_time`, 20);
     const venue = field(`${e.id}_venue`);
-    if (!venue) add(errors, `${e.id}_venue`, `${e.shortName}: enter the venue.`);
+    if (!venue) add(errors, `${e.id}_venue`, "Enter the venue's address.");
     const mapUrl = field(`${e.id}_mapUrl`, 500);
-    if (mapUrl && !/^https:\/\/\S+$/.test(mapUrl)) add(errors, `${e.id}_mapUrl`, `${e.shortName}: the map link must start with https://`);
+    if (mapUrl && !/^https:\/\/\S+$/.test(mapUrl)) add(errors, `${e.id}_mapUrl`, "The map link must start with https://");
 
     const dressColours: DressColour[] = [];
     for (let i = 0; i < MAX_COLOURS; i++) {
       const name = field(`${e.id}_colour${i}_name`, 30);
       const hex = field(`${e.id}_colour${i}_hex`, 7);
       if (!name) continue;
-      if (!HEX.test(hex)) add(errors, `${e.id}_colour${i}_hex`, `${e.shortName}: pick a colour for “${name}”.`);
+      if (!HEX.test(hex)) add(errors, `${e.id}_colour${i}_hex`, `Pick a colour for “${name}”.`);
       else dressColours.push({ name, hex: hex.toUpperCase() });
     }
     events[e.id] = { date: eDate, time, venue, mapUrl, dressColours };
+  }
+
+  const programme = [];
+  for (let i = 0; i < MAX_PROGRAMME; i++) {
+    const name = field(`programme${i}_name`, 40);
+    const time = field(`programme${i}_time`, 20);
+    if (name) programme.push({ name, time });
+    else if (time) add(errors, `programme${i}_name`, `Programme: name the part of the day at ${time}.`);
   }
 
   if (errors.summary.length) return { values, errors, details: null };
   return {
     values,
     errors: null,
-    details: { partners: [partnerA, partnerB], date, city, rsvpDeadline, contact: { name: contactName, phone: contactPhone }, events },
+    details: { partners: [partnerA, partnerB], date, city, rsvpDeadline, contact: { name: contactName, phone: contactPhone }, events, programme },
   };
 }
 

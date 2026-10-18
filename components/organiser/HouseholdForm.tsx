@@ -59,8 +59,10 @@ export function HouseholdForm({ initial, action, submitLabel }: Props) {
       </datalist>
 
       <fieldset id={`seats-${wedding.events[0].id}`} className="m-0 border-0 p-0" aria-describedby={seatError ? "seats-error" : undefined}>
-        <legend className="type-label mb-1 p-0 text-ink-2">Seats per event</legend>
-        <p className="m-0 mb-3 text-[14px] text-ink-2">How many people this invite admits. 0 or blank = not invited to that event.</p>
+        <legend className="type-label mb-1 p-0 text-ink-2">{wedding.events.length === 1 ? "Seats" : "Seats per event"}</legend>
+        <p className="m-0 mb-3 text-[14px] text-ink-2">
+          {wedding.events.length === 1 ? "How many people this invite admits, including them." : "How many people this invite admits. 0 or blank = not invited to that event."}
+        </p>
         <div className="flex flex-wrap gap-4">
           {wedding.events.map((e) => (
             <label key={e.id} id={e.id === wedding.events[0].id ? undefined : `seats-${e.id}`} className="flex flex-col gap-1.5 text-[15px]">

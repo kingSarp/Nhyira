@@ -4,7 +4,7 @@ import { SendNext } from "@/components/organiser/SendNext";
 import { Badge, FilterChip, Notice, statusLabel } from "@/components/ui";
 import { listHouseholds, getWedding } from "@/lib/data";
 import { toWhatsAppNumber } from "@/lib/format";
-import { inviteMessage, seatLine } from "@/lib/households";
+import { inviteMessage, needsInvite, seatLine } from "@/lib/households";
 
 export const metadata: Metadata = { title: "Send invites" };
 
@@ -20,7 +20,7 @@ export default async function SendPage({ searchParams }: PageProps<"/admin/send"
   const all = (await listHouseholds()).filter((h) => toWhatsAppNumber(h.phone));
   const queue =
     mode === "new"
-      ? all.filter((h) => !h.sentAt)
+      ? all.filter((h) => !h.sentAt && needsInvite(h))
       : all.filter((h) => h.sentAt && h.status === "waiting");
   const remaining = queue.filter((h) => !skipped.includes(h.token));
   const current = remaining[0];

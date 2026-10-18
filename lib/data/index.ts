@@ -9,7 +9,8 @@ export type * from "./types";
 export * from "./signups";
 export * from "./households";
 export * from "./wedding";
-export { getOrganiser } from "@/lib/auth";
+export * from "./checkin";
+export { getOrganiser, getStaff } from "@/lib/auth";
 
 // The only data API screens may call. Postgres (Supabase) on the server.
 

@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { AdminTabs } from "@/components/organiser/AdminTabs";
-import { getOrganiser, getWedding, listJoinRequests } from "@/lib/data";
+import { getStaff, getWedding, listJoinRequests } from "@/lib/data";
 import { signOut } from "../login/actions";
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
-  const organiser = await getOrganiser();
+  const organiser = await getStaff();
   if (!organiser) redirect("/login");
+  if (organiser.role !== "organiser") redirect("/checkin");
   const [pending, { coupleNames }] = await Promise.all([listJoinRequests("pending").then((r) => r.length), getWedding()]);
 
   return (

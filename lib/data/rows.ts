@@ -16,6 +16,8 @@ export type InvitationRow = {
   responded_at: Date | null;
   source: InviteSource;
   sent_at: Date | null;
+  checked_in_at: Date | null;
+  checked_in_by: string | null;
 };
 
 export type JoinRequestRow = {
@@ -54,6 +56,8 @@ export const invitationColumns = [
   "responded_at",
   "source",
   "sent_at",
+  "checked_in_at",
+  "checked_in_by",
 ] as const;
 
 export function toInvitation(r: InvitationRow): Invitation {
@@ -69,6 +73,8 @@ export function toInvitation(r: InvitationRow): Invitation {
     respondedAt: iso(r.responded_at),
     source: r.source,
     sentAt: iso(r.sent_at),
+    checkedInAt: iso(r.checked_in_at),
+    checkedInBy: r.checked_in_by,
   };
 }
 

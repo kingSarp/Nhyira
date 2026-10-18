@@ -97,10 +97,13 @@ const HEADERS: Record<string, keyof HouseholdFields | EventId> = {
   "phone number": "phone",
   side: "side",
   "family side": "side",
-  engagement: "engagement",
+  // One event; older spreadsheets with a column per part of the day still work.
+  seats: "wedding",
+  guests: "wedding",
+  engagement: "wedding",
   church: "wedding",
   wedding: "wedding",
-  reception: "reception",
+  reception: "wedding",
 };
 
 /** Splits one CSV or tab-separated line, respecting "quoted, values". */
@@ -146,7 +149,7 @@ export function parseGuestList(text: string): ImportPreview {
   const header = splitLine(lines[0], sep).map((h) => HEADERS[h.toLowerCase().replace(/\s+/g, " ")] ?? null);
   if (!header.includes("householdName")) return { rows: [], error: 'The first row needs a "Name" column.' };
   if (!wedding.events.some((e) => header.includes(e.id))) {
-    return { rows: [], error: 'The first row needs at least one event column: "Engagement", "Church" or "Reception".' };
+    return { rows: [], error: 'The first row needs a "Seats" column: how many people each household can bring.' };
   }
 
   const rows = lines.slice(1).map((line, i) => {
@@ -155,7 +158,12 @@ export function parseGuestList(text: string): ImportPreview {
     header.forEach((key, c) => {
       const v = cells[c] ?? "";
       if (!key) return;
-      if (wedding.events.some((e) => e.id === key)) fields.seats[key as EventId] = v;
+      if (wedding.events.some((e) => e.id === key)) {
+        // Several columns can name the same event (Engagement, Church, Reception): keep the largest.
+        const prev = fields.seats[key as EventId] ?? "";
+        if (v !== "" && (prev === "" || Number(v) > Number(prev))) fields.seats[key as EventId] = v;
+        else fields.seats[key as EventId] = prev;
+      }
       else (fields as Record<string, unknown>)[key] = v;
     });
     const { value, problems } = checkHousehold(fields);

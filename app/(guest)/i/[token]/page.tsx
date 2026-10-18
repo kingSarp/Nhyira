@@ -5,6 +5,7 @@ import { ClosedCelebrations } from "@/components/guest/ClosedCelebrations";
 import { ClosingPhoto } from "@/components/guest/ClosingPhoto";
 import { EventList } from "@/components/guest/EventList";
 import { Greeting } from "@/components/guest/Greeting";
+import { GuestPass } from "@/components/guest/GuestPass";
 import { GuestPage } from "@/components/guest/GuestPage";
 import { HeroPhoto } from "@/components/guest/HeroPhoto";
 import { ReplySummary } from "@/components/guest/ReplySummary";
@@ -14,7 +15,7 @@ import { RsvpSection } from "@/components/guest/RsvpSection";
 import { Story } from "@/components/guest/Story";
 import { fullColumn } from "@/components/guest/sizes";
 import { Button, CoupleNames, Notice, Photo } from "@/components/ui";
-import { getInvitation, getWedding, invitedEvents, rsvpOpen } from "@/lib/data";
+import { getInvitation, getWedding, invitedEvents, isComing, rsvpOpen } from "@/lib/data";
 import { dayMonth } from "@/lib/format";
 import { previewImages } from "@/lib/og";
 import { submitRsvp } from "./actions";
@@ -43,6 +44,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
   const name = invitation.greeting ?? invitation.householdName;
   const [w, events, isOpen] = await Promise.all([getWedding(), invitedEvents(invitation), rsvpOpen()]);
   const replied = !!invitation.respondedAt;
+  const coming = replied && isComing(invitation);
   const deadline = dayMonth(w.rsvpDeadline);
   // ?preview=closed shows the closed state for review; ignored on the live site.
   const previewClosed = sp.preview === "closed" && process.env.VERCEL_ENV !== "production";
@@ -66,7 +68,8 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
         <Notice tone="info" icon="lock" className="mx-7 mt-9">
           Replies have closed. To change yours, {w.contact.phone ? `call ${w.contact.name} on ${w.contact.phone}` : `contact ${w.contact.name}`}.
         </Notice>
-        <ClosedCelebrations events={events} invitation={invitation} />
+        {coming && <GuestPass invitation={invitation} className="px-7 pt-9" />}
+        <ClosedCelebrations events={events} invitation={invitation} programme={w.programme} />
         <footer className="flex justify-center px-7 py-14">
           <Roses size="sm" />
         </footer>
@@ -89,20 +92,18 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
             className="h-[min(620px,80svh)] min-h-[480px]"
           >
             <div role="status" className="absolute inset-x-0 bottom-10 flex flex-col items-center gap-2 px-6 text-center text-white">
-              <p className="m-0 text-[12px] uppercase tracking-[0.32em]">{name}, your reply is in</p>
+              <p className="m-0 text-[12px] uppercase tracking-[0.32em]">{coming ? `${name}, you're confirmed` : `${name}, your reply is in`}</p>
               <h1 className="m-0 font-display text-[66px] font-light italic leading-none">Thank you</h1>
               <CoupleNames partners={w.partners} size="md" as="p" className="text-[48px]" />
             </div>
           </Photo>
         </header>
         <section aria-label="Your reply" className="flex flex-col px-7 pt-10">
-          <p className="m-0 mb-7 text-center text-ink-2">We can&apos;t wait to celebrate with you.</p>
-          {sp.new === "1" && (
-            <Notice tone="info" icon="check" title="This page is your invitation" className="mb-7">
-              Save this link or add it to your home screen. Open it again any time to see the details or change your reply.
-            </Notice>
-          )}
-          <ReplySummary events={events} invitation={invitation} />
+          <p className="m-0 mb-7 text-center text-ink-2">
+            {coming ? "We can't wait to celebrate with you." : "Thank you for letting us know. You'll be missed."}
+          </p>
+          {coming && <GuestPass invitation={invitation} className="mb-9" />}
+          {invitation.source !== "open" && <ReplySummary events={events} invitation={invitation} />}
         </section>
         <section className="flex flex-col items-center gap-[18px] px-7 pt-10 pb-14">
           <Button href={`/i/${token}`} variant="secondary" fullWidth>
@@ -122,8 +123,9 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
         <HeroPhoto height="short" stacked={false} names="md" />
         <section aria-label="Welcome back" className="flex flex-col items-center gap-2 px-7 pt-11 pb-2 text-center">
           <p className="type-greeting m-0 text-[30px]">Welcome back, {name}</p>
-          <p className="type-meta m-0">Your reply is below. Change it until {deadline}.</p>
+          <p className="type-meta m-0">{coming ? "Your pass is below." : `Your reply is below. Change it until ${deadline}.`}</p>
         </section>
+        {coming && <GuestPass invitation={invitation} className="px-7 pt-8" />}
         <RsvpSection heading={false}>
           {form("Update my reply")}
           <Link href={`/i/${token}?view=full`} className="flex min-h-11 items-center self-center text-[15px]">
@@ -140,7 +142,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
       <HeroPhoto eyebrow="You're invited" />
       <Greeting name={name} />
       <Story />
-      <EventList events={events} />
+      <EventList events={events} programme={w.programme} />
       <RsvpSection>{form(replied ? "Update my reply" : "Send my reply")}</RsvpSection>
       <ClosingPhoto />
     </GuestPage>

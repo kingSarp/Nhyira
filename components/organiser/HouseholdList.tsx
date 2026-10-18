@@ -24,7 +24,7 @@ function Row({ h }: { h: Household }) {
           <span className="block min-w-0">
             <span className="block truncate text-[16px]">{h.householdName}</span>
             <span className="block truncate text-[13px] text-ink-2 lg:hidden">
-              {statusLabel[h.status]} · {seatLine(h)} · {canSend ? sentLabel(h.sentAt) : "no phone"}
+              {statusLabel[h.status]} · {seatLine(h)} · {canSend ? sentLabel(h) : "no phone"}
             </span>
             <span className="hidden truncate text-[13px] text-ink-2 lg:block">{h.side ?? h.phone ?? "—"}</span>
           </span>
@@ -32,7 +32,7 @@ function Row({ h }: { h: Household }) {
             <Badge tone={h.status}>{statusLabel[h.status]}</Badge>
           </span>
           <span className="hidden truncate text-[14px] text-ink-2 lg:block">{seatLine(h)}</span>
-          <span className="hidden text-[14px] text-ink-2 lg:block">{canSend ? sentLabel(h.sentAt) : "No phone"}</span>
+          <span className="hidden text-[14px] text-ink-2 lg:block">{canSend ? sentLabel(h) : "No phone"}</span>
         </span>
       }
       actions={
@@ -82,7 +82,7 @@ function Row({ h }: { h: Household }) {
             <dt className="text-ink-2">Added</dt>
             <dd className="m-0">{sourceLabel[h.source ?? "list"]}</dd>
             <dt className="text-ink-2">Invite</dt>
-            <dd className="m-0">{canSend ? sentLabel(h.sentAt) : "Can't send without a phone"}</dd>
+            <dd className="m-0">{canSend ? sentLabel(h) : "Can't send without a phone"}</dd>
           </dl>
           <div className="flex flex-col gap-1">
             <p className="m-0 text-[14px] text-ink-2">Answers</p>

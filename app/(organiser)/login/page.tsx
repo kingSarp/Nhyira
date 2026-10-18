@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { LoginShell } from "@/components/organiser/LoginShell";
 import { ResetRequestForm, SignInForm } from "@/components/organiser/SignInForm";
 import { Notice } from "@/components/ui";
-import { getOrganiser } from "@/lib/auth";
+import { getStaff, homeFor } from "@/lib/auth";
 
 export const metadata: Metadata = { title: "Sign in" };
 
@@ -17,7 +17,8 @@ const BackToSignIn = () => (
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const sp = await searchParams;
   const email = typeof sp.email === "string" ? sp.email : "";
-  if (await getOrganiser()) redirect("/admin");
+  const staff = await getStaff();
+  if (staff) redirect(homeFor(staff.role));
 
   /* Reset email sent */
   if (sp.reset === "sent") {

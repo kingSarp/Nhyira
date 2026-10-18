@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { needsInvite } from "@/lib/households";
 import Link from "next/link";
 import { HeadcountCards } from "@/components/organiser/HeadcountCards";
 import { HouseholdList } from "@/components/organiser/HouseholdList";
@@ -24,7 +25,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
     declined: all.filter((h) => h.status === "declined").length,
   };
   const replied = all.length - counts.waiting;
-  const toSend = all.filter((h) => !h.sentAt && h.phone).length;
+  const toSend = all.filter((h) => !h.sentAt && h.phone && needsInvite(h)).length;
   const toRemind = all.filter((h) => h.sentAt && h.status === "waiting").length;
   const saved = typeof sp.saved === "string" ? await getInvitation(sp.saved) : null;
   const filterLabel = FILTERS.find((f) => f.value === status)?.label;

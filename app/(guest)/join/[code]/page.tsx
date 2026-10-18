@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DayDetails } from "@/components/guest/DayDetails";
 import { OpenSignupForm } from "@/components/guest/SignupForms";
 import { SignupClosed, SignupShell } from "@/components/guest/SignupShell";
 import { getWedding, openLinkEvents, resolveSignupLink } from "@/lib/data";
@@ -50,10 +51,11 @@ export default async function JoinPage({ params }: PageProps<"/join/[code]">) {
 
   return (
     <SignupShell
-      eyebrow="Join us"
-      title="Sign up to celebrate"
-      lead="This link is for one person. Sign up yourself and you'll get your own invitation link."
+      eyebrow="You're invited"
+      title="Will you join us?"
+      lead="Add your name and number to confirm your place. One person per sign-up."
     >
+      <DayDetails className="border-y border-line py-5" />
       <OpenSignupForm action={submitOpenSignup.bind(null, code)} events={events} />
     </SignupShell>
   );

@@ -47,6 +47,11 @@ export function parseOpenSignup(form: FormData, events: { id: EventId; name: str
   const errors: FormErrors = { fields: {}, summary: [] };
   checkPerson(values, errors);
   const attending: Partial<Record<EventId, boolean>> = {};
+  // One event: signing up is the answer.
+  if (events.length === 1) {
+    attending[events[0].id] = true;
+    return { values, errors: errors.summary.length ? errors : null, attending };
+  }
   for (const e of events) {
     const a = String(form.get(`attending_${e.id}`) ?? "");
     values[`attending_${e.id}`] = a;

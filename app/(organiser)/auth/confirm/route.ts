@@ -21,5 +21,5 @@ export async function GET(request: NextRequest) {
       : { data: null, error: new Error("No token in link") };
 
   if (error || !data?.user) return to("/login?error=link");
-  return to(type === "recovery" || params.get("next") === "password" ? "/login/new-password" : "/admin");
+  return to(type === "recovery" || params.get("next") === "password" ? "/login/new-password" : "/login");
 }

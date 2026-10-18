@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getOrganiser, signupsClosed } from "@/lib/auth";
+import { getStaff, homeFor, signupsClosed } from "@/lib/auth";
 import { MIN_PASSWORD } from "@/lib/password";
 import { siteUrl } from "@/lib/site";
 import { createSupabase } from "@/lib/supabase/server";
@@ -28,13 +28,13 @@ export async function signIn(_prev: SignInState, form: FormData): Promise<SignIn
   if (!(await signupsClosed())) return { error: LOCKED, email, field: "password" };
 
   const supabase = await createSupabase();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
     if (error.status === 429) return { error: TOO_MANY, email, field: "password" };
     if (error.status !== 400) console.error("Sign-in failed:", error.status, error.message);
     return { error: "That email and password don't match.", email, field: "password" };
   }
-  redirect("/admin");
+  redirect(homeFor(data.user?.app_metadata?.role === "usher" ? "usher" : "organiser"));
 }
 
 /**
@@ -58,7 +58,8 @@ export async function requestPasswordReset(_prev: SignInState, form: FormData): 
 
 /** Sets the signed-in organiser's password (after following a reset link). */
 export async function setNewPassword(_prev: PasswordState, form: FormData): Promise<PasswordState> {
-  if (!(await getOrganiser())) redirect("/login?error=link");
+  const staff = await getStaff();
+  if (!staff) redirect("/login?error=link");
   const password = String(form.get("password") ?? "");
   const confirm = String(form.get("confirm") ?? "");
   if (password.length < MIN_PASSWORD) return { error: `Use at least ${MIN_PASSWORD} characters.` };
@@ -72,7 +73,7 @@ export async function setNewPassword(_prev: PasswordState, form: FormData): Prom
     console.error("Password change failed:", error.status, error.message);
     return { error: "We couldn't save that password. Try again." };
   }
-  redirect("/admin");
+  redirect(homeFor(staff.role));
 }
 
 export async function signOut() {

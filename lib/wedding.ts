@@ -1,5 +1,6 @@
 import {
   EVENTS,
+  MAX_PROGRAMME,
   PHOTO_FOCUS,
   STORY_SLOTS,
   defaultDetails,
@@ -7,6 +8,7 @@ import {
   type EventDef,
   type EventDetails,
   type PhotoFocus,
+  type ProgrammeItem,
   type StoryPhoto,
   type UploadedPhoto,
   type WeddingDetails,
@@ -31,6 +33,8 @@ export type Wedding = {
   rsvpDeadline: string;
   contact: { name: string; phone: string };
   events: WeddingEvent[];
+  /** Parts of the day with a name, in order. */
+  programme: ProgrammeItem[];
   /** Filled slots only, in order. The story section shows when all four are filled. */
   story: (StoryPhoto & { alt: string; focus: string })[];
   images: { couple: Img & { focus: string }; roseBreak: Img };
@@ -102,6 +106,12 @@ export function normaliseDetails(raw: unknown): WeddingDetails {
         ];
       }),
     ) as WeddingDetails["events"],
+    programme: Array.isArray(raw.programme)
+      ? raw.programme
+          .filter(isRecord)
+          .map((p) => ({ name: str(p.name, ""), time: str(p.time, "") }))
+          .slice(0, MAX_PROGRAMME)
+      : d.programme,
     couplePhoto: photo(raw.couplePhoto),
     couplePhotoFocus: typeof raw.couplePhotoFocus === "string" && raw.couplePhotoFocus in PHOTO_FOCUS ? (raw.couplePhotoFocus as PhotoFocus) : d.couplePhotoFocus,
     story: Array.from({ length: STORY_SLOTS }, (_, i) => {
@@ -135,6 +145,7 @@ export function toWedding(details: WeddingDetails): Wedding {
       const ev = details.events[e.id];
       return { ...e, ...ev, mapUrl: ev.mapUrl || mapUrlFor(ev.venue) };
     }),
+    programme: details.programme.filter((p) => p.name.trim()),
     story: details.story
       .filter((p): p is StoryPhoto => p !== null)
       .map((p) => ({ ...p, alt: p.caption ? `${coupleAlt}: ${p.caption}` : coupleAlt, focus: "50% 30%" })),

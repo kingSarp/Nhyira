@@ -2,10 +2,11 @@ import { cn } from "@/lib/cn";
 import type { Invitation } from "@/lib/data/types";
 import { shortDate } from "@/lib/format";
 import { displayTime } from "@/lib/wedding";
-import { DressColours, MapLink, type InvitedEvent } from "./EventList";
+import type { ProgrammeItem } from "@/lib/content/wedding";
+import { DressColours, MapLink, Programme, type InvitedEvent } from "./EventList";
 
 /** After replies close: each event with who is going, or "Not attending". */
-export function ClosedCelebrations({ events, invitation }: { events: InvitedEvent[]; invitation: Invitation }) {
+export function ClosedCelebrations({ events, invitation, programme }: { events: InvitedEvent[]; invitation: Invitation; programme: ProgrammeItem[] }) {
   return (
     <section aria-labelledby="your-celebrations" className="flex flex-col px-7 pt-10">
       <h2 id="your-celebrations" className="type-eyebrow m-0 mb-5 text-center font-normal">
@@ -30,6 +31,7 @@ export function ClosedCelebrations({ events, invitation }: { events: InvitedEven
                     {e.venue} · <MapLink event={e} />
                   </p>
                   {r?.names.length ? <p className="m-0 text-[15px] text-success">{r.names.join(", ")}</p> : null}
+                  <Programme items={programme} />
                   <DressColours colours={e.dressColours} />
                 </>
               )}

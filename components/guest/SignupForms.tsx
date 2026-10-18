@@ -31,7 +31,7 @@ function useSignupForm(action: Action) {
   return { formAction, onSubmit, pending, values, errors, top };
 }
 
-function PersonFields({ values, errors }: { values: Record<string, string>; errors: Record<string, string> }) {
+function PersonFields({ values, errors, phoneHint }: { values: Record<string, string>; errors: Record<string, string>; phoneHint: string }) {
   return (
     <>
       <TextField id="name" name="name" label="Full name" autoComplete="name" maxLength={80} defaultValue={values.name} error={errors.name} />
@@ -46,7 +46,7 @@ function PersonFields({ values, errors }: { values: Record<string, string>; erro
         maxLength={20}
         defaultValue={values.phone}
         error={errors.phone}
-        hint="The couple will use this to send your invitation."
+        hint={phoneHint}
       />
     </>
   );
@@ -57,7 +57,7 @@ export function RequestForm({ action }: { action: Action }) {
   return (
     <form action={formAction} onSubmit={onSubmit} noValidate className="flex flex-col gap-[22px]">
       {top}
-      <PersonFields values={values} errors={errors} />
+      <PersonFields values={values} errors={errors} phoneHint="The couple will use this to send your invitation." />
       <SelectField id="partySize" name="partySize" label="How many people, including you" defaultValue={values.partySize ?? "1"} error={errors.partySize}>
         {Array.from({ length: MAX_PARTY }, (_, i) => (
           <option key={i + 1} value={i + 1}>
@@ -79,8 +79,8 @@ export function OpenSignupForm({ action, events }: { action: Action; events: { i
   return (
     <form action={formAction} onSubmit={onSubmit} noValidate className="flex flex-col gap-[22px]">
       {top}
-      <PersonFields values={values} errors={errors} />
-      {events.map((e) => {
+      <PersonFields values={values} errors={errors} phoneHint="One sign-up per number. We'll only use it if plans change." />
+      {events.length > 1 && events.map((e) => {
         const err = errors[`event-${e.id}`];
         return (
           <fieldset
@@ -104,7 +104,7 @@ export function OpenSignupForm({ action, events }: { action: Action; events: { i
         );
       })}
       <Button type="submit" fullWidth disabled={pending}>
-        {pending ? "Signing you up…" : "Sign me up"}
+        {pending ? "Confirming…" : "Confirm my place"}
       </Button>
     </form>
   );

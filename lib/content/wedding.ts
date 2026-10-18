@@ -8,7 +8,13 @@
 
 export type DressColour = { name: string; hex: string };
 
-export type EventId = "engagement" | "wedding" | "reception";
+/**
+ * One event: everything happens on one day at one place. The parts of the day
+ * (engagement, church service, reception) are the `programme`, which is
+ * wording only. Seats, replies and check-in are per event, so another event
+ * could be added here later without changing the data.
+ */
+export type EventId = "wedding";
 
 export type EventDef = {
   /** Matches the keys of a household's `seats`. */
@@ -19,11 +25,11 @@ export type EventDef = {
 };
 
 /** Fixed: seats, replies and sign-up links are keyed by these ids. */
-export const EVENTS: readonly EventDef[] = [
-  { id: "engagement", name: "The Engagement", shortName: "Engagement" },
-  { id: "wedding", name: "The Wedding", shortName: "Church" },
-  { id: "reception", name: "The Reception", shortName: "Reception" },
-];
+export const EVENTS: readonly EventDef[] = [{ id: "wedding", name: "The Wedding", shortName: "Wedding" }];
+
+/** One part of the day, e.g. "Church service · 10:00 AM". */
+export type ProgrammeItem = { name: string; time: string };
+export const MAX_PROGRAMME = 6;
 
 export type EventDetails = {
   /** ISO date, YYYY-MM-DD */
@@ -69,14 +75,14 @@ export type WeddingDetails = {
   rsvpDeadline: string;
   contact: { name: string; phone: string };
   events: Record<EventId, EventDetails>;
+  /** The parts of the day, in order. */
+  programme: ProgrammeItem[];
   /** The main photo: invite headers, home page, WhatsApp card. Null uses the built-in photo. */
   couplePhoto: UploadedPhoto | null;
   couplePhotoFocus: PhotoFocus;
   /** Four slots in display order; null is an empty slot. */
   story: (StoryPhoto | null)[];
 };
-
-const VENUE = "20 Asikuma Ave, GD-134-4557";
 
 export const defaultDetails: WeddingDetails = {
   partners: ["Kay", "Ama"],
@@ -85,37 +91,22 @@ export const defaultDetails: WeddingDetails = {
   rsvpDeadline: "2026-12-12",
   contact: { name: "Auntie Efua", phone: "" },
   events: {
-    engagement: {
-      date: "2026-12-26",
-      time: "",
-      venue: VENUE,
-      mapUrl: "",
-      dressColours: [
-        { name: "Kente green", hex: "#1F5A3D" },
-        { name: "Gold", hex: "#D4AF37" },
-      ],
-    },
     wedding: {
       date: "2026-12-26",
       time: "",
-      venue: VENUE,
+      venue: "20 Asikuma Ave, GD-134-4557",
       mapUrl: "",
       dressColours: [
         { name: "Ivory", hex: "#FFFFF0" },
-        { name: "Blush", hex: "#F4C2C2" },
-      ],
-    },
-    reception: {
-      date: "2026-12-26",
-      time: "",
-      venue: VENUE,
-      mapUrl: "",
-      dressColours: [
-        { name: "Champagne", hex: "#F7E7CE" },
         { name: "Burgundy", hex: "#6E1423" },
       ],
     },
   },
+  programme: [
+    { name: "Engagement", time: "" },
+    { name: "Church service", time: "" },
+    { name: "Reception", time: "" },
+  ],
   couplePhoto: null,
   couplePhotoFocus: "center",
   story: [null, null, null, null],

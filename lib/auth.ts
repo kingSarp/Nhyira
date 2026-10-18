@@ -23,11 +23,31 @@ export async function signupsClosed(): Promise<boolean> {
   return false;
 }
 
-/** Who is signed in to the dashboard, or null. Deleting a user in Supabase locks them out within the hour. */
-export async function getOrganiser(): Promise<{ email: string } | null> {
+export type StaffRole = "organiser" | "usher";
+export type Staff = { email: string; role: StaffRole };
+
+/**
+ * Who is signed in, and what they may do. Ushers (app_metadata.role = "usher",
+ * set in Supabase; users can't change their own app_metadata) only get the
+ * check-in screen. Everyone else is an organiser. Null while sign-ups are on.
+ */
+export async function getStaff(): Promise<Staff | null> {
   const supabase = await createSupabase();
   const [{ data, error }, closed] = await Promise.all([supabase.auth.getClaims(), signupsClosed()]);
-  const email = typeof data?.claims?.email === "string" ? data.claims.email : null;
+  const claims = data?.claims;
+  const email = typeof claims?.email === "string" ? claims.email : null;
   if (error || !email || !closed) return null;
-  return { email };
+  const appMeta = (claims?.app_metadata ?? {}) as { role?: unknown };
+  return { email, role: appMeta.role === "usher" ? "usher" : "organiser" };
+}
+
+/** Signed in with full dashboard access, or null. Deleting a user in Supabase locks them out within the hour. */
+export async function getOrganiser(): Promise<{ email: string } | null> {
+  const staff = await getStaff();
+  return staff?.role === "organiser" ? { email: staff.email } : null;
+}
+
+/** Where someone lands after signing in. */
+export function homeFor(role: StaffRole) {
+  return role === "usher" ? "/checkin" : "/admin";
 }

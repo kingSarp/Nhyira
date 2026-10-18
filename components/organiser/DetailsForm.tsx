@@ -3,7 +3,7 @@
 import { startTransition, useActionState, useEffect, useRef, type ReactNode } from "react";
 import { saveDetails } from "@/app/(organiser)/admin/details/actions";
 import { Button, ErrorSummary, Notice, TextField } from "@/components/ui";
-import { EVENTS } from "@/lib/content/wedding";
+import { EVENTS, MAX_PROGRAMME } from "@/lib/content/wedding";
 import { summaryTitle } from "@/lib/rsvp";
 import { MAX_COLOURS, type DetailsFormState } from "@/lib/wedding-form";
 
@@ -68,56 +68,65 @@ export function DetailsForm({ initial }: { initial: Record<string, string> }) {
         </div>
       </Group>
 
-      <Group id="events-title" title="Events">
-        {EVENTS.map((e) => (
-          <fieldset key={e.id} className="m-0 flex flex-col gap-5 border border-line p-4 sm:p-5">
-            <legend className="px-1 font-display text-[24px] italic">{e.name}</legend>
-            <div className={pair}>
-              {text(`${e.id}_date`, "Date", { type: "date" })}
-              {text(`${e.id}_time`, "Time", { maxLength: 20, placeholder: "e.g. 10:00 AM", hint: "Leave blank to show “Time TBC”." })}
-            </div>
-            {text(`${e.id}_venue`, "Venue", { maxLength: 120 })}
-            {text(`${e.id}_mapUrl`, "Map link (optional)", {
-              type: "url",
-              inputMode: "url",
-              maxLength: 500,
-              placeholder: "https://maps.app.goo.gl/…",
-              hint: "Leave blank to search Google Maps for the venue.",
-            })}
-            <div className="flex flex-col gap-3">
-              <p className="type-label m-0 text-ink-2">Dress colours (up to {MAX_COLOURS})</p>
-              {Array.from({ length: MAX_COLOURS }, (_, i) => {
-                const name = `${e.id}_colour${i}_name`;
-                const hex = `${e.id}_colour${i}_hex`;
-                return (
-                  <div key={i} className="flex items-end gap-3">
-                    <TextField
-                      id={name}
-                      name={name}
-                      label={`Colour ${i + 1} name`}
-                      placeholder={i === 0 ? "e.g. Champagne" : undefined}
-                      maxLength={30}
-                      defaultValue={v[name]}
-                      error={errors[hex]}
-                      className="flex-1"
-                    />
-                    <label className="flex flex-col gap-1.5">
-                      <span className="sr-only">Colour {i + 1} swatch</span>
-                      <input
-                        type="color"
-                        name={hex}
-                        defaultValue={v[hex]}
-                        className="h-[52px] w-16 cursor-pointer rounded-input border border-border bg-field p-1"
-                      />
-                    </label>
-                  </div>
-                );
-              })}
-              <p className="m-0 text-[14px] text-ink-2">Clear a name to remove that colour.</p>
-            </div>
+      {EVENTS.map((e) => (
+        <Group key={e.id} id={`${e.id}-title`} title="The day" description="Everything happens on the wedding date, at one place.">
+          <div className={pair}>
+            {text(`${e.id}_time`, "Starts at", { maxLength: 20, placeholder: "e.g. 10:00 AM", hint: "Leave blank to show “Time TBC”." })}
+            {text(`${e.id}_venue`, "Venue address", { maxLength: 120 })}
+          </div>
+          {text(`${e.id}_mapUrl`, "Map link (optional)", {
+            type: "url",
+            inputMode: "url",
+            maxLength: 500,
+            placeholder: "https://maps.app.goo.gl/…",
+            hint: "Leave blank to search Google Maps for the address.",
+          })}
+
+          <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
+            <legend className="type-label mb-1 p-0 text-ink-2">Programme</legend>
+            <p className="m-0 text-[14px] text-ink-2">The parts of the day, in order. Guests see them as a list; they don&apos;t choose between them.</p>
+            {Array.from({ length: MAX_PROGRAMME }, (_, i) => (
+              <div key={i} className="grid grid-cols-[minmax(0,1fr)_132px] gap-3">
+                {text(`programme${i}_name`, `Part ${i + 1}`, { maxLength: 40, placeholder: i === 0 ? "e.g. Engagement" : undefined })}
+                {text(`programme${i}_time`, "Time", { maxLength: 20, placeholder: "10:00 AM" })}
+              </div>
+            ))}
+            <p className="m-0 text-[14px] text-ink-2">Clear a name to remove that part.</p>
           </fieldset>
-        ))}
-      </Group>
+
+          <div className="flex flex-col gap-3">
+            <p className="type-label m-0 text-ink-2">Dress colours (up to {MAX_COLOURS})</p>
+            {Array.from({ length: MAX_COLOURS }, (_, i) => {
+              const name = `${e.id}_colour${i}_name`;
+              const hex = `${e.id}_colour${i}_hex`;
+              return (
+                <div key={i} className="flex items-end gap-3">
+                  <TextField
+                    id={name}
+                    name={name}
+                    label={`Colour ${i + 1} name`}
+                    placeholder={i === 0 ? "e.g. Champagne" : undefined}
+                    maxLength={30}
+                    defaultValue={v[name]}
+                    error={errors[hex]}
+                    className="flex-1"
+                  />
+                  <label className="flex flex-col gap-1.5">
+                    <span className="sr-only">Colour {i + 1} swatch</span>
+                    <input
+                      type="color"
+                      name={hex}
+                      defaultValue={v[hex]}
+                      className="h-[52px] w-16 cursor-pointer rounded-input border border-border bg-field p-1"
+                    />
+                  </label>
+                </div>
+              );
+            })}
+            <p className="m-0 text-[14px] text-ink-2">Clear a name to remove that colour.</p>
+          </div>
+        </Group>
+      ))}
 
       <Group id="replies-title" title="Replies and contact">
         {text("rsvpDeadline", "Last day to reply", { type: "date", hint: "Replies close at the end of this day (Accra time)." })}

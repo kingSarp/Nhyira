@@ -46,8 +46,12 @@ function StatusStrip({ link, onText, offText }: { link: SignupLink; onText: stri
   );
 }
 
-/** Tap-to-toggle event chips. Native checkboxes, so they work without JavaScript. */
+/** One event: nothing to choose. */
+const SINGLE_EVENT = EVENTS.length === 1;
+
+/** Tap-to-toggle event chips. Native checkboxes, so they work without JavaScript. With one event, it's sent as chosen. */
 function EventChoices({ selected, legend, hint, error }: { selected: EventId[]; legend: string; hint?: string; error?: string }) {
+  if (SINGLE_EVENT) return <input type="hidden" name={`event_${EVENTS[0].id}`} value="on" />;
   return (
     <fieldset className="m-0 border-0 p-0" aria-describedby={error ? "events-error" : undefined}>
       <legend className="type-label mb-1 p-0 text-ink-2">{legend}</legend>
@@ -88,7 +92,7 @@ function Settings({
   summary: string;
   open: boolean;
   confirming: boolean;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <details id={`${link.kind}-settings`} open={open || confirming} className="group border-t border-line">
@@ -227,7 +231,7 @@ export default async function LinksPage({ searchParams }: PageProps<"/admin/link
       <LinkSection
         link={open}
         title="Open sign-up"
-        lead="One seat per person, confirmed straight away. Each phone number can sign up once, and everyone gets their own invitation link."
+        lead="The main way in. One seat per person, confirmed straight away, and each person gets a pass with a QR code to show at the entrance. Each phone number can sign up once."
         status={{ on: "anyone with the link can sign up.", off: "the link says it's not taking sign-ups." }}
         replaced={sp.replaced === "open"}
         stat={
@@ -260,7 +264,7 @@ export default async function LinksPage({ searchParams }: PageProps<"/admin/link
       >
         <Settings
           link={open}
-          summary={`${eventNames(open.events)} · ${open.limit !== null ? `limit ${open.limit}` : "no limit"}`}
+          summary={`${SINGLE_EVENT ? "" : `${eventNames(open.events)} · `}${open.limit !== null ? `stops at ${open.limit} sign-ups` : "no limit on sign-ups"}`}
           open={sp.saved === "open" || sp.error === "events"}
           confirming={sp.confirm === "open"}
         >
@@ -304,11 +308,11 @@ export default async function LinksPage({ searchParams }: PageProps<"/admin/link
       >
         <Settings
           link={request}
-          summary={`approved guests go to ${eventNames(request.events)}`}
+          summary={SINGLE_EVENT ? "replace the link" : `approved guests go to ${eventNames(request.events)}`}
           open={sp.saved === "request" || sp.error === "request-events"}
           confirming={sp.confirm === "request"}
         >
-          <form action={saveRequestLink} className="flex flex-col gap-5">
+          {!SINGLE_EVENT && <form action={saveRequestLink} className="flex flex-col gap-5">
             {sp.saved === "request" && <Notice tone="success" icon="check">Settings saved.</Notice>}
             <EventChoices
               selected={request.events}
@@ -317,7 +321,7 @@ export default async function LinksPage({ searchParams }: PageProps<"/admin/link
               error={sp.error === "request-events" ? "Choose at least one event." : undefined}
             />
             <SaveButton />
-          </form>
+          </form>}
         </Settings>
       </LinkSection>
     </main>

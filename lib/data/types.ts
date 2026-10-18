@@ -22,6 +22,9 @@ export type Invitation = {
   source?: InviteSource;
   /** Last time an organiser opened WhatsApp to send this invite. */
   sentAt?: string | null;
+  /** When they arrived (scanned or found at the entrance), and who checked them in. */
+  checkedInAt?: string | null;
+  checkedInBy?: string | null;
 };
 
 export type ReplyStatus = "waiting" | "attending" | "declined";
