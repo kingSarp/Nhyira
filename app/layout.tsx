@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { AuthLinkHandler } from "@/components/organiser/AuthLinkHandler";
 import { fontVariables } from "@/lib/fonts";
 import { wedding } from "@/lib/content/wedding";
 import { siteUrl } from "@/lib/site";
@@ -18,7 +19,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en-GH" className={`${fontVariables} antialiased`}>
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        {children}
+        <AuthLinkHandler />
+      </body>
     </html>
   );
 }
