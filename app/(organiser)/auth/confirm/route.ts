@@ -1,6 +1,5 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
-import { isAdminEmail } from "@/lib/auth";
 import { createSupabase } from "@/lib/supabase/server";
 
 // Where the password-reset email's link lands. Two link shapes are accepted:
@@ -21,10 +20,6 @@ export async function GET(request: NextRequest) {
       ? await supabase.auth.exchangeCodeForSession(code)
       : { data: null, error: new Error("No token in link") };
 
-  const email = data?.user?.email;
-  if (error || !isAdminEmail(email)) {
-    if (!error) await supabase.auth.signOut();
-    return to(`/login?error=link${email ? `&email=${encodeURIComponent(email)}` : ""}`);
-  }
+  if (error || !data?.user) return to("/login?error=link");
   return to(type === "recovery" || params.get("next") === "password" ? "/login/new-password" : "/admin");
 }

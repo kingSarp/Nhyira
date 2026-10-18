@@ -87,7 +87,7 @@ lib/
     ids.ts                   Personal-link tokens, phone normalisation
     rows.ts                  Database rows → app types
   db.ts                      Postgres connection (server only)
-  auth.ts                    getOrganiser(), ADMIN_EMAILS allowlist
+  auth.ts                    getOrganiser(): signed-in Supabase user, and sign-ups must be off
   supabase/server.ts         Supabase client for sign-in (cookies)
   rsvp.ts                    RSVP field names, parsing, validation (shared by form and action)
   signup-forms.ts            Request and open sign-up parsing, validation
@@ -150,7 +150,7 @@ For review, `?preview=closed` forces 1e anywhere except Vercel production.
 
 **RSVP form flow.** `components/guest/RsvpForm.tsx` (client) posts to `submitRsvp` (`actions.ts`). The action parses and validates with `lib/rsvp.ts`, then calls `saveResponse` and redirects to `?sent=1`. On errors it returns the submitted values and an error list; the form restores them, shows the summary and moves focus to it. Seat-name fields reveal with CSS (`:has(:checked)`), so the form works before JS loads; "Add a guest", "Remove" and "Same names as" need JS.
 
-Organisers sign in at `/login` with email and password; only addresses in `ADMIN_EMAILS` are tried against Supabase, and anyone else gets the same "doesn't match" error. Other states come from search params (`?forgot=1`, `?reset=sent&email=`, `?error=link`). "Forgot password?" (also how an organiser sets their first password) emails a reset link, again only to `ADMIN_EMAILS`. The link lands on `/auth/confirm` (token hash from our email template, or a PKCE code from Supabase's default one), which starts the session, re-checks the allowlist and opens `/login/new-password`. Supabase sign-ups are turned off; organisers are added under Authentication → Users. `proxy.ts` renews the session cookie; `getOrganiser()` verifies it on every dashboard page and action.
+Organisers are the users in Supabase → Authentication → Users, added there by hand; there is no list in the code. They sign in at `/login` with email and password; Supabase gives the same "doesn't match" error for an unknown email and a wrong password. Other states come from search params (`?forgot=1`, `?reset=sent&email=`, `?error=link`). "Forgot password?" emails a reset link (Supabase only sends to existing users and says "sent" either way). The link lands on `/auth/confirm` (token hash from our email template, or a PKCE code from Supabase's default one) and opens `/login/new-password`; links that carry the session after `#` (sent from the Supabase dashboard) are picked up in the browser by `AuthLinkHandler`. Because any account is an organiser, Supabase sign-ups must stay off: `getOrganiser()` reads that setting (cached 5 minutes) and locks the dashboard while sign-ups are on. `proxy.ts` renews the session cookie; `getOrganiser()` verifies it on every dashboard page and action.
 
 **Guest list.** Organisers add households one by one or import a spreadsheet (header row with Name, Greeting, Phone, Side, Engagement, Church, Reception, in any order; pasted from Excel/Sheets as tabs, or a CSV file). The import shows rows to fix first; only valid, non-duplicate rows are added, all at once. A phone number can belong to one household. Editing seats below the names already given keeps the first names. Sending goes through `/admin/send/<token>`, which stamps `sentAt` so the list shows "Not sent / Sent today", and the send queue walks through unsent invites, then "sent, no reply" reminders.
 
@@ -176,4 +176,4 @@ Dashboard filters and search are URL search params (`?q=&status=`), so they are 
 Done: Supabase tables, `lib/data` on Postgres, email + password sign-in.
 
 1. **Photo uploads from the dashboard** (admin only): Supabase Storage bucket, an upload screen under `/admin/photos`, and `lib/content` image slots read from the bucket instead of `public/images/`. The current photos are stand-ins until then.
-2. Deploy to Vercel (set `DATABASE_URL`, the Supabase keys, `ADMIN_EMAILS` and `NEXT_PUBLIC_SITE_URL`, so preview cards and links use the live address), run the 15–20 household validation test.
+2. Deploy to Vercel (set `DATABASE_URL`, the Supabase keys and `NEXT_PUBLIC_SITE_URL`, so preview cards and links use the live address), run the 15–20 household validation test.

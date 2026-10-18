@@ -25,6 +25,6 @@ Data lives in Supabase Postgres; organisers sign in with email and password (Sup
 | `/login`, `/admin` | Organiser sign-in and dashboard |
 | `/styleguide` | Design tokens and components (not on the live site) |
 
-Only emails that are in `ADMIN_EMAILS` and added as Supabase users can sign in. Password-reset emails use Supabase's built-in sender, which only delivers to members of your Supabase organisation, a few per hour; add other organisers to the organisation, or connect your own SMTP (Authentication → Emails → SMTP) before the wedding.
+Organisers are the users you add in Supabase → Authentication → Users. The dashboard stays locked while Supabase sign-ups are on. Password-reset emails use Supabase's built-in sender, which only delivers to members of your Supabase organisation, a few per hour; add other organisers to the organisation, or connect your own SMTP (Authentication → Emails → SMTP) before the wedding.
 
 Read [AGENTS.md](AGENTS.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [DESIGN.md](DESIGN.md) before changing code.

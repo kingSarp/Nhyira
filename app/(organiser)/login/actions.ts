@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getOrganiser, isAdminEmail } from "@/lib/auth";
+import { getOrganiser, signupsClosed } from "@/lib/auth";
 import { MIN_PASSWORD } from "@/lib/password";
 import { siteUrl } from "@/lib/site";
 import { createSupabase } from "@/lib/supabase/server";
@@ -13,48 +13,45 @@ export type PasswordState = { error?: string };
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const TOO_MANY = "Too many tries just now. Wait a few minutes, then try again.";
+const LOCKED = "Sign-in is paused because new sign-ups are on in Supabase. Turn them off, then try again.";
 
 /**
- * Email + password sign-in (Supabase Auth). Addresses not in ADMIN_EMAILS get
- * the same "doesn't match" error as a wrong password, so the page doesn't
- * reveal who has access.
+ * Email + password sign-in (Supabase Auth). Supabase gives the same error for
+ * an unknown email and a wrong password, so the page doesn't reveal who has
+ * an account.
  */
 export async function signIn(_prev: SignInState, form: FormData): Promise<SignInState> {
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const password = String(form.get("password") ?? "");
   if (!EMAIL.test(email)) return { error: "Enter a complete email address.", email };
   if (!password) return { error: "Enter your password.", email, field: "password" };
-
-  const wrong: SignInState = { error: "That email and password don't match.", email, field: "password" };
-  if (!isAdminEmail(email)) return wrong;
+  if (!(await signupsClosed())) return { error: LOCKED, email, field: "password" };
 
   const supabase = await createSupabase();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
     if (error.status === 429) return { error: TOO_MANY, email, field: "password" };
     if (error.status !== 400) console.error("Sign-in failed:", error.status, error.message);
-    return wrong;
+    return { error: "That email and password don't match.", email, field: "password" };
   }
   redirect("/admin");
 }
 
 /**
- * Emails a link to set a new password. Also how an organiser sets their first
- * one. Only ADMIN_EMAILS get an email; everyone sees the same "sent" screen.
+ * Emails a link to set a new password. Supabase only sends it to existing
+ * users but reports success either way, so everyone sees the same "sent" screen.
  */
 export async function requestPasswordReset(_prev: SignInState, form: FormData): Promise<SignInState> {
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   if (!EMAIL.test(email)) return { error: "Enter a complete email address.", email };
 
-  if (isAdminEmail(email)) {
-    const supabase = await createSupabase();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${siteUrl()}/auth/confirm?next=password`,
-    });
-    if (error) {
-      console.error("Reset email failed:", error.status, error.message);
-      return { email, error: error.status === 429 ? TOO_MANY : "We couldn't send the email. Try again in a minute." };
-    }
+  const supabase = await createSupabase();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl()}/auth/confirm?next=password`,
+  });
+  if (error) {
+    console.error("Reset email failed:", error.status, error.message);
+    return { email, error: error.status === 429 ? TOO_MANY : "We couldn't send the email. Try again in a minute." };
   }
   redirect(`/login?reset=sent&email=${encodeURIComponent(email)}`);
 }

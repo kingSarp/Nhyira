@@ -1,6 +1,5 @@
 "use client";
 
-import { createBrowserClient } from "@supabase/ssr";
 import { useEffect } from "react";
 
 /**
@@ -20,13 +19,14 @@ export function AuthLinkHandler() {
     // Take the tokens out of the address bar and history straight away.
     history.replaceState(null, "", window.location.pathname + window.location.search);
 
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-      { auth: { detectSessionInUrl: false } },
-    );
-    supabase.auth.setSession({ access_token, refresh_token }).then(({ error }) => {
-      // /login/new-password and /admin re-check ADMIN_EMAILS on the server.
+    // Loaded only when a link needs it, so guest pages don't download Supabase.
+    import("@supabase/ssr").then(async ({ createBrowserClient }) => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+        { auth: { detectSessionInUrl: false } },
+      );
+      const { error } = await supabase.auth.setSession({ access_token, refresh_token });
       if (error) window.location.replace("/login?error=link");
       else window.location.replace(hash.get("type") === "recovery" ? "/login/new-password" : "/admin");
     });
