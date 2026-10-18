@@ -1,4 +1,4 @@
-import { EVENTS, type DressColour, type EventDetails, type EventId, type WeddingDetails } from "@/lib/content/wedding";
+import { EVENTS, PHOTO_FOCUS, type DressColour, type EventDetails, type EventId, type PhotoFocus, type WeddingDetails } from "@/lib/content/wedding";
 import { toWhatsAppNumber } from "@/lib/format";
 import type { FormErrors } from "@/lib/signup-forms";
 
@@ -13,7 +13,11 @@ export type DetailsFormState =
   | { status: "saved" }
   | { status: "invalid"; values: Record<string, string>; errors: FormErrors };
 
-export type StoryFormState =
+/** The fields saved by the main details form (photos are saved separately). */
+export type DetailsText = Omit<WeddingDetails, "story" | "couplePhoto" | "couplePhotoFocus">;
+
+/** State of a photo upload form (main photo or a story slot). */
+export type PhotoFormState =
   | { status: "idle" }
   | { status: "saved" }
   | { status: "invalid"; values: Record<string, string>; errors: FormErrors }
@@ -61,7 +65,7 @@ function add(errors: FormErrors, id: string, message: string) {
 export function parseDetailsForm(form: FormData): {
   values: Record<string, string>;
   errors: FormErrors | null;
-  details: Omit<WeddingDetails, "story"> | null;
+  details: DetailsText | null;
 } {
   const get = (k: string, max = 120) => String(form.get(k) ?? "").trim().slice(0, max);
   const values: Record<string, string> = {};
@@ -114,6 +118,12 @@ export function parseDetailsForm(form: FormData): {
     errors: null,
     details: { partners: [partnerA, partnerB], date, city, rsvpDeadline, contact: { name: contactName, phone: contactPhone }, events },
   };
+}
+
+/** The main photo's "keep in view" choice. */
+export function parsePhotoFocus(form: FormData): PhotoFocus {
+  const f = String(form.get("focus") ?? "");
+  return f in PHOTO_FOCUS ? (f as PhotoFocus) : "center";
 }
 
 /** Year and caption for one story slot. */

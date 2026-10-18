@@ -4,30 +4,8 @@ import Image from "next/image";
 import { startTransition, useActionState, useState } from "react";
 import { Button, Notice, TextField } from "@/components/ui";
 import type { StoryPhoto } from "@/lib/content/wedding";
-import type { StoryFormState } from "@/lib/wedding-form";
-
-const MAX_EDGE = 2000;
-
-/**
- * Shrinks a phone photo to at most 2000px before upload, so it fits the
- * server's request limit and uploads quickly on mobile data. Falls back to the
- * original if the browser can't decode it; the server re-encodes either way.
- */
-async function shrink(file: File): Promise<File> {
-  try {
-    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
-    const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(bitmap.width * scale);
-    canvas.height = Math.round(bitmap.height * scale);
-    canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    bitmap.close();
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.88));
-    return blob ? new File([blob], "photo.jpg", { type: "image/jpeg" }) : file;
-  } catch {
-    return file;
-  }
-}
+import { shrinkPhoto } from "@/lib/shrink-photo";
+import type { PhotoFormState } from "@/lib/wedding-form";
 
 export function StorySlotForm({
   slot,
@@ -37,7 +15,7 @@ export function StorySlotForm({
 }: {
   slot: number;
   photo: StoryPhoto | null;
-  action: (prev: StoryFormState, form: FormData) => Promise<StoryFormState>;
+  action: (prev: PhotoFormState, form: FormData) => Promise<PhotoFormState>;
   remove: () => Promise<void>;
 }) {
   const [state, formAction, pending] = useActionState(action, { status: "idle" });
@@ -74,7 +52,7 @@ export function StorySlotForm({
           const file = data.get("photo");
           if (file instanceof File && file.size > 0) {
             setPreparing(true);
-            data.set("photo", await shrink(file));
+            data.set("photo", await shrinkPhoto(file));
             setPreparing(false);
           }
           startTransition(() => formAction(data));

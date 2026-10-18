@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
+import { CouplePhotoForm } from "@/components/organiser/CouplePhotoForm";
 import { DetailsForm } from "@/components/organiser/DetailsForm";
 import { StorySlotForm } from "@/components/organiser/StorySlotForm";
 import { Notice } from "@/components/ui";
 import { STORY_SLOTS } from "@/lib/content/wedding";
 import { getWedding } from "@/lib/data";
 import { detailsToValues } from "@/lib/wedding-form";
-import { removeStory, saveStory } from "./actions";
+import { removeStory, resetCouplePhoto, saveCouplePhoto, saveStory } from "./actions";
 
 export const metadata: Metadata = { title: "Wedding details" };
 
 export default async function DetailsPage({ searchParams }: PageProps<"/admin/details">) {
   const sp = await searchParams;
-  const { details, story } = await getWedding();
+  const { details, story, images } = await getWedding();
   const removed = typeof sp.removed === "string" ? sp.removed : null;
 
   return (
@@ -22,6 +23,28 @@ export default async function DetailsPage({ searchParams }: PageProps<"/admin/de
       </div>
 
       <DetailsForm initial={detailsToValues(details)} />
+
+      <section aria-labelledby="photo-title" className="flex flex-col gap-5 border-t-2 border-ink pt-5">
+        <div className="flex max-w-[760px] flex-col gap-1">
+          <h2 id="photo-title" className="m-0 text-[22px] font-normal">
+            Main photo
+          </h2>
+          <p className="m-0 text-[15px] text-ink-2">At the top of every invitation, on the home page and on the WhatsApp preview card.</p>
+        </div>
+        {sp.photo === "reset" && (
+          <Notice tone="success" icon="check">
+            Back to the original photo.
+          </Notice>
+        )}
+        <CouplePhotoForm
+          src={images.couple.src}
+          alt={images.couple.alt}
+          focus={details.couplePhotoFocus}
+          uploaded={!!details.couplePhoto}
+          action={saveCouplePhoto}
+          reset={resetCouplePhoto}
+        />
+      </section>
 
       <section aria-labelledby="story-title" className="flex flex-col gap-5 border-t-2 border-ink pt-5">
         <div className="flex max-w-[760px] flex-col gap-1">

@@ -7,6 +7,7 @@ import sharp from "sharp";
 import { wedding } from "@/lib/content/wedding";
 import { getWedding } from "@/lib/data";
 import { dotDate } from "@/lib/format";
+import { shortHash, type Wedding } from "@/lib/wedding";
 
 // The WhatsApp / link preview card (design boards "6 · WhatsApp preview").
 // The image renderer can't read CSS variables, so the guest-surface values
@@ -21,6 +22,19 @@ const C = {
 
 export const ogSize = { width: 1200, height: 630 };
 
+/**
+ * Open Graph + Twitter image tags for a page. The card's URL carries a version
+ * that changes whenever the card would look different (names, date, photo, or
+ * the household's name), so WhatsApp and the CDN fetch the new one.
+ */
+export function previewImages(w: Wedding, household?: { token: string; name: string }) {
+  const url = household
+    ? `/og/${household.token}?v=${w.cardVersion}${shortHash(household.name)}`
+    : `/og?v=${w.cardVersion}`;
+  const image = { url, ...ogSize, type: "image/jpeg", alt: household ? "Your wedding invitation" : "Wedding invitation" };
+  return { og: [image], twitter: [image] };
+}
+
 const root = process.cwd();
 const asset = (p: string) => readFile(join(/* turbopackIgnore: true */ root, p)); // files listed in next.config outputFileTracingIncludes
 
@@ -31,8 +45,7 @@ const loaded = Promise.all([
   asset("assets/og/great-vibes-latin-400-normal.woff"),
   asset("assets/og/source-serif-4-latin-400-normal.woff"),
   asset(join("public", wedding.images.roses.src)),
-  asset(join("public", wedding.images.couple.src)).catch(() => null),
-]).then(([corLight, corItalic, vibes, serif, roses, hero]) => ({
+]).then(([corLight, corItalic, vibes, serif, roses]) => ({
   fonts: [
     { name: "Cormorant", data: corLight, weight: 300 as const, style: "italic" as const },
     { name: "Cormorant", data: corItalic, weight: 400 as const, style: "italic" as const },
@@ -40,8 +53,28 @@ const loaded = Promise.all([
     { name: "Serif", data: serif, weight: 400 as const, style: "normal" as const },
   ],
   roses: `data:image/png;base64,${roses.toString("base64")}`,
-  hero: hero ? `data:image/jpeg;base64,${hero.toString("base64")}` : null,
 }));
+
+// The main photo as a small JPEG data URL, by source. It's either the built-in
+// file or an upload in Supabase Storage (a new URL per upload, so this never
+// goes stale). Only the current photo is kept.
+let photoCache: { src: string; data: Promise<string | null> } | null = null;
+
+function couplePhoto(src: string) {
+  if (photoCache?.src !== src) {
+    const data = (async () => {
+      const raw = src.startsWith("/") ? await asset(join("public", src)) : Buffer.from(await (await fetch(src)).arrayBuffer());
+      const small = await sharp(raw).resize({ width: 1000, height: 1260, fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
+      return `data:image/jpeg;base64,${small.toString("base64")}`;
+    })().catch((err) => {
+      console.error("Preview card: couldn't load the main photo", err);
+      photoCache = null;
+      return null;
+    });
+    photoCache = { src, data };
+  }
+  return photoCache.data;
+}
 
 function Names({ partners: [a, b], size }: { partners: readonly [string, string]; size: number }) {
   return (
@@ -57,15 +90,16 @@ function Names({ partners: [a, b], size }: { partners: readonly [string, string]
  * `who` is the household's name ("Kwame & Ama Boateng"); leave it out for the
  * generic card on the home page.
  */
+/** The card as a JPEG response. URLs are versioned (see previewImages), so it can be cached for days. */
 export async function inviteCard({ who, withPhoto = true }: { who?: string; withPhoto?: boolean }) {
-  const [{ fonts, roses, hero }, w] = await Promise.all([loaded, getWedding()]);
-  const photo = withPhoto ? hero : null;
+  const [{ fonts, roses }, w] = await Promise.all([loaded, getWedding()]);
+  const photo = withPhoto ? await couplePhoto(w.images.couple.src) : null;
   const lead = who ? [`${who},`, "you're invited to the wedding of"] : ["You're invited to the wedding of"];
 
   const png = new ImageResponse(
     photo ? (
       <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", background: C.paper, fontFamily: "Serif", color: C.ink }}>
-        <img src={photo} alt="" width={500} height={630} style={{ width: 500, height: 630, objectFit: "cover", objectPosition: wedding.images.couple.focus }} />
+        <img src={photo} alt="" width={500} height={630} style={{ width: 500, height: 630, objectFit: "cover", objectPosition: w.images.couple.focus }} />
         <img src={roses} alt="" width={220} height={253} style={{ position: "absolute", right: -10, bottom: -30, width: 220, height: 253 }} />
         <div style={{ position: "absolute", left: 540, top: 40, width: 600, height: 550, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
           <div style={{ display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 400, fontSize: who && who.length > 30 ? 26 : 30, lineHeight: 1.3, color: C.ink2, maxWidth: 580, textAlign: "center", flexDirection: "column", alignItems: "center" }}>
@@ -103,6 +137,6 @@ export async function inviteCard({ who, withPhoto = true }: { who?: string; with
   // ~600 KB. A JPEG of the same card is a fraction of that.
   const jpeg = await sharp(Buffer.from(await png.arrayBuffer())).jpeg({ quality: 82, mozjpeg: true }).toBuffer();
   return new Response(new Uint8Array(jpeg), {
-    headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400" },
+    headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=86400, s-maxage=604800" },
   });
 }

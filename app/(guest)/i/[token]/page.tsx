@@ -16,19 +16,21 @@ import { fullColumn } from "@/components/guest/sizes";
 import { Button, CoupleNames, Notice, Photo } from "@/components/ui";
 import { getInvitation, getWedding, invitedEvents, rsvpOpen } from "@/lib/data";
 import { dayMonth } from "@/lib/format";
+import { previewImages } from "@/lib/og";
 import { submitRsvp } from "./actions";
 
 export async function generateMetadata({ params }: PageProps<"/i/[token]">): Promise<Metadata> {
   const { token } = await params;
   const [invitation, w] = await Promise.all([getInvitation(token), getWedding()]);
   const title = invitation ? `${invitation.greeting ?? invitation.householdName}, you're invited` : "Invitation";
+  const card = previewImages(w, invitation ? { token, name: invitation.householdName } : undefined);
   const description = `${w.coupleNames} would love you to celebrate with them. Tap to see the details and reply.`;
   return {
     title,
     description,
     robots: { index: false, follow: false },
-    openGraph: { title, description, type: "website" },
-    twitter: { card: "summary_large_image", title, description },
+    openGraph: { title, description, type: "website", images: card.og },
+    twitter: { card: "summary_large_image", title, description, images: card.twitter },
   };
 }
 

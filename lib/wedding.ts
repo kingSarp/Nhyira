@@ -1,11 +1,14 @@
 import {
   EVENTS,
+  PHOTO_FOCUS,
   STORY_SLOTS,
   defaultDetails,
   wedding,
   type EventDef,
   type EventDetails,
+  type PhotoFocus,
   type StoryPhoto,
+  type UploadedPhoto,
   type WeddingDetails,
 } from "@/lib/content/wedding";
 
@@ -30,7 +33,9 @@ export type Wedding = {
   events: WeddingEvent[];
   /** Filled slots only, in order. The story section shows when all four are filled. */
   story: (StoryPhoto & { alt: string; focus: string })[];
-  images: { couple: Img; roseBreak: Img };
+  images: { couple: Img & { focus: string }; roseBreak: Img };
+  /** Changes whenever the WhatsApp card would look different; part of the card's URL so caches never serve an old one. */
+  cardVersion: string;
 };
 
 /** Google Maps search for a venue. */
@@ -50,6 +55,15 @@ export function displayTime(time: string) {
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 const str = (v: unknown, fallback: string) => (typeof v === "string" ? v : fallback);
+const photo = (v: unknown): UploadedPhoto | null =>
+  isRecord(v) && typeof v.src === "string" && typeof v.path === "string" ? { src: v.src, path: v.path } : null;
+
+/** FNV-1a, base 36. Short and stable; not for security. */
+export function shortHash(s: string) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 0x01000193);
+  return (h >>> 0).toString(36);
+}
 
 /**
  * Stored JSON → WeddingDetails. Missing or malformed fields fall back to the
@@ -88,11 +102,12 @@ export function normaliseDetails(raw: unknown): WeddingDetails {
         ];
       }),
     ) as WeddingDetails["events"],
+    couplePhoto: photo(raw.couplePhoto),
+    couplePhotoFocus: typeof raw.couplePhotoFocus === "string" && raw.couplePhotoFocus in PHOTO_FOCUS ? (raw.couplePhotoFocus as PhotoFocus) : d.couplePhotoFocus,
     story: Array.from({ length: STORY_SLOTS }, (_, i) => {
       const p = story[i];
-      return isRecord(p) && typeof p.src === "string" && typeof p.path === "string"
-        ? { src: p.src, path: p.path, year: str(p.year, ""), caption: str(p.caption, "") }
-        : null;
+      const base = photo(p);
+      return base && isRecord(p) ? { ...base, year: str(p.year, ""), caption: str(p.caption, "") } : null;
     }),
   };
 }
@@ -101,6 +116,11 @@ export function toWedding(details: WeddingDetails): Wedding {
   const [a, b] = details.partners;
   const coupleNames = `${a} & ${b}`;
   const coupleAlt = `${a} and ${b}`;
+  const couple = {
+    src: details.couplePhoto?.src ?? wedding.images.couple.src,
+    alt: coupleAlt,
+    focus: PHOTO_FOCUS[details.couplePhotoFocus].position,
+  };
   return {
     details,
     partners: [a, b],
@@ -118,9 +138,7 @@ export function toWedding(details: WeddingDetails): Wedding {
     story: details.story
       .filter((p): p is StoryPhoto => p !== null)
       .map((p) => ({ ...p, alt: p.caption ? `${coupleAlt}: ${p.caption}` : coupleAlt, focus: "50% 30%" })),
-    images: {
-      couple: { ...wedding.images.couple, alt: coupleAlt },
-      roseBreak: wedding.images.roseBreak,
-    },
+    images: { couple, roseBreak: wedding.images.roseBreak },
+    cardVersion: shortHash(JSON.stringify([a, b, details.date, couple.src, couple.focus, wedding.previewWithPhoto])),
   };
 }

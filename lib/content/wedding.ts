@@ -36,16 +36,28 @@ export type EventDetails = {
   dressColours: DressColour[];
 };
 
-export type StoryPhoto = {
-  /** Public URL in Supabase Storage. */
-  src: string;
-  /** Object path in the bucket, so a replaced photo can be deleted. */
-  path: string;
+export type StoryPhoto = UploadedPhoto & {
   year: string;
   caption: string;
 };
 
 export const STORY_SLOTS = 4;
+
+/** An uploaded photo in Supabase Storage. */
+export type UploadedPhoto = {
+  /** Public URL. */
+  src: string;
+  /** Object path in the bucket, so a replaced photo can be deleted. */
+  path: string;
+};
+
+/** Which part of the main photo stays in view when it's cropped. */
+export type PhotoFocus = "top" | "center" | "bottom";
+export const PHOTO_FOCUS: Record<PhotoFocus, { label: string; position: string }> = {
+  top: { label: "Top", position: "50% 15%" },
+  center: { label: "Centre", position: "50% 40%" },
+  bottom: { label: "Bottom", position: "50% 75%" },
+};
 
 /** Everything organisers edit on /admin/details. */
 export type WeddingDetails = {
@@ -57,6 +69,9 @@ export type WeddingDetails = {
   rsvpDeadline: string;
   contact: { name: string; phone: string };
   events: Record<EventId, EventDetails>;
+  /** The main photo: invite headers, home page, WhatsApp card. Null uses the built-in photo. */
+  couplePhoto: UploadedPhoto | null;
+  couplePhotoFocus: PhotoFocus;
   /** Four slots in display order; null is an empty slot. */
   story: (StoryPhoto | null)[];
 };
@@ -101,6 +116,8 @@ export const defaultDetails: WeddingDetails = {
       ],
     },
   },
+  couplePhoto: null,
+  couplePhotoFocus: "center",
   story: [null, null, null, null],
 };
 
@@ -115,7 +132,8 @@ export const wedding = {
   // The couple's photo is the main image, the WhatsApp preview and the
   // thank-you and welcome-back headers. The closing panel uses the rose photo.
   images: {
-    couple: { src: "/images/kay-ama.jpg", focus: "50% 35%" },
+    /** Built-in main photo, until one is uploaded on /admin/details. */
+    couple: { src: "/images/kay-ama.jpg" },
     roses: { src: "/images/roses.png", alt: "" },
     roseBreak: { src: "/images/rose-break.jpg", alt: "", focus: "50% 45%" },
   },

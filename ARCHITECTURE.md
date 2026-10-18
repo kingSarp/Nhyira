@@ -44,14 +44,12 @@ app/
   (guest)/                   data-surface="guest"
     layout.tsx
     page.tsx                 /            Home, save the date
-    opengraph-image.tsx      Generic preview card (home page, shared sign-up links)
     i/[token]/
       page.tsx               /i/[token]   Invite + RSVP (states 1a–1e)
       actions.ts             submitRsvp server action
       not-found.tsx          Invitation not found
     request/[code]/          /request/<code>  Request a place (form, sent, closed)
     join/[code]/             /join/<code>     Open one-seat sign-up (form, full, closed)
-      opengraph-image.tsx    WhatsApp preview card for this household (JPEG, ~55 KB)
   (organiser)/               data-surface="organiser"
     layout.tsx
     login/page.tsx           /login       Sign in, forgot password, reset sent, link expired
@@ -98,7 +96,9 @@ lib/
   households.ts              Dashboard answer lines, WhatsApp message
   site.ts                    Public site URL
   fonts.ts                   next/font/local definitions
-  og.tsx                     Preview-card renderer (next/og → JPEG via sharp)
+  og.tsx                     Preview-card renderer (next/og → JPEG via sharp) and previewImages(): card URLs
+                             carry a version (names, date, main photo), so WhatsApp and the CDN never reuse an old card.
+                             Served by app/og (generic) and app/og/[token] (per household).
 assets/og/                   WOFF fonts for the card renderer (it can't read woff2)
   format.ts                  Date and phone formatting (en-GB, Africa/Accra)
   cn.ts                      className joiner
@@ -135,7 +135,7 @@ They query Postgres directly from the server as the database owner (`DATABASE_UR
 | `signup_links` | The two shared links: code, on/off, events, limit, retired codes |
 | `wedding_details` | One row: the editable wedding details as JSON (see `WeddingDetails`) |
 
-Wedding details (names, date, city, each event's date/time/venue/map link/dress colours, contact, RSVP deadline, story photos) are data: one row in `wedding_details`, edited on `/admin/details`, validated by `lib/wedding-form.ts` and read with `getWedding()` (once per request, merged over the defaults in `lib/content/wedding.ts`, so a missing or old row still renders). The three events themselves are fixed in code: each `id` matches the keys of a household's `seats`. Story photos are in the public `wedding-photos` Supabase Storage bucket; the row stores their URL and object path. Uploads are shrunk in the browser, re-encoded as JPEG with sharp on the server and written with the organiser's own session (bucket policies in `db/schema.sql` allow only signed-in users to write).
+Wedding details (names, date, city, each event's date/time/venue/map link/dress colours, contact, RSVP deadline, story photos) are data: one row in `wedding_details`, edited on `/admin/details`, validated by `lib/wedding-form.ts` and read with `getWedding()` (once per request, merged over the defaults in `lib/content/wedding.ts`, so a missing or old row still renders). The three events themselves are fixed in code: each `id` matches the keys of a household's `seats`. The main photo (with a top/centre/bottom framing choice) and the story photos are in the public `wedding-photos` Supabase Storage bucket; the row stores their URL and object path. With no main photo uploaded, the built-in `public/images/kay-ama.jpg` is used. Uploads are shrunk in the browser, re-encoded as JPEG with sharp on the server and written with the organiser's own session (bucket policies in `db/schema.sql` allow only signed-in users to write).
 
 ## 6. Screen states
 

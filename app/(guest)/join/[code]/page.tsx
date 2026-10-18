@@ -3,6 +3,7 @@ import { OpenSignupForm } from "@/components/guest/SignupForms";
 import { SignupClosed, SignupShell } from "@/components/guest/SignupShell";
 import { getWedding, openLinkEvents, resolveSignupLink } from "@/lib/data";
 import { longDate, shortDate } from "@/lib/format";
+import { previewImages } from "@/lib/og";
 import { displayTime } from "@/lib/wedding";
 import { submitOpenSignup } from "./actions";
 
@@ -10,10 +11,15 @@ import { submitOpenSignup } from "./actions";
 // are what people read under the preview card.
 export async function generateMetadata(): Promise<Metadata> {
   const w = await getWedding();
+  const title = `${w.coupleNames} are getting married`;
+  const description = `Sign up to celebrate with us on ${longDate(w.date)}. One person per sign-up.`;
+  const card = previewImages(w);
   return {
-    title: { absolute: `${w.coupleNames} are getting married` },
-    description: `Sign up to celebrate with us on ${longDate(w.date)}. One person per sign-up.`,
+    title: { absolute: title },
+    description,
     robots: { index: false, follow: false },
+    openGraph: { type: "website", title, description, images: card.og },
+    twitter: { card: "summary_large_image", title, description, images: card.twitter },
   };
 }
 
