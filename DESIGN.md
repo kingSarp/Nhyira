@@ -58,7 +58,7 @@ Type roles are utilities in `globals.css`, so screens use the role, not raw size
 |---|---|---|
 | `type-hero` | Cormorant italic 300, 68/0.95 | Kay & Ama on the hero |
 | `type-title` | Cormorant italic 300, 42/1.05 | Will you join us? |
-| `type-event` | Cormorant 400, 30/1.1 | The Reception |
+| `type-event` | Cormorant 400, 30/1.1 | The Wedding |
 | `type-legend` | Cormorant 500, 24/1.2 | RSVP fieldset legend |
 | `type-greeting` | Great Vibes 40/1.1, `script` colour | Kwame & Ama |
 | `type-eyebrow` | 12px, 0.3em, uppercase, `eyebrow` | THE CELEBRATIONS |
@@ -86,6 +86,8 @@ Built in `components/ui/`. Every one reads semantic tokens only, so it works on 
 | `CoupleNames` | "Kay *&* Ama": display italic with a Great Vibes ampersand. Sizes `hero`, `lg`, `md`. | Guest screens |
 | `Photo` | `next/image` fill, cover, optional bottom scrim and caption (year + label). Placeholder fill `line`. | Hero, story, thanks |
 | `ExpandableRow` | One-line list row for long organiser lists: optional tick box, a summary button that opens a full-width details panel, round icon actions (≥ 44px). Used by Guests and Requests. | Dashboard |
+| `GuestPass` | White box on paper, 1px `line`: eyebrow "YOUR PASS", QR code (black on white, 220px, whatever the theme), name in display 30px, `seats` badge, date/venue meta, instruction or "Checked in at …" in success. | Invite 1c/1d/1e |
+| `DayDetails`, `Programme` | When / Where / Programme / Dress colours as eyebrow-labelled rows; the programme is a list with a left `line` rule, time right-aligned. | Sign-up, invite |
 | `Icon` | Inline stroke SVGs: alert, mail, lock, search, close, whatsapp, check, chevron, copy, users, pencil, plus, upload, send. `aria-hidden` unless labelled. | All |
 
 Focus is always visible: 2px accent outline, 3px offset.
@@ -101,7 +103,7 @@ Focus is always visible: 2px accent outline, 3px offset.
 
 ## 6. Imagery
 
-Couple photos live in `public/images/`. They are **stand-ins** from the design canvas; the finals will be uploaded by an admin from the dashboard in the backend phase (ARCHITECTURE.md §9). Always `next/image` with `sizes`, `object-cover` and a set focal point (`object-position`), because guests load them over mobile data. `roses.png` is the decorative sprig: `alt=""`.
+The main photo and the four story photos are uploaded by organisers on `/admin/details` (Supabase Storage); `public/images/kay-ama.jpg` is the built-in main photo until one is uploaded, and the story section stays hidden until all four exist. Always `next/image` with `sizes`, `object-cover` and a set focal point (`object-position`), because guests load them over mobile data. `roses.png` is the decorative sprig: `alt=""`.
 
 ## 7. Do and don't
 
@@ -122,13 +124,14 @@ Couple photos live in `public/images/`. They are **stand-ins** from the design c
 | Route | Surface | Boards |
 |---|---|---|
 | `/` | guest | 3 · Home / save the date |
-| `/i/[token]` | guest | 1a first open · 1b filling in, errors · 1c submitted · 1d returning · 1e closed |
+| `/i/[token]` | guest | 1a first open · 1b filling in, errors · 1c submitted · 1d returning · 1e closed (1c/1d/1e show the pass when coming) |
 | `/i/[token]` (unknown) | guest | 2 · Invitation not found |
 | `/og`, `/og/[token]` | guest | 6 · WhatsApp preview, with and without photo |
 | `/request/<code>` | guest | Request a place: form, sent, closed (no board; built from the system) |
-| `/join/<code>` | guest | Open one-seat sign-up: form, full, closed (no board; built from the system) |
+| `/join/<code>` | guest | The main sign-up: the day's details, name + phone, "Confirm my place"; full; closed (no board; built from the system) |
 | `/login` | organiser | 4a sign in · forgot password · 4b reset sent · 4c link expired · new password (built from the system) |
 | `/admin` | organiser | 5a dashboard mobile + desktop · 5b search, no matches |
-| `/admin/requests`, `/admin/links` | organiser | Requests and Sign-up links tabs (no board; built from the system) |
+| `/admin/requests`, `/admin/links`, `/admin/details` | organiser | Requests, Sign-up links and Wedding details tabs (no board; built from the system) |
+| `/checkin` | organiser | Entrance: camera scanner, result panel (success / already / not found), name or phone search. Organisers and ushers. (Built from the system.) |
 | `/admin/guests/new`, `/admin/guests/<token>`, `/admin/guests/import`, `/admin/send` | organiser | Add/edit household, import, send queue (no board; built from the system) |
 | `/styleguide` | both | Tokens and components (development only) |

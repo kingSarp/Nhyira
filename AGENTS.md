@@ -10,9 +10,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Nhyira — agent guide
 
-Nhyira is a wedding invitation and RSVP site for a Ghanaian wedding. Each household opens a personal link from WhatsApp, sees its events and seat limit, and RSVPs without an account. Family organisers sign in to a dashboard for the headcount.
+Nhyira is a wedding invitation and RSVP site for a Ghanaian wedding. The organisers share one sign-up link on WhatsApp; each guest confirms with their name and phone, without an account, and gets a pass with a QR code. Ushers scan passes at the entrance. Organisers can also add households to a guest list and send them personal links. Organisers and ushers sign in; organisers get the dashboard, ushers only the check-in screen.
 
-**Phase: backend.** Screens call `lib/data`, which talks to Supabase Postgres from the server (`lib/db.ts`). Organiser sign-in is Supabase Auth (`lib/auth.ts`, `proxy.ts`). Every organiser page and server action checks `getOrganiser()`. Never send the database URL or any secret to the browser; only `NEXT_PUBLIC_*` values may reach client code. Schema changes go in `db/schema.sql` and must stay safe to re-run.
+**Phase: backend.** Screens call `lib/data`, which talks to Supabase Postgres from the server (`lib/db.ts`). Staff sign-in is Supabase Auth (`lib/auth.ts`, `proxy.ts`). Every dashboard page and server action checks `getOrganiser()`; the check-in screen and its actions check `getStaff()` (organisers and ushers). Never send the database URL or any secret to the browser; only `NEXT_PUBLIC_*` values may reach client code. Schema changes go in `db/schema.sql` and must stay safe to re-run.
 
 ## Read first
 
