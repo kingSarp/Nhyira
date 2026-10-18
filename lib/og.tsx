@@ -65,7 +65,7 @@ export async function inviteCard({ who, withPhoto = true }: { who?: string; with
   const png = new ImageResponse(
     photo ? (
       <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", background: C.paper, fontFamily: "Serif", color: C.ink }}>
-        <img src={photo} alt="" width={500} height={630} style={{ width: 500, height: 630, objectFit: "cover", objectPosition: "45% 20%" }} />
+        <img src={photo} alt="" width={500} height={630} style={{ width: 500, height: 630, objectFit: "cover", objectPosition: wedding.images.hero.focus }} />
         <img src={roses} alt="" width={220} height={253} style={{ position: "absolute", right: -10, bottom: -30, width: 220, height: 253 }} />
         <div style={{ position: "absolute", left: 540, top: 40, width: 600, height: 550, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
           <div style={{ display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 400, fontSize: who && who.length > 30 ? 26 : 30, lineHeight: 1.3, color: C.ink2, maxWidth: 580, textAlign: "center", flexDirection: "column", alignItems: "center" }}>

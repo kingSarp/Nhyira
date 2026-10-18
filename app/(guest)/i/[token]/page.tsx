@@ -61,7 +61,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
   if (!open) {
     return (
       <GuestPage>
-        <HeroPhoto image={wedding.story[0]} eyebrow="See you soon" height="short" stacked={false} names="lg" />
+        <HeroPhoto image={wedding.images.hero} eyebrow="See you soon" height="short" stacked={false} names="lg" />
         <Notice tone="info" icon="lock" className="mx-7 mt-9">
           Replies have closed. To change yours, call {wedding.contact.name} on {wedding.contact.phone}.
         </Notice>
@@ -126,7 +126,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
         <RsvpSection heading={false}>
           {form("Update my reply")}
           <Link href={`/i/${token}?view=full`} className="flex min-h-11 items-center self-center text-[15px]">
-            See our story &amp; event details
+            See the full invitation
           </Link>
         </RsvpSection>
       </GuestPage>

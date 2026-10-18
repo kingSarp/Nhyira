@@ -81,7 +81,7 @@ function Surface({ name }: { name: "guest" | "organiser" }) {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <p className="m-0 font-script text-[44px] leading-tight">Yaw &amp; Lady</p>
+            <p className="m-0 font-script text-[44px] leading-tight">{wedding.coupleNames}</p>
             <p className="type-org-title m-0">Guest list sign in</p>
             <p className="m-0 text-[18px]">12 of 40 households have replied</p>
             <p className="type-stat m-0">
@@ -181,14 +181,14 @@ function Surface({ name }: { name: "guest" | "organiser" }) {
         <Section title="Photo with scrim and caption">
           <figure className="m-0">
             <Photo
-              src={wedding.story[0].src}
-              alt={wedding.story[0].alt}
-              focus={wedding.story[0].focus}
+              src={wedding.images.hero.src}
+              alt={wedding.images.hero.alt}
+              focus={wedding.images.hero.focus}
               sizes="(min-width: 1024px) 50vw, 100vw"
               scrimHeight="45%"
               className="h-[360px]"
             >
-              <PhotoCaption year={wedding.story[0].year} caption={wedding.story[0].caption} />
+              <PhotoCaption year="2026" caption="Sample caption" />
             </Photo>
           </figure>
         </Section>

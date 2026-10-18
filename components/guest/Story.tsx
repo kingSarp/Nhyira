@@ -2,8 +2,9 @@ import { Photo, PhotoCaption } from "@/components/ui";
 import { wedding } from "@/lib/content/wedding";
 import { fullColumn, halfColumn } from "./sizes";
 
-/** Four story photos: one wide, two side by side, one wide. Then the rose break. */
+/** Four story photos: one wide, two side by side, one wide. Then the rose break. Hidden until all four exist. */
 export function Story() {
+  if (wedding.story.length < 4) return null;
   const [first, second, third, fourth] = wedding.story;
   const card = (p: (typeof wedding.story)[number], className: string, sizes: string, small = false) => (
     <figure className="m-0">

@@ -2,10 +2,17 @@ import type { Metadata } from "next";
 import { OpenSignupForm } from "@/components/guest/SignupForms";
 import { SignupClosed, SignupShell } from "@/components/guest/SignupShell";
 import { openLinkEvents, resolveSignupLink } from "@/lib/data";
-import { shortDate } from "@/lib/format";
+import { wedding } from "@/lib/content/wedding";
+import { longDate, shortDate } from "@/lib/format";
 import { submitOpenSignup } from "./actions";
 
-export const metadata: Metadata = { title: "Sign up", robots: { index: false, follow: false } };
+// This is the link that gets shared on WhatsApp, so the title and description
+// are what people read under the preview card.
+export const metadata: Metadata = {
+  title: { absolute: `${wedding.coupleNames} are getting married` },
+  description: `Sign up to celebrate with us on ${longDate(wedding.date)}. One person per sign-up.`,
+  robots: { index: false, follow: false },
+};
 
 export default async function JoinPage({ params }: PageProps<"/join/[code]">) {
   const { code } = await params;

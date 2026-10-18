@@ -1,6 +1,6 @@
 # Nhyira
 
-Personal wedding invitations and RSVP for Yaw & Lady. Each household opens its own link from WhatsApp; family organisers see the headcount on a dashboard.
+Personal wedding invitations and RSVP for Kay & Ama. Each household opens its own link from WhatsApp; family organisers see the headcount on a dashboard.
 
 Data lives in Supabase Postgres; organisers sign in with email and password (Supabase Auth).
 

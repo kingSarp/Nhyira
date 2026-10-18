@@ -56,7 +56,7 @@ Type roles are utilities in `globals.css`, so screens use the role, not raw size
 
 | Utility | Spec | Example |
 |---|---|---|
-| `type-hero` | Cormorant italic 300, 68/0.95 | Yaw & Lady on the hero |
+| `type-hero` | Cormorant italic 300, 68/0.95 | Kay & Ama on the hero |
 | `type-title` | Cormorant italic 300, 42/1.05 | Will you join us? |
 | `type-event` | Cormorant 400, 30/1.1 | The Reception |
 | `type-legend` | Cormorant 500, 24/1.2 | RSVP fieldset legend |
@@ -83,7 +83,7 @@ Built in `components/ui/`. Every one reads semantic tokens only, so it works on 
 | `FilterChip` | 44px pill link, 1px border; active = ink fill, white text, `aria-current`. | Dashboard |
 | `Notice` | Panel with icon and text. Tones `info` (panel), `success` (success-tint), `error` (error-tint, `role="alert"`). | Closed, reset sent, expired |
 | `ErrorSummary` | White box, 1px error border, title + jump links to each problem field. | RSVP with errors |
-| `CoupleNames` | "Yaw *&* Lady": display italic with a Great Vibes ampersand. Sizes `hero`, `lg`, `md`. | Guest screens |
+| `CoupleNames` | "Kay *&* Ama": display italic with a Great Vibes ampersand. Sizes `hero`, `lg`, `md`. | Guest screens |
 | `Photo` | `next/image` fill, cover, optional bottom scrim and caption (year + label). Placeholder fill `line`. | Hero, story, thanks |
 | `ExpandableRow` | One-line list row for long organiser lists: optional tick box, a summary button that opens a full-width details panel, round icon actions (≥ 44px). Used by Guests and Requests. | Dashboard |
 | `Icon` | Inline stroke SVGs: alert, mail, lock, search, close, whatsapp, check, chevron, copy, users, pencil, plus, upload, send. `aria-hidden` unless labelled. | All |

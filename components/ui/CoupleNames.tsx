@@ -8,7 +8,7 @@ const sizes = {
 } as const;
 
 /**
- * "Yaw & Lady" in italic Cormorant with a Great Vibes ampersand.
+ * The couple's names ("Kay & Ama") in italic Cormorant with a Great Vibes ampersand.
  * `stacked` puts the second name on its own line, as on the hero.
  */
 export function CoupleNames({
