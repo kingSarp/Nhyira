@@ -6,7 +6,7 @@ What Nhyira is, how the code is laid out, and the rules that keep it simple. Pro
 
 A personal invitation per household, opened from a WhatsApp link. Guests see their events and seat limit and RSVP without an account. The couple and family organisers sign in to a dashboard to see the headcount and send links.
 
-**Current phase: backend.** Screens call a data layer (`lib/data`) that reads and writes Supabase Postgres from the server. Organisers sign in with a Supabase email link.
+**Current phase: backend.** Screens call a data layer (`lib/data`) that reads and writes Supabase Postgres from the server. Organisers sign in with email and password (Supabase Auth).
 
 ### Three ways in
 
@@ -27,7 +27,7 @@ Both shared links start **off**. Requests are approved with default seats (the p
 | Fonts | `next/font/local`, files in `app/fonts/` | Self-hosted: no Google Fonts request at build or run time. |
 | Images | `next/image`, files in `public/images/` | AVIF/WebP, sized per breakpoint. |
 | Database | Supabase Postgres via `postgres` (porsager) | Server only, through the transaction pooler. Schema in `db/schema.sql`. |
-| Auth | Supabase Auth email links via `@supabase/ssr` | Organisers only; guests never sign in. |
+| Auth | Supabase Auth email + password via `@supabase/ssr` | Organisers only; guests never sign in. |
 | Hosting (next) | Vercel | |
 
 No UI kit, no state library, no CSS-in-JS. Add a dependency only when the platform can't do it; say why in the PR.
@@ -54,7 +54,8 @@ app/
       opengraph-image.tsx    WhatsApp preview card for this household (JPEG, ~55 KB)
   (organiser)/               data-surface="organiser"
     layout.tsx
-    login/page.tsx           /login       Sign in, link sent, expired
+    login/page.tsx           /login       Sign in, forgot password, reset sent, link expired
+    login/new-password/      /login/new-password  Choose a password (after the reset link)
     admin/
       layout.tsx             Header + tabs (Guests · Requests · Sign-up links)
       page.tsx               /admin           Guests: headcount, toolbar, search, one-line household list
@@ -67,7 +68,7 @@ app/
       requests/page.tsx      /admin/requests  Inbox list: one line per request, ✓/✕ per row, bulk approve/decline; tap a name for details and seats
       links/page.tsx         /admin/links     Turn shared links on/off, new link, open-link settings
       actions.ts             Organiser server actions
-    auth/confirm/route.ts    /auth/confirm  Where the sign-in email link lands
+    auth/confirm/route.ts    /auth/confirm  Where the password-reset email link lands
   styleguide/page.tsx        /styleguide  Tokens + components, dev only
 proxy.ts                     Refreshes the organiser session on /admin and /login
 db/schema.sql                Tables, indexes, RLS. `npm run db:setup` runs it.
@@ -149,7 +150,7 @@ For review, `?preview=closed` forces 1e anywhere except Vercel production.
 
 **RSVP form flow.** `components/guest/RsvpForm.tsx` (client) posts to `submitRsvp` (`actions.ts`). The action parses and validates with `lib/rsvp.ts`, then calls `saveResponse` and redirects to `?sent=1`. On errors it returns the submitted values and an error list; the form restores them, shows the summary and moves focus to it. Seat-name fields reveal with CSS (`:has(:checked)`), so the form works before JS loads; "Add a guest", "Remove" and "Same names as" need JS.
 
-Organiser `/login` states come from search params (`?sent=1&email=`, `?error=link`, `?error=send`). Supabase Auth emails the link only to addresses in `ADMIN_EMAILS`; anyone else sees the same "link sent" screen. The link lands on `/auth/confirm` (token hash from our email template, or a PKCE code from Supabase's default one), which starts the session and re-checks the allowlist. `proxy.ts` renews the session cookie; `getOrganiser()` verifies it on every dashboard page and action.
+Organisers sign in at `/login` with email and password; only addresses in `ADMIN_EMAILS` are tried against Supabase, and anyone else gets the same "doesn't match" error. Other states come from search params (`?forgot=1`, `?reset=sent&email=`, `?error=link`). "Forgot password?" (also how an organiser sets their first password) emails a reset link, again only to `ADMIN_EMAILS`. The link lands on `/auth/confirm` (token hash from our email template, or a PKCE code from Supabase's default one), which starts the session, re-checks the allowlist and opens `/login/new-password`. Supabase sign-ups are turned off; organisers are added under Authentication → Users. `proxy.ts` renews the session cookie; `getOrganiser()` verifies it on every dashboard page and action.
 
 **Guest list.** Organisers add households one by one or import a spreadsheet (header row with Name, Greeting, Phone, Side, Engagement, Church, Reception, in any order; pasted from Excel/Sheets as tabs, or a CSV file). The import shows rows to fix first; only valid, non-duplicate rows are added, all at once. A phone number can belong to one household. Editing seats below the names already given keeps the first names. Sending goes through `/admin/send/<token>`, which stamps `sentAt` so the list shows "Not sent / Sent today", and the send queue walks through unsent invites, then "sent, no reply" reminders.
 
@@ -172,7 +173,7 @@ Dashboard filters and search are URL search params (`?q=&status=`), so they are 
 
 ## 9. Next
 
-Done: Supabase tables, `lib/data` on Postgres, email-link sign-in.
+Done: Supabase tables, `lib/data` on Postgres, email + password sign-in.
 
 1. **Photo uploads from the dashboard** (admin only): Supabase Storage bucket, an upload screen under `/admin/photos`, and `lib/content` image slots read from the bucket instead of `public/images/`. The current photos are stand-ins until then.
 2. Deploy to Vercel (set `DATABASE_URL`, the Supabase keys, `ADMIN_EMAILS` and `NEXT_PUBLIC_SITE_URL`, so preview cards and links use the live address), run the 15–20 household validation test.

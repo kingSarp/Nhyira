@@ -15,7 +15,7 @@ The approved R1 screens use two related looks. They share semantic token names, 
 | Surface | Screens | Feel | Set by |
 |---|---|---|---|
 | **guest** | Invite, RSVP states, thanks, returning, closed, not found, home, WhatsApp preview | A printed invitation: warm cream paper, full-bleed photos of the couple, italic Cormorant display, burgundy accent | `app/(guest)/layout.tsx` → `data-surface="guest"` |
-| **organiser** | Sign in, link sent, expired link, dashboard | Watercolor Garden: white paper, charcoal ink, quiet uppercase labels, one burgundy accent | `app/(organiser)/layout.tsx` → `data-surface="organiser"` |
+| **organiser** | Sign in, reset password, dashboard | Watercolor Garden: white paper, charcoal ink, quiet uppercase labels, one burgundy accent | `app/(organiser)/layout.tsx` → `data-surface="organiser"` |
 
 Why two: guests see the invitation once and should feel celebrated; Auntie Efua uses the dashboard often and needs it calm and scannable. **Decision (17 Oct 2026): the dashboard stays a separate, professional tool**, not a themed copy of the invite. They stay one family through the same serif body, the same burgundy family, pill buttons and 2px-radius inputs.
 
@@ -81,7 +81,7 @@ Built in `components/ui/`. Every one reads semantic tokens only, so it works on 
 | `SeatGroup` | Paper panel inside the RSVP panel holding guest-name fields, "Remove", "+ Add a guest (n seats left)", "Same names as …". | RSVP |
 | `Badge` | Pill. `seats` (outline accent, "ADMITS 2"), `attending`, `declined`, `waiting`. | Events, dashboard |
 | `FilterChip` | 44px pill link, 1px border; active = ink fill, white text, `aria-current`. | Dashboard |
-| `Notice` | Panel with icon and text. Tones `info` (panel), `success` (success-tint), `error` (error-tint, `role="alert"`). | Closed, link sent, expired |
+| `Notice` | Panel with icon and text. Tones `info` (panel), `success` (success-tint), `error` (error-tint, `role="alert"`). | Closed, reset sent, expired |
 | `ErrorSummary` | White box, 1px error border, title + jump links to each problem field. | RSVP with errors |
 | `CoupleNames` | "Yaw *&* Lady": display italic with a Great Vibes ampersand. Sizes `hero`, `lg`, `md`. | Guest screens |
 | `Photo` | `next/image` fill, cover, optional bottom scrim and caption (year + label). Placeholder fill `line`. | Hero, story, thanks |
@@ -127,7 +127,7 @@ Couple photos live in `public/images/`. They are **stand-ins** from the design c
 | `/i/[token]/opengraph-image` | guest | 6 · WhatsApp preview, with and without photo |
 | `/request/<code>` | guest | Request a place: form, sent, closed (no board; built from the system) |
 | `/join/<code>` | guest | Open one-seat sign-up: form, full, closed (no board; built from the system) |
-| `/login` | organiser | 4a sign in · 4b link sent · 4c link expired |
+| `/login` | organiser | 4a sign in · forgot password · 4b reset sent · 4c link expired · new password (built from the system) |
 | `/admin` | organiser | 5a dashboard mobile + desktop · 5b search, no matches |
 | `/admin/requests`, `/admin/links` | organiser | Requests and Sign-up links tabs (no board; built from the system) |
 | `/admin/guests/new`, `/admin/guests/<token>`, `/admin/guests/import`, `/admin/send` | organiser | Add/edit household, import, send queue (no board; built from the system) |

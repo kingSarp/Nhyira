@@ -1,48 +1,81 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { isAdminEmail } from "@/lib/auth";
+import { getOrganiser, isAdminEmail } from "@/lib/auth";
+import { MIN_PASSWORD } from "@/lib/password";
 import { siteUrl } from "@/lib/site";
 import { createSupabase } from "@/lib/supabase/server";
 
-export type SignInState = { error?: string; email?: string };
+/** `field` says which input the error belongs to (email when absent). */
+export type SignInState = { error?: string; email?: string; field?: "password" };
+export type PasswordState = { error?: string };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+const TOO_MANY = "Too many tries just now. Wait a few minutes, then try again.";
+
 /**
- * Emails a one-time sign-in link (Supabase Auth). Only addresses in
- * ADMIN_EMAILS get one; others see the same "link sent" screen, so the page
- * doesn't reveal who has access.
+ * Email + password sign-in (Supabase Auth). Addresses not in ADMIN_EMAILS get
+ * the same "doesn't match" error as a wrong password, so the page doesn't
+ * reveal who has access.
  */
-export async function requestSignInLink(_prev: SignInState, form: FormData): Promise<SignInState> {
+export async function signIn(_prev: SignInState, form: FormData): Promise<SignInState> {
+  const email = String(form.get("email") ?? "").trim().toLowerCase();
+  const password = String(form.get("password") ?? "");
+  if (!EMAIL.test(email)) return { error: "Enter a complete email address.", email };
+  if (!password) return { error: "Enter your password.", email, field: "password" };
+
+  const wrong: SignInState = { error: "That email and password don't match.", email, field: "password" };
+  if (!isAdminEmail(email)) return wrong;
+
+  const supabase = await createSupabase();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) {
+    if (error.status === 429) return { error: TOO_MANY, email, field: "password" };
+    if (error.status !== 400) console.error("Sign-in failed:", error.status, error.message);
+    return wrong;
+  }
+  redirect("/admin");
+}
+
+/**
+ * Emails a link to set a new password. Also how an organiser sets their first
+ * one. Only ADMIN_EMAILS get an email; everyone sees the same "sent" screen.
+ */
+export async function requestPasswordReset(_prev: SignInState, form: FormData): Promise<SignInState> {
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   if (!EMAIL.test(email)) return { error: "Enter a complete email address.", email };
 
   if (isAdminEmail(email)) {
     const supabase = await createSupabase();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${siteUrl()}/auth/confirm`, shouldCreateUser: true },
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${siteUrl()}/auth/confirm?next=password`,
     });
     if (error) {
-      console.error("Sign-in link failed:", error.status, error.message);
-      return {
-        email,
-        error:
-          error.status === 429
-            ? "Too many links sent just now. Wait a few minutes, then try again."
-            : "We couldn't send the link. Try again in a minute.",
-      };
+      console.error("Reset email failed:", error.status, error.message);
+      return { email, error: error.status === 429 ? TOO_MANY : "We couldn't send the email. Try again in a minute." };
     }
   }
-  redirect(`/login?sent=1&email=${encodeURIComponent(email)}`);
+  redirect(`/login?reset=sent&email=${encodeURIComponent(email)}`);
 }
 
-/** "Send it again" on the link-sent screen. */
-export async function resendSignInLink(form: FormData) {
-  const state = await requestSignInLink({}, form);
-  const email = encodeURIComponent(String(form.get("email") ?? ""));
-  redirect(state.error ? `/login?error=send&email=${email}` : `/login?sent=1&email=${email}`);
+/** Sets the signed-in organiser's password (after following a reset link). */
+export async function setNewPassword(_prev: PasswordState, form: FormData): Promise<PasswordState> {
+  if (!(await getOrganiser())) redirect("/login?error=link");
+  const password = String(form.get("password") ?? "");
+  const confirm = String(form.get("confirm") ?? "");
+  if (password.length < MIN_PASSWORD) return { error: `Use at least ${MIN_PASSWORD} characters.` };
+  if (password !== confirm) return { error: "The two passwords don't match." };
+
+  const supabase = await createSupabase();
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    if (error.code === "same_password") return { error: "Choose a password you haven't used here before." };
+    if (error.code === "weak_password") return { error: "That password is too easy to guess. Try a longer one." };
+    console.error("Password change failed:", error.status, error.message);
+    return { error: "We couldn't save that password. Try again." };
+  }
+  redirect("/admin");
 }
 
 export async function signOut() {

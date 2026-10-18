@@ -2,7 +2,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-// Supabase is used only for organiser sign-in (email links). Guest data goes
+// Supabase is used only for organiser sign-in (email + password). Guest data goes
 // straight to Postgres from the server; see lib/db.ts.
 
 export function supabaseEnv() {

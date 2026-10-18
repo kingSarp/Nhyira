@@ -3,13 +3,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isAdminEmail } from "@/lib/auth";
 import { createSupabase } from "@/lib/supabase/server";
 
-// Where the sign-in email's link lands. Two link shapes are accepted:
-//   ?token_hash=…&type=email  from our email template; works in any browser
-//   ?code=…                   Supabase's default template; same browser only
+// Where the password-reset email's link lands. Two link shapes are accepted:
+//   ?token_hash=…&type=recovery  from our email template; works in any browser
+//   ?code=…&next=password        Supabase's default template; same browser only
+// Either way the organiser is signed in, then sent to choose a new password.
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const tokenHash = params.get("token_hash");
-  const type = (params.get("type") ?? "email") as EmailOtpType;
+  const type = (params.get("type") ?? "recovery") as EmailOtpType;
   const code = params.get("code");
   const to = (path: string) => NextResponse.redirect(new URL(path, request.url));
 
@@ -25,5 +26,5 @@ export async function GET(request: NextRequest) {
     if (!error) await supabase.auth.signOut();
     return to(`/login?error=link${email ? `&email=${encodeURIComponent(email)}` : ""}`);
   }
-  return to("/admin");
+  return to(type === "recovery" || params.get("next") === "password" ? "/login/new-password" : "/admin");
 }
