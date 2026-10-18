@@ -132,6 +132,7 @@ The main photo and the four story photos are uploaded by organisers on `/admin/d
 | `/login` | organiser | 4a sign in · forgot password · 4b reset sent · 4c link expired · new password (built from the system) |
 | `/admin` | organiser | 5a dashboard mobile + desktop · 5b search, no matches |
 | `/admin/requests`, `/admin/links`, `/admin/details` | organiser | Requests, Sign-up links and Wedding details tabs (no board; built from the system) |
+| `/admin/team` | organiser | Team: ushers and organisers, add someone (role as two plain choices), one-time password box with Copy / Send on WhatsApp (built from the system) |
 | `/checkin` | organiser | Entrance: camera scanner, result panel (success / already / not found), name or phone search. Organisers and ushers. (Built from the system.) |
 | `/admin/guests/new`, `/admin/guests/<token>`, `/admin/guests/import`, `/admin/send` | organiser | Add/edit household, import, send queue (no board; built from the system) |
 | `/styleguide` | both | Tokens and components (development only) |

@@ -27,14 +27,8 @@ Data lives in Supabase Postgres; organisers sign in with email and password (Sup
 
 Organisers are the users you add in Supabase → Authentication → Users. The dashboard stays locked while Supabase sign-ups are on.
 
-**Ushers** (check-in only): add them as users the same way, then mark them in Supabase → SQL Editor:
+**Team** (`/admin/team`): organisers add ushers (check-in only) and other organisers from the dashboard, reset their passwords, change roles and remove them. The site creates the account and shows a password once, to send on WhatsApp. This needs `SUPABASE_SECRET_KEY` (Supabase → Project Settings → API Keys → Secret keys) in `.env.local` and on Vercel, as a secret. The first organiser is added in Supabase → Authentication → Users.
 
-```sql
-update auth.users
-set raw_app_meta_data = raw_app_meta_data || '{"role": "usher"}'
-where email = 'usher@example.com';
-```
-
-They sign in at `/login` and land on `/checkin`; they can't open the dashboard. (Signed-in ushers pick up the change within an hour, or at once after signing out and in.) Password-reset emails use Supabase's built-in sender, which only delivers to members of your Supabase organisation, a few per hour; add other organisers to the organisation, or connect your own SMTP (Authentication → Emails → SMTP) before the wedding.
+Password-reset emails use Supabase's built-in sender, which only delivers to members of your Supabase organisation, a few per hour; add other organisers to the organisation, or connect your own SMTP (Authentication → Emails → SMTP) before the wedding.
 
 Read [AGENTS.md](AGENTS.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [DESIGN.md](DESIGN.md) before changing code.

@@ -55,7 +55,7 @@ app/
     login/page.tsx           /login       Sign in, forgot password, reset sent, link expired
     login/new-password/      /login/new-password  Choose a password (after the reset link)
     admin/
-      layout.tsx             Header + tabs (Guests · Requests · Sign-up links · Wedding details · Check-in)
+      layout.tsx             Header + tabs (Guests · Requests · Sign-up links · Wedding details · Team · Check-in)
       page.tsx               /admin           Guests: headcount, toolbar, search, one-line household list
       guests/new/            /admin/guests/new         Add a household
       guests/[token]/        /admin/guests/<token>     Edit or remove a household
@@ -68,6 +68,7 @@ app/
       details/page.tsx       /admin/details   Edit names, date, venue, time, programme, dress colours, contact, deadline, photos
       actions.ts             Dashboard server actions (requests, links)
       details/actions.ts     Wedding details and photo uploads
+      team/                  /admin/team      Add, reset, change role, remove ushers and organisers
     checkin/                 /checkin         Entrance: scan passes, find guests (organisers and ushers)
       actions.ts             checkInGuest, undoGuest, searchGuests
     auth/confirm/route.ts    /auth/confirm  Where the password-reset email link lands
@@ -94,11 +95,13 @@ lib/
     rows.ts                  Database rows → app types
     wedding.ts               getWedding(), saving details, photo upload/delete (Storage)
     checkin.ts               checkIn, undoCheckIn, findGuests, arrivalCounts, peopleFor
+    staff.ts                 listStaff, addStaff, resetStaffPassword, setStaffRole, removeStaff
   db.ts                      Postgres connection (server only)
   auth.ts                    getStaff() (organiser or usher), getOrganiser(); sign-ups must be off
   checkin.ts                 tokenFromScan(), CheckInView (shared by the scanner and its actions)
   shrink-photo.ts            Browser-side photo shrinking before upload
   supabase/server.ts         Supabase client for sign-in (cookies)
+  supabase/admin.ts          Supabase admin client (secret key), server only: staff accounts
   rsvp.ts                    RSVP field names, parsing, validation (shared by form and action)
   signup-forms.ts            Request and open sign-up parsing, validation
   household-forms.ts         Household form + spreadsheet (CSV/TSV) parsing and validation
@@ -167,7 +170,9 @@ Organisers are the users in Supabase → Authentication → Users, added there b
 
 **The guest flow (one link).** The organiser shares the open sign-up link (`/join/<code>`). The guest sees the day (date, time, address, programme, dress colours), enters name and phone, and taps "Confirm my place": there are no event choices, because the day is one event (`EVENTS` in `lib/content/wedding.ts`) and the engagement, church service and reception are its `programme`, wording only. They land on their invitation (`/i/<token>?sent=1`), which shows their **pass**: a QR code of their invitation URL (`components/guest/GuestPass.tsx`, generated with `qrcode`). Self sign-ups never enter the "Send invites" queue (`needsInvite()` in `lib/households.ts`). The pass also shows on return visits and after replies close, i.e. on the day.
 
-**Check-in.** `/checkin` (organisers and ushers) scans passes with the camera (the browser's `BarcodeDetector` where there is one, else `jsqr`), reads the token from the URL (`tokenFromScan`), and stamps `checked_in_at` / `checked_in_by` once; a second scan shows when and by whom. Guests without a pass are found by name or phone. Ushers are Supabase users with `app_metadata.role = "usher"` (README); `getStaff()` returns the role, ushers only reach `/checkin`.
+**Check-in.** `/checkin` (organisers and ushers) scans passes with the camera (the browser's `BarcodeDetector` where there is one, else `jsqr`), reads the token from the URL (`tokenFromScan`), and stamps `checked_in_at` / `checked_in_by` once; a second scan shows when and by whom. Guests without a pass are found by name or phone. Ushers are Supabase users with `app_metadata.role = "usher"`; `getStaff()` returns the role, ushers only reach `/checkin`.
+
+**Team.** `/admin/team` lists staff and lets organisers add (organiser or usher, with a generated three-word password shown once), reset passwords, change roles and remove people. It uses the Supabase admin API with `SUPABASE_SECRET_KEY` (`lib/supabase/admin.ts`, server only; `lib/data/staff.ts`). `getStaff()` asks Supabase Auth on every request (`getUser`, not just the signed cookie), so a removal or role change applies immediately; it's cached per request. Organisers can't remove themselves or change their own role.
 
 **Guest list.** Organisers add households one by one or import a spreadsheet (header row with Name, Greeting, Phone, Side, Seats, in any order; older sheets with Engagement / Church / Reception columns import as the largest of them; pasted from Excel/Sheets as tabs, or a CSV file). The import shows rows to fix first; only valid, non-duplicate rows are added, all at once. A phone number can belong to one household. Editing seats below the names already given keeps the first names. Sending goes through `/admin/send/<token>`, which stamps `sentAt` so the list shows "Not sent / Sent today", and the send queue walks through unsent invites, then "sent, no reply" reminders.
 
