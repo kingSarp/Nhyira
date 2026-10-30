@@ -18,7 +18,7 @@ import { Story } from "@/components/guest/Story";
 import { fullColumn } from "@/components/guest/sizes";
 import { Button, CoupleNames, Notice, Photo } from "@/components/ui";
 import { getInvitation, getWedding, invitedEvents, isComing, rsvpOpen } from "@/lib/data";
-import { dayMonth } from "@/lib/format";
+import { dayMonth, dotDate } from "@/lib/format";
 import { previewImages } from "@/lib/og";
 import { submitRsvp } from "./actions";
 
@@ -141,7 +141,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
   /* 1a · First open (1b errors render inside the form). The envelope only until they've replied. */
   return (
     <GuestPage sealed={!replied}>
-      {!replied && <EnvelopeIntro to={`For ${name}`} monogram={w.monogram} storageKey={`nhyira:opened:${token}`} />}
+      {!replied && <EnvelopeIntro to={`For ${name}`} partners={w.partners} date={dotDate(w.date)} storageKey={`nhyira:opened:${token}`} />}
       <HeroPhoto byline="invite you" />
       <Greeting name={name} />
       <WeddingCountdown className="motion-reveal px-4 pb-6" />

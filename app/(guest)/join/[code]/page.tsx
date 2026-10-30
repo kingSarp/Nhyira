@@ -6,7 +6,7 @@ import { OpenSignupForm } from "@/components/guest/SignupForms";
 import { SignupClosed, SignupShell } from "@/components/guest/SignupShell";
 import { wedding } from "@/lib/content/wedding";
 import { getWedding, openLinkEvents, resolveSignupLink } from "@/lib/data";
-import { longDate, shortDate } from "@/lib/format";
+import { dotDate, longDate, shortDate } from "@/lib/format";
 import { previewImages } from "@/lib/og";
 import { displayTime } from "@/lib/wedding";
 import { submitOpenSignup } from "./actions";
@@ -56,7 +56,7 @@ export default async function JoinPage({ params }: PageProps<"/join/[code]">) {
   return (
     <SignupShell
       byline="invite you"
-      intro={<EnvelopeIntro to="You're invited" monogram={w.monogram} storageKey={`nhyira:opened:join:${code}`} />}
+      intro={<EnvelopeIntro to="You're invited" partners={w.partners} date={dotDate(w.date)} storageKey={`nhyira:opened:join:${code}`} />}
       title="Will you join us?"
       lead="Add your name and number to confirm your place. One person per sign-up."
       details={

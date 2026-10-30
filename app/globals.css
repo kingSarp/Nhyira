@@ -262,6 +262,19 @@
     transform: translateX(40px);
   }
 }
+@keyframes bob {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* A gentle bob while something waits to be tapped (the envelope). */
+@utility motion-bob {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: bob 3.2s ease-in-out infinite;
+  }
+}
+
 @keyframes float-up {
   0% {
     opacity: 0;
