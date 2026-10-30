@@ -1,5 +1,5 @@
 import { ClosingPhoto } from "@/components/guest/ClosingPhoto";
-import { DayExtras } from "@/components/guest/EventCard";
+import { DayExtras, MapLink } from "@/components/guest/EventCard";
 import { Roses } from "@/components/guest/Roses";
 import { fullHeight } from "@/components/guest/sizes";
 import { Story } from "@/components/guest/Story";
@@ -14,7 +14,7 @@ function daysUntil(isoDate: string) {
   return Math.round((Date.parse(isoDate) - Date.parse(today)) / 86_400_000);
 }
 
-/** 3 · Home / save the date. For anyone who opens the bare address; no venue here, that's on the invite. */
+/** 3 · Home / save the date. For anyone who opens the bare address. */
 export default async function HomePage() {
   const w = await getWedding();
   const img = w.images.couple;
@@ -29,7 +29,7 @@ export default async function HomePage() {
             <p className="motion-rise m-0 text-[12px] uppercase tracking-[0.32em] [--rise-delay:300ms]">Save the date</p>
             <CoupleNames partners={w.partners} as="h1" size="hero" stacked className="motion-rise [--rise-delay:550ms]" />
             <p className="type-dateline motion-rise m-0 mt-1 [--rise-delay:850ms]">{dotDate(w.date)}</p>
-            <p className="motion-rise m-0 text-[14px] [--rise-delay:1000ms]">{w.city}</p>
+            <p className="motion-rise m-0 max-w-[30ch] text-[14px] [--rise-delay:1000ms]">{day.venue}</p>
           </div>
         </Photo>
       </header>
@@ -54,7 +54,10 @@ export default async function HomePage() {
             The day
           </h2>
           <p className="m-0 font-display text-[34px] font-light italic leading-tight">{fullDate(w.date)}</p>
-          <p className="type-meta m-0">{w.city}</p>
+          <p className="m-0 max-w-[28ch] text-[17px]">{day.venue}</p>
+          <MapLink event={day} className="inline-flex min-h-11 items-center text-[15px] underline">
+            Open in Google Maps
+          </MapLink>
         </div>
         <DayExtras event={day} programme={w.programme} />
       </section>
