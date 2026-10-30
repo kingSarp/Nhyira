@@ -118,8 +118,8 @@ function Names({ partners: [a, b], size, width }: { partners: readonly [string, 
 export async function inviteCard({ who, withPhoto = true }: { who?: string; withPhoto?: boolean }) {
   const [{ fonts, roses }, w] = await Promise.all([loaded, getWedding()]);
   const photo = withPhoto ? await couplePhoto(w.images.couple.src) : null;
-  const invited = `invited to the ${wedding.occasion} of`;
-  const lead = who ? [`${who},`, `you're ${invited}`] : [`You're ${invited}`];
+  // Two lines, so the longer wording clears the roses.
+  const invite = ["invite you to their", wedding.occasion];
 
   const png = new ImageResponse(
     photo ? (
@@ -127,13 +127,16 @@ export async function inviteCard({ who, withPhoto = true }: { who?: string; with
         <img src={photo} alt="" width={500} height={630} style={{ width: 500, height: 630, objectFit: "cover", objectPosition: w.images.couple.focus }} />
         <img src={roses} alt="" width={220} height={253} style={{ position: "absolute", right: -10, bottom: -30, width: 220, height: 253 }} />
         <div style={{ position: "absolute", left: 540, top: 40, width: 600, height: 550, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-          <div style={{ display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 400, fontSize: who && who.length > 30 ? 26 : 30, lineHeight: 1.3, color: C.ink2, maxWidth: 580, textAlign: "center", flexDirection: "column", alignItems: "center" }}>
-            {lead.map((l) => (
+          {who && (
+            <div style={{ display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 400, fontSize: who.length > 30 ? 26 : 30, color: C.ink2, maxWidth: 580, marginBottom: 14 }}>
+              {`${who},`}
+            </div>
+          )}
+          <Names partners={w.partners} size={110} width={580} />
+          <div style={{ display: "flex", marginTop: 16, fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 400, fontSize: 30, color: C.ink2, flexDirection: "column", alignItems: "center", lineHeight: 1.25 }}>
+            {invite.map((l) => (
               <span key={l}>{l}</span>
             ))}
-          </div>
-          <div style={{ display: "flex", marginTop: 18 }}>
-            <Names partners={w.partners} size={110} width={580} />
           </div>
           <div style={{ display: "flex", marginTop: 22, fontSize: 22, letterSpacing: 6.6 }}>{dotDate(w.date)}</div>
         </div>
@@ -144,13 +147,14 @@ export async function inviteCard({ who, withPhoto = true }: { who?: string; with
         <img src={roses} alt="" width={250} height={288} style={{ position: "absolute", right: -10, bottom: -30, width: 250, height: 288 }} />
         <img src={roses} alt="" width={250} height={288} style={{ position: "absolute", left: -10, bottom: -30, width: 250, height: 288, transform: "scaleX(-1)" }} />
         <div style={{ position: "absolute", left: 150, top: 75, width: 900, height: 480, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-          <div style={{ display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 400, fontSize: 32, color: C.ink2, textAlign: "center", flexDirection: "column", alignItems: "center" }}>
-            {lead.map((l) => (
+          {who && (
+            <div style={{ display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 400, fontSize: 32, color: C.ink2, marginBottom: 16 }}>{`${who},`}</div>
+          )}
+          <Names partners={w.partners} size={124} width={880} />
+          <div style={{ display: "flex", marginTop: 18, fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 400, fontSize: 32, color: C.ink2, flexDirection: "column", alignItems: "center", lineHeight: 1.25 }}>
+            {invite.map((l) => (
               <span key={l}>{l}</span>
             ))}
-          </div>
-          <div style={{ display: "flex", marginTop: 16 }}>
-            <Names partners={w.partners} size={124} width={880} />
           </div>
           <div style={{ display: "flex", marginTop: 24, fontSize: 22, letterSpacing: 6.6 }}>{dotDate(w.date)}</div>
         </div>

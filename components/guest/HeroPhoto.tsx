@@ -8,11 +8,13 @@ import { fullColumn, fullHeight } from "./sizes";
 
 /**
  * Full-bleed photo with the couple's names over a bottom scrim.
- * `eyebrow` sits above the names, `children` below the date.
+ * `eyebrow` sits above the names, `byline` right after them ("invite you"),
+ * `children` below the date.
  */
 export async function HeroPhoto({
   image,
   eyebrow,
+  byline,
   height = "tall",
   stacked = true,
   names = "hero",
@@ -21,6 +23,7 @@ export async function HeroPhoto({
 }: {
   image?: Img;
   eyebrow?: ReactNode;
+  byline?: ReactNode;
   height?: "tall" | "medium" | "short";
   stacked?: boolean;
   names?: "hero" | "lg" | "md";
@@ -48,8 +51,9 @@ export async function HeroPhoto({
         >
           {eyebrow && <p className="motion-rise m-0 text-[12px] uppercase tracking-[0.32em] [--rise-delay:300ms]">{eyebrow}</p>}
           <CoupleNames partners={w.partners} as="h1" size={names} stacked={stacked} className="motion-rise [--rise-delay:550ms]" />
-          <p className="type-dateline motion-rise m-0 mt-1.5 [--rise-delay:850ms]">{dotDate(w.date)}</p>
-          {children && <div className="motion-rise [--rise-delay:1050ms]">{children}</div>}
+          {byline && <p className="motion-rise m-0 font-display text-[26px] italic leading-tight [--rise-delay:750ms]">{byline}</p>}
+          <p className="type-dateline motion-rise m-0 mt-1.5 [--rise-delay:950ms]">{dotDate(w.date)}</p>
+          {children && <div className="motion-rise [--rise-delay:1150ms]">{children}</div>}
         </div>
       </Photo>
     </header>

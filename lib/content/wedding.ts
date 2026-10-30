@@ -9,6 +9,13 @@
 export type DressColour = { name: string; hex: string };
 
 /**
+ * Fabrics a flat colour can't show. A dress colour with one of these names
+ * (any case) is drawn with the image; its hex is the fallback.
+ */
+const SWATCH_IMAGES: Record<string, string> = { kente: "/images/kente.svg" };
+export const swatchImage = (name: string) => SWATCH_IMAGES[name.trim().toLowerCase()];
+
+/**
  * One event: everything happens on one day at one place. The parts of the day
  * (engagement, church service, reception) are the `programme`, which is
  * wording only. Seats, replies and check-in are per event, so another event
@@ -95,7 +102,7 @@ export const defaultDetails: WeddingDetails = {
   events: {
     wedding: {
       date: "2026-12-26",
-      time: "",
+      time: "10:00 AM",
       venue: "20 Asikuma Ave, GD-134-4557",
       mapUrl: "",
       dressColours: [

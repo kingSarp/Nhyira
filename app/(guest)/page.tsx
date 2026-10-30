@@ -7,6 +7,7 @@ import { CoupleNames, Photo } from "@/components/ui";
 import { wedding } from "@/lib/content/wedding";
 import { getWedding } from "@/lib/data";
 import { dotDate, fullDate } from "@/lib/format";
+import { displayTime } from "@/lib/wedding";
 
 /** Whole days from today (Accra) to the wedding date; 0 on the day, negative after. */
 function daysUntil(isoDate: string) {
@@ -54,6 +55,7 @@ export default async function HomePage() {
             The day
           </h2>
           <p className="m-0 font-display text-[34px] font-light italic leading-tight">{fullDate(w.date)}</p>
+          <p className="type-meta m-0">{displayTime(day.time)}</p>
           <p className="m-0 max-w-[28ch] text-[17px]">{day.venue}</p>
           <MapLink event={day} className="inline-flex min-h-11 items-center text-[15px] underline">
             Open in Google Maps

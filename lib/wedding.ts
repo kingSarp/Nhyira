@@ -151,6 +151,7 @@ export function toWedding(details: WeddingDetails): Wedding {
       .filter((p): p is StoryPhoto => p !== null)
       .map((p) => ({ ...p, alt: p.caption ? `${coupleAlt}: ${p.caption}` : coupleAlt, focus: "50% 30%" })),
     images: { couple, roseBreak: wedding.images.roseBreak },
-    cardVersion: shortHash(JSON.stringify([a, b, details.date, couple.src, couple.focus, wedding.previewWithPhoto, wedding.occasion])),
+    // Bump the trailing layout number when lib/og.tsx changes what the card shows.
+    cardVersion: shortHash(JSON.stringify([a, b, details.date, couple.src, couple.focus, wedding.previewWithPhoto, wedding.occasion, 2])),
   };
 }

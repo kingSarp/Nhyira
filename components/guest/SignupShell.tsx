@@ -10,12 +10,14 @@ import { Roses } from "./Roses";
 /** Shared frame for the public "request a place" and "sign up" pages. */
 export function SignupShell({
   eyebrow,
+  byline,
   title,
   lead,
   details,
   children,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
+  byline?: string;
   title: string;
   lead?: ReactNode;
   /** On the paper between the photo and the panel, e.g. the day's details. */
@@ -24,7 +26,7 @@ export function SignupShell({
 }) {
   return (
     <GuestPage>
-      <HeroPhoto eyebrow={eyebrow} height="short" stacked={false} names="lg" />
+      <HeroPhoto eyebrow={eyebrow} byline={byline} height="short" stacked={false} names="lg" />
       {details}
       <section className={cn("motion-reveal flex flex-col gap-[26px] bg-panel px-7 pt-12 pb-14", details ? "mt-14" : undefined)}>
         <div className="flex flex-col gap-2 text-center">

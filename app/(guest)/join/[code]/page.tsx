@@ -53,7 +53,7 @@ export default async function JoinPage({ params }: PageProps<"/join/[code]">) {
 
   return (
     <SignupShell
-      eyebrow="You're invited"
+      byline="invite you"
       title="Will you join us?"
       lead="Add your name and number to confirm your place. One person per sign-up."
       details={<EventList events={open} programme={w.programme} />}

@@ -23,7 +23,7 @@ import { submitRsvp } from "./actions";
 export async function generateMetadata({ params }: PageProps<"/i/[token]">): Promise<Metadata> {
   const { token } = await params;
   const [invitation, w] = await Promise.all([getInvitation(token), getWedding()]);
-  const title = invitation ? `${invitation.greeting ?? invitation.householdName}, you're invited` : "Invitation";
+  const title = invitation ? `Invitation for ${invitation.greeting ?? invitation.householdName}` : "Invitation";
   const card = previewImages(w, invitation ? { token, name: invitation.householdName } : undefined);
   const description = `${w.coupleNames} would love you to celebrate with them. Tap to see the details and reply.`;
   return {
@@ -139,7 +139,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
   /* 1a · First open (1b errors render inside the form) */
   return (
     <GuestPage>
-      <HeroPhoto eyebrow="You're invited" />
+      <HeroPhoto byline="invite you" />
       <Greeting name={name} />
       <Story />
       <EventList events={events} programme={w.programme} />

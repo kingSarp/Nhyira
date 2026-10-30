@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui";
-import type { ProgrammeItem } from "@/lib/content/wedding";
+import { swatchImage, type ProgrammeItem } from "@/lib/content/wedding";
 import { fullDate } from "@/lib/format";
 import { displayTime, type WeddingEvent } from "@/lib/wedding";
 
@@ -100,7 +100,11 @@ export function DayExtras({ event, programme }: { event: WeddingEvent; programme
                       <span
                         aria-hidden
                         className="block size-8 rounded-full border border-border"
-                        style={{ backgroundColor: c.hex }}
+                        style={{
+                          backgroundColor: c.hex,
+                          backgroundImage: swatchImage(c.name) ? `url(${swatchImage(c.name)})` : undefined,
+                          backgroundSize: "cover",
+                        }}
                       />
                       {c.name}
                     </li>

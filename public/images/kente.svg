@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Kente-style weave for the dress-code swatch: warp-stripe panels alternating with weft-block panels. -->
+  <defs>
+    <pattern id="warp" width="12" height="12" patternUnits="userSpaceOnUse">
+      <rect width="12" height="12" fill="#E3A812"/>
+      <rect x="1" width="2" height="12" fill="#1F6E3A"/>
+      <rect x="4" width="1" height="12" fill="#B3261E"/>
+      <rect x="6" width="2" height="12" fill="#1A1A1A"/>
+      <rect x="9" width="1" height="12" fill="#B3261E"/>
+      <rect x="10.5" width="1" height="12" fill="#1F6E3A"/>
+    </pattern>
+    <pattern id="weft" width="12" height="12" patternUnits="userSpaceOnUse">
+      <rect width="12" height="12" fill="#1F6E3A"/>
+      <rect y="1" width="12" height="2" fill="#E3A812"/>
+      <rect y="4" width="12" height="1.5" fill="#B3261E"/>
+      <rect y="6.5" width="12" height="2" fill="#E3A812"/>
+      <rect y="9.5" width="12" height="1.5" fill="#1A1A1A"/>
+    </pattern>
+  </defs>
+  <rect width="48" height="48" fill="url(#warp)"/>
+  <g fill="url(#weft)">
+    <rect x="12" y="0" width="12" height="12"/><rect x="36" y="0" width="12" height="12"/>
+    <rect x="0" y="12" width="12" height="12"/><rect x="24" y="12" width="12" height="12"/>
+    <rect x="12" y="24" width="12" height="12"/><rect x="36" y="24" width="12" height="12"/>
+    <rect x="0" y="36" width="12" height="12"/><rect x="24" y="36" width="12" height="12"/>
+  </g>
+</svg>
