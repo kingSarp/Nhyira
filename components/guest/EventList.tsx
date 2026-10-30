@@ -14,12 +14,12 @@ export type InvitedEvent = WeddingEvent & { seats: number };
 export function EventList({ events, programme }: { events: (WeddingEvent & { seats?: number })[]; programme: ProgrammeItem[] }) {
   return (
     <section aria-labelledby="celebrations" className="flex flex-col px-7 pt-14 pb-2">
-      <h2 id="celebrations" className="type-eyebrow m-0 mb-5 text-center font-normal">
+      <h2 id="celebrations" className="type-eyebrow motion-reveal m-0 mb-5 text-center font-normal">
         The celebrations
       </h2>
       <ul className="m-0 list-none p-0">
         {events.map((e, i) => (
-          <li key={e.id} className={cn("motion-reveal border-t border-line py-10", i === events.length - 1 && "border-b")}>
+          <li key={e.id} className={cn("border-t border-line py-10", i === events.length - 1 && "border-b")}>
             <EventCard event={e} programme={programme} seats={e.seats} />
           </li>
         ))}

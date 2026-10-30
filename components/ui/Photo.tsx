@@ -28,7 +28,7 @@ export function Photo({
   children?: ReactNode;
 }) {
   return (
-    <div className={cn("relative overflow-hidden bg-line", className)}>
+    <div className={cn("relative overflow-clip bg-line", className)}>
       <Image
         src={src}
         alt={alt}

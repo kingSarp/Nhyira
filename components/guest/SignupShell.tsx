@@ -32,7 +32,7 @@ export function SignupShell({
       {intro}
       <HeroPhoto eyebrow={eyebrow} byline={byline} height="short" stacked={false} names="lg" />
       {details}
-      <section className={cn("motion-reveal flex flex-col gap-[26px] bg-panel px-7 pt-12 pb-14", details ? "mt-14" : undefined)}>
+      <section className={cn("motion-stagger flex flex-col gap-[26px] bg-panel px-7 pt-12 pb-14", details ? "mt-14" : undefined)}>
         <div className="flex flex-col gap-2 text-center">
           <h2 className="type-title m-0">{title}</h2>
           {lead && <p className="type-meta m-0">{lead}</p>}

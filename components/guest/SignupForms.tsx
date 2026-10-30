@@ -54,7 +54,7 @@ function PersonFields({ values, errors, phoneHint }: { values: Record<string, st
 export function RequestForm({ action }: { action: Action }) {
   const { formAction, onSubmit, pending, values, errors, top } = useSignupForm(action);
   return (
-    <form action={formAction} onSubmit={onSubmit} noValidate className="flex flex-col gap-[22px]">
+    <form action={formAction} onSubmit={onSubmit} noValidate className="motion-stagger flex flex-col gap-[22px]">
       {top}
       <PersonFields values={values} errors={errors} phoneHint="The couple will use this to send your invitation." />
       <SelectField id="partySize" name="partySize" label="How many people, including you" defaultValue={values.partySize ?? "1"} error={errors.partySize}>
@@ -76,7 +76,7 @@ export function RequestForm({ action }: { action: Action }) {
 export function OpenSignupForm({ action, events }: { action: Action; events: { id: EventId; name: string; when: string }[] }) {
   const { formAction, onSubmit, pending, values, errors, top } = useSignupForm(action);
   return (
-    <form action={formAction} onSubmit={onSubmit} noValidate className="flex flex-col gap-[22px]">
+    <form action={formAction} onSubmit={onSubmit} noValidate className="motion-stagger flex flex-col gap-[22px]">
       {top}
       <PersonFields values={values} errors={errors} phoneHint="One sign-up per number. We'll only use it if plans change." />
       {events.length > 1 && events.map((e) => {

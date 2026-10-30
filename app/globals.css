@@ -240,8 +240,14 @@
 }
 @keyframes settle {
   from {
-    opacity: 0.4;
-    transform: scale(1.05);
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.96);
   }
 }
 @keyframes drift {
@@ -332,8 +338,8 @@
   @media (prefers-reduced-motion: no-preference) {
     & img {
       animation:
-        settle 3200ms cubic-bezier(0.2, 0, 0, 1) both,
-        drift 20s ease-in-out 3200ms infinite alternate;
+        settle 2600ms cubic-bezier(0.2, 0, 0, 1) both,
+        drift 20s ease-in-out 2600ms infinite alternate;
     }
   }
 }
@@ -347,6 +353,54 @@
       /* Done after the first 180px in view, however tall the section. */
       animation-range-start: entry 0%;
       animation-range-end: entry 180px;
+    }
+  }
+}
+
+/*
+ * On scroll: each direct child pops up as it comes into view, so a section
+ * builds piece by piece as you scroll. Children side by side (a row) follow
+ * each other: each later child waits --stagger-step more scrolling. Each pop
+ * takes --stagger-span of scrolling; shorten both for content at the very
+ * bottom of the page, which can't scroll far into view.
+ */
+@utility motion-stagger {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      & > * {
+        animation: pop linear both;
+        animation-timeline: view();
+        animation-range-start: entry 0px;
+        animation-range-end: entry var(--stagger-span, 140px);
+      }
+      & > :nth-child(2) {
+        animation-range-start: entry calc(var(--stagger-step, 20px) * 1);
+        animation-range-end: entry calc(var(--stagger-span, 140px) + var(--stagger-step, 20px) * 1);
+      }
+      & > :nth-child(3) {
+        animation-range-start: entry calc(var(--stagger-step, 20px) * 2);
+        animation-range-end: entry calc(var(--stagger-span, 140px) + var(--stagger-step, 20px) * 2);
+      }
+      & > :nth-child(4) {
+        animation-range-start: entry calc(var(--stagger-step, 20px) * 3);
+        animation-range-end: entry calc(var(--stagger-span, 140px) + var(--stagger-step, 20px) * 3);
+      }
+      & > :nth-child(5) {
+        animation-range-start: entry calc(var(--stagger-step, 20px) * 4);
+        animation-range-end: entry calc(var(--stagger-span, 140px) + var(--stagger-step, 20px) * 4);
+      }
+      & > :nth-child(6) {
+        animation-range-start: entry calc(var(--stagger-step, 20px) * 5);
+        animation-range-end: entry calc(var(--stagger-span, 140px) + var(--stagger-step, 20px) * 5);
+      }
+      & > :nth-child(7) {
+        animation-range-start: entry calc(var(--stagger-step, 20px) * 6);
+        animation-range-end: entry calc(var(--stagger-span, 140px) + var(--stagger-step, 20px) * 6);
+      }
+      & > :nth-child(8) {
+        animation-range-start: entry calc(var(--stagger-step, 20px) * 7);
+        animation-range-end: entry calc(var(--stagger-span, 140px) + var(--stagger-step, 20px) * 7);
+      }
     }
   }
 }

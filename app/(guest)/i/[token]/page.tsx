@@ -144,7 +144,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
       {!replied && <EnvelopeIntro to={`For ${name}`} partners={w.partners} date={dotDate(w.date)} storageKey={`nhyira:opened:${token}`} />}
       <HeroPhoto byline="invite you" />
       <Greeting name={name} />
-      <WeddingCountdown className="motion-reveal px-4 pb-6" />
+      <WeddingCountdown className="px-4 pb-6" />
       <Story />
       <EventList events={events} programme={w.programme} />
       <RsvpSection>{form(replied ? "Update my reply" : "Send my reply")}</RsvpSection>

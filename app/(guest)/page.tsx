@@ -32,7 +32,7 @@ export default async function HomePage() {
         </Photo>
       </header>
 
-      <section aria-label="Countdown" className="motion-reveal relative flex flex-col items-center gap-2.5 overflow-hidden px-8 pt-12 pb-14 text-center">
+      <section aria-label="Countdown" className="motion-stagger relative flex flex-col items-center gap-2.5 overflow-clip px-8 pt-12 pb-14 text-center">
         <FloatingHearts onPaper />
         <Roses />
         <p className="m-0 text-ink-2">{wedding.tagline}</p>
@@ -41,8 +41,8 @@ export default async function HomePage() {
 
       <Story />
 
-      <section aria-labelledby="the-day" className="motion-reveal flex flex-col items-center gap-7 border-t border-line px-7 pt-14 pb-14 text-center">
-        <div className="flex flex-col items-center gap-3">
+      <section aria-labelledby="the-day" className="motion-stagger flex flex-col items-center gap-7 border-t border-line px-7 pt-14 pb-14 text-center">
+        <div className="motion-stagger flex flex-col items-center gap-3">
           <h2 id="the-day" className="type-eyebrow m-0 font-normal">
             The day
           </h2>
@@ -56,7 +56,7 @@ export default async function HomePage() {
         <DayExtras event={day} programme={w.programme} />
       </section>
 
-      <section aria-label="Invited?" className="motion-reveal flex flex-col items-center gap-2 bg-panel px-8 py-12 text-center">
+      <section aria-label="Invited?" className="motion-stagger flex flex-col items-center gap-2 bg-panel px-8 py-12 text-center">
         <p className="type-title m-0 text-[34px]">Invited?</p>
         <p className="m-0 max-w-[30ch] text-ink-2">Open your personal link from WhatsApp to reply and get your pass.</p>
       </section>

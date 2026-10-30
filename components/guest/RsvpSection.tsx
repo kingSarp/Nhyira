@@ -6,7 +6,7 @@ import { dayMonth } from "@/lib/format";
 export async function RsvpSection({ heading = true, children }: { heading?: boolean; children: ReactNode }) {
   const { rsvpDeadline } = await getWedding();
   return (
-    <section aria-labelledby={heading ? "rsvp-title" : undefined} aria-label={heading ? undefined : "Your reply"} className="motion-reveal mt-14 flex flex-col gap-[26px] bg-panel px-7 py-14">
+    <section aria-labelledby={heading ? "rsvp-title" : undefined} aria-label={heading ? undefined : "Your reply"} className="motion-stagger mt-14 flex flex-col gap-[26px] bg-panel px-7 py-14">
       {heading && (
         <div className="flex flex-col gap-1.5 text-center">
           <h2 id="rsvp-title" className="type-title m-0">

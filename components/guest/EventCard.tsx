@@ -46,13 +46,13 @@ export function EventCard({
 }) {
   return (
     <article className="flex flex-col items-center gap-7 text-center">
-      <header className="flex flex-col items-center gap-3">
+      <header className="motion-stagger flex flex-col items-center gap-3">
         <h3 className="m-0 font-display text-[34px] font-light italic leading-none">{event.name}</h3>
         {seats !== undefined && <Badge tone="seats">Admits {seats}</Badge>}
         {children}
       </header>
 
-      <dl className="m-0 flex flex-col items-center gap-5">
+      <dl className="motion-stagger m-0 flex flex-col items-center gap-5">
         <Row label="When">
           <span className="text-[17px]">{fullDate(event.date)}</span>
           <span className="type-meta">{displayTime(event.time)}</span>
@@ -78,15 +78,15 @@ export function DayExtras({ event, programme }: { event: WeddingEvent; programme
     <>
       {hasExtras && (
         <>
-          <span aria-hidden className="flex items-center gap-2">
+          <span aria-hidden className="motion-reveal flex items-center gap-2">
             <span className="block h-px w-8 bg-gold" />
             <span className="block size-1.5 rotate-45 bg-gold" />
             <span className="block h-px w-8 bg-gold" />
           </span>
-          <dl className="m-0 flex flex-col items-center gap-6">
+          <dl className="motion-stagger m-0 flex flex-col items-center gap-6">
             {programme.length > 0 && (
               <Row label="Programme">
-                <ol className="m-0 flex list-none flex-col items-center gap-1 p-0">
+                <ol className="motion-stagger m-0 flex list-none flex-col items-center gap-1 p-0">
                   {programme.map((p, i) => (
                     <li key={i}>
                       <span className="font-display text-[22px] italic">{p.name}</span>
@@ -98,7 +98,7 @@ export function DayExtras({ event, programme }: { event: WeddingEvent; programme
             )}
             {event.dressColours.length > 0 && (
               <Row label="Dress code">
-                <ul className="m-0 mt-1.5 flex list-none flex-wrap justify-center gap-x-7 gap-y-3 p-0">
+                <ul className="motion-stagger m-0 mt-1.5 flex list-none flex-wrap justify-center gap-x-7 gap-y-3 p-0">
                   {event.dressColours.map((c) => (
                     <li key={c.name} className="flex flex-col items-center gap-2 text-[15px]">
                       <span
@@ -121,7 +121,7 @@ export function DayExtras({ event, programme }: { event: WeddingEvent; programme
       )}
 
       {note && (
-        <div className="flex w-full flex-col items-center gap-1.5 bg-panel px-5 py-4">
+        <div className="motion-reveal flex w-full flex-col items-center gap-1.5 bg-panel px-5 py-4">
           <p className="type-eyebrow m-0">Please note</p>
           <p className="m-0 text-[17px]">{note}</p>
         </div>

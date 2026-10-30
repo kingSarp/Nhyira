@@ -42,7 +42,7 @@ export function Countdown({ startsAt, now, sameDay, className }: { startsAt: str
       <p className="sr-only">
         {parts.days} {parts.days === 1 ? "day" : "days"} and {parts.hours} {parts.hours === 1 ? "hour" : "hours"} to go
       </p>
-      <ol aria-hidden className="m-0 flex list-none items-start p-0">
+      <ol aria-hidden className="motion-stagger m-0 flex list-none items-start p-0">
         {LABELS.map(([key, one, many], i) => (
           <li key={key} className="flex items-start">
             {i > 0 && <span className="mx-2 mt-[14px] block size-1.5 rotate-45 bg-gold sm:mx-3" />}
@@ -55,7 +55,7 @@ export function Countdown({ startsAt, now, sameDay, className }: { startsAt: str
           </li>
         ))}
       </ol>
-      <p className="type-eyebrow m-0" aria-hidden>
+      <p className="type-eyebrow motion-reveal m-0" aria-hidden>
         To go
       </p>
     </div>

@@ -67,7 +67,7 @@ export function RsvpForm({ events, initial, initialNote, action, submitLabel }: 
         startTransition(() => formAction(data));
       }}
       noValidate
-      className="flex flex-col gap-[26px]"
+      className="motion-stagger flex flex-col gap-[26px]"
     >
       <div ref={summaryRef} tabIndex={-1} className="flex flex-col gap-4 outline-none empty:hidden">
         {state.status === "invalid" && (
