@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { CopyLink } from "@/components/organiser/CopyLink";
 import { Button, Icon, Notice } from "@/components/ui";
-import { EVENTS, type EventId } from "@/lib/content/wedding";
+import { EVENTS, wedding, type EventId } from "@/lib/content/wedding";
 import { countOpenSignups, getSignupLinks, getWedding, listJoinRequests, type SignupLink, type SignupLinkKind } from "@/lib/data";
 import { previewImages } from "@/lib/og";
 import { siteUrl } from "@/lib/site";
@@ -15,8 +15,8 @@ const path = { request: "request", open: "join" } as const;
 
 function shareText(coupleNames: string, kind: SignupLinkKind, url: string) {
   return kind === "request"
-    ? `${coupleNames} are getting married! If you'd like to join us, request a place here: ${url}`
-    : `${coupleNames} are getting married! Sign up here to celebrate with us (one person per sign-up): ${url}`;
+    ? `${coupleNames} invite you to their ${wedding.occasion}! If you'd like to join us, request a place here: ${url}`
+    : `${coupleNames} invite you to their ${wedding.occasion}! Sign up here to celebrate with us (one person per sign-up): ${url}`;
 }
 
 /** "Engagement, Church, Reception" in wedding order. */

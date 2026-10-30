@@ -31,7 +31,7 @@ export function previewImages(w: Wedding, household?: { token: string; name: str
   const url = household
     ? `/og/${household.token}?v=${w.cardVersion}${shortHash(household.name)}`
     : `/og?v=${w.cardVersion}`;
-  const image = { url, ...ogSize, type: "image/jpeg", alt: household ? "Your wedding invitation" : "Wedding invitation" };
+  const image = { url, ...ogSize, type: "image/jpeg", alt: household ? "Your invitation" : "Invitation" };
   return { og: [image], twitter: [image] };
 }
 
@@ -118,7 +118,8 @@ function Names({ partners: [a, b], size, width }: { partners: readonly [string, 
 export async function inviteCard({ who, withPhoto = true }: { who?: string; withPhoto?: boolean }) {
   const [{ fonts, roses }, w] = await Promise.all([loaded, getWedding()]);
   const photo = withPhoto ? await couplePhoto(w.images.couple.src) : null;
-  const lead = who ? [`${who},`, "you're invited to the wedding of"] : ["You're invited to the wedding of"];
+  const invited = `invited to the ${wedding.occasion} of`;
+  const lead = who ? [`${who},`, `you're ${invited}`] : [`You're ${invited}`];
 
   const png = new ImageResponse(
     photo ? (

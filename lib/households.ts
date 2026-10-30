@@ -44,7 +44,7 @@ export function inviteMessage(w: Pick<Wedding, "coupleNames">, inv: Invitation, 
   }
   return (
     `Dear ${name},\n\n` +
-    `${w.coupleNames} warmly invite you to celebrate their wedding with them. ` +
+    `${w.coupleNames} warmly invite you to celebrate their ${wedding.occasion} with them. ` +
     `Please open your personal invitation and let us know if you can come:\n\n` +
     inviteUrl(inv.token)
   );

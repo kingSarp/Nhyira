@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { EventList } from "@/components/guest/EventList";
 import { OpenSignupForm } from "@/components/guest/SignupForms";
 import { SignupClosed, SignupShell } from "@/components/guest/SignupShell";
+import { wedding } from "@/lib/content/wedding";
 import { getWedding, openLinkEvents, resolveSignupLink } from "@/lib/data";
 import { longDate, shortDate } from "@/lib/format";
 import { previewImages } from "@/lib/og";
@@ -12,7 +13,7 @@ import { submitOpenSignup } from "./actions";
 // are what people read under the preview card.
 export async function generateMetadata(): Promise<Metadata> {
   const w = await getWedding();
-  const title = `${w.coupleNames} are getting married`;
+  const title = `${w.coupleNames} invite you to their ${wedding.occasion}`;
   const description = `Sign up to celebrate with us on ${longDate(w.date)}. One person per sign-up.`;
   const card = previewImages(w);
   return {

@@ -25,7 +25,7 @@ export type EventDef = {
 };
 
 /** Fixed: seats, replies and sign-up links are keyed by these ids. */
-export const EVENTS: readonly EventDef[] = [{ id: "wedding", name: "The Wedding", shortName: "Wedding" }];
+export const EVENTS: readonly EventDef[] = [{ id: "wedding", name: "Engagement & Reception", shortName: "Celebration" }];
 
 /** One part of the day, e.g. "Church service · 10:00 AM". */
 export type ProgrammeItem = { name: string; time: string };
@@ -117,6 +117,8 @@ export const defaultDetails: WeddingDetails = {
 /** Not edited from the dashboard. */
 export const wedding = {
   tagline: "Come witness the beginning of our forever.",
+  /** What guests are invited to, mid-sentence: "invited to the engagement and reception of …". */
+  occasion: "engagement and reception",
   /** Follows the guest's name on the invite. */
   inviteLine: "come witness the beginning of our forever.",
   /** WhatsApp preview card: the couple's photo on the left (true) or the plain cream card (false). */
