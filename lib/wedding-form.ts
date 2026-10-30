@@ -7,6 +7,9 @@ import type { FormErrors } from "@/lib/signup-forms";
 
 export const MAX_COLOURS = 3;
 export const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
+/** Matches the wedding-music bucket's limit in db/schema.sql. */
+export const MAX_MUSIC_BYTES = 10 * 1024 * 1024;
+export const MUSIC_TYPES = ["audio/mpeg", "audio/mp4", "audio/x-m4a", "audio/aac"];
 
 export type DetailsFormState =
   | { status: "idle" }
@@ -14,7 +17,7 @@ export type DetailsFormState =
   | { status: "invalid"; values: Record<string, string>; errors: FormErrors };
 
 /** The fields saved by the main details form (photos are saved separately). */
-export type DetailsText = Omit<WeddingDetails, "story" | "couplePhoto" | "couplePhotoFocus">;
+export type DetailsText = Omit<WeddingDetails, "story" | "couplePhoto" | "couplePhotoFocus" | "music">;
 
 /** State of a photo upload form (main photo or a story slot). */
 export type PhotoFormState =

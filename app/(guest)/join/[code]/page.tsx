@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { EnvelopeIntro } from "@/components/guest/EnvelopeIntro";
 import { EventList } from "@/components/guest/EventList";
+import { WeddingCountdown } from "@/components/guest/WeddingCountdown";
 import { OpenSignupForm } from "@/components/guest/SignupForms";
 import { SignupClosed, SignupShell } from "@/components/guest/SignupShell";
 import { wedding } from "@/lib/content/wedding";
@@ -54,9 +56,15 @@ export default async function JoinPage({ params }: PageProps<"/join/[code]">) {
   return (
     <SignupShell
       byline="invite you"
+      intro={<EnvelopeIntro to="You're invited" monogram={w.monogram} storageKey={`nhyira:opened:join:${code}`} />}
       title="Will you join us?"
       lead="Add your name and number to confirm your place. One person per sign-up."
-      details={<EventList events={open} programme={w.programme} />}
+      details={
+        <>
+          <WeddingCountdown className="motion-reveal px-4 pt-12" />
+          <EventList events={open} programme={w.programme} />
+        </>
+      }
     >
       <OpenSignupForm action={submitOpenSignup.bind(null, code)} events={events} />
     </SignupShell>

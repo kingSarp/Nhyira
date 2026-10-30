@@ -10,6 +10,7 @@ import {
   type PhotoFocus,
   type ProgrammeItem,
   type StoryPhoto,
+  type UploadedAudio,
   type UploadedPhoto,
   type WeddingDetails,
 } from "@/lib/content/wedding";
@@ -38,6 +39,8 @@ export type Wedding = {
   /** Filled slots only, in order. The story section shows when all four are filled. */
   story: (StoryPhoto & { alt: string; focus: string })[];
   images: { couple: Img & { focus: string }; roseBreak: Img };
+  /** Public URL of the background song, or null. */
+  music: string | null;
   /** Changes whenever the WhatsApp card would look different; part of the card's URL so caches never serve an old one. */
   cardVersion: string;
 };
@@ -52,6 +55,34 @@ export function endOfDayInAccra(isoDate: string) {
   return new Date(`${isoDate}T23:59:59Z`);
 }
 
+/**
+ * When the day starts, from the date and the free-text time ("10:00 AM",
+ * "10am", "14:30"). Accra is UTC all year. Unreadable or blank time: midnight.
+ */
+export function startsAt(isoDate: string, time: string) {
+  const m = time.trim().match(/^(\d{1,2})(?:[:.](\d{2}))?\s*([ap])?\.?\s*m?\.?$/i);
+  let h = 0;
+  let min = 0;
+  if (m) {
+    h = Number(m[1]) % 24;
+    min = Number(m[2] ?? 0);
+    const ap = m[3]?.toLowerCase();
+    if (ap === "p" && h < 12) h += 12;
+    if (ap === "a" && h === 12) h = 0;
+    if (min > 59) min = 0;
+  }
+  return new Date(`${isoDate}T${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}:00Z`);
+}
+
+/** What the countdown needs: the start as ISO, now in ms, and whether today is the day. */
+export function countdownFor(day: Pick<EventDetails, "date" | "time">, now = new Date()) {
+  return {
+    startsAt: startsAt(day.date, day.time).toISOString(),
+    now: now.getTime(),
+    sameDay: now.toISOString().slice(0, 10) === day.date, // Accra is UTC all year
+  };
+}
+
 /** "Time TBC" when the time hasn't been set. */
 export function displayTime(time: string) {
   return time.trim() || "Time TBC";
@@ -59,6 +90,8 @@ export function displayTime(time: string) {
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 const str = (v: unknown, fallback: string) => (typeof v === "string" ? v : fallback);
+const audio = (v: unknown): UploadedAudio | null =>
+  isRecord(v) && typeof v.src === "string" && typeof v.path === "string" ? { src: v.src, path: v.path, name: str(v.name, "Song") } : null;
 const photo = (v: unknown): UploadedPhoto | null =>
   isRecord(v) && typeof v.src === "string" && typeof v.path === "string" ? { src: v.src, path: v.path } : null;
 
@@ -120,6 +153,7 @@ export function normaliseDetails(raw: unknown): WeddingDetails {
       const base = photo(p);
       return base && isRecord(p) ? { ...base, year: str(p.year, ""), caption: str(p.caption, "") } : null;
     }),
+    music: audio(raw.music),
   };
 }
 
@@ -151,6 +185,7 @@ export function toWedding(details: WeddingDetails): Wedding {
       .filter((p): p is StoryPhoto => p !== null)
       .map((p) => ({ ...p, alt: p.caption ? `${coupleAlt}: ${p.caption}` : coupleAlt, focus: "50% 30%" })),
     images: { couple, roseBreak: wedding.images.roseBreak },
+    music: details.music?.src ?? null,
     // Bump the trailing layout number when lib/og.tsx changes what the card shows.
     cardVersion: shortHash(JSON.stringify([a, b, details.date, couple.src, couple.focus, wedding.previewWithPhoto, wedding.occasion, 2])),
   };

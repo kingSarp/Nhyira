@@ -33,6 +33,8 @@ const swatches = [
   ["success", "bg-success"],
   ["error", "bg-error"],
   ["quiet-tint", "bg-quiet-tint"],
+  ["gold", "bg-gold"],
+  ["gold-deep", "bg-gold-deep"],
 ] as const;
 
 function Section({ title, children }: { title: string; children: ReactNode }) {

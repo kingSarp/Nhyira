@@ -27,6 +27,8 @@
   --error: #a3261f;
   --error-tint: #f8e3e0;
   --quiet-tint: #ece3d6;
+  --gold: #c9a24b;
+  --gold-deep: #9a7428;
   --scrim: 43 35 33; /* #2B2321 as RGB channels for the photo scrim */
 
   --control-h: 56px;
@@ -56,6 +58,8 @@
   --error: #a3261f;
   --error-tint: #f8e3e0;
   --quiet-tint: #f1efed;
+  --gold: #c9a24b;
+  --gold-deep: #9a7428;
   --scrim: 58 58 58;
 
   --control-h: 52px;
@@ -89,6 +93,8 @@
   --color-error: var(--error);
   --color-error-tint: var(--error-tint);
   --color-quiet-tint: var(--quiet-tint);
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
 
   --font-display: var(--font-cormorant), Georgia, serif;
   --font-script: var(--font-great-vibes), cursive;
@@ -244,6 +250,59 @@
   }
 }
 
+@keyframes from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+}
+@keyframes from-right {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+}
+@keyframes float-up {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  15% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(var(--float-x, 12px), -45vh) scale(1);
+  }
+  85% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, -90vh) scale(0.8);
+  }
+}
+
+/* On load: slide in from the side. Stagger with [--rise-delay:200ms]. */
+@utility motion-from-left {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: from-left 1100ms cubic-bezier(0.2, 0, 0, 1) var(--rise-delay, 0ms) both;
+  }
+}
+@utility motion-from-right {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: from-right 1100ms cubic-bezier(0.2, 0, 0, 1) var(--rise-delay, 0ms) both;
+  }
+}
+
+/* A heart drifting up and fading; never shown under reduced motion. */
+@utility motion-float {
+  display: none;
+  @media (prefers-reduced-motion: no-preference) {
+    display: block;
+    animation: float-up var(--float-duration, 9s) ease-in-out var(--float-delay, 0s) infinite both;
+  }
+}
+
 /* On load: fade up. Stagger with [--rise-delay:200ms]. */
 @utility motion-rise {
   @media (prefers-reduced-motion: no-preference) {
@@ -277,6 +336,36 @@
       animation-range-end: entry 180px;
     }
   }
+}
+
+/* On scroll: slide in from a side as it comes into view. */
+@utility motion-reveal-left {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: from-left linear both;
+      animation-timeline: view();
+      animation-range-start: entry 0%;
+      animation-range-end: entry 220px;
+    }
+  }
+}
+@utility motion-reveal-right {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: from-right linear both;
+      animation-timeline: view();
+      animation-range-start: entry 0%;
+      animation-range-end: entry 220px;
+    }
+  }
+}
+
+/* Behind the envelope (see EnvelopeIntro): load animations wait until it opens. */
+[data-sealed] .motion-rise,
+[data-sealed] .motion-from-left,
+[data-sealed] .motion-from-right,
+[data-sealed] .motion-settle img {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import sharp from "sharp";
 import { STORY_SLOTS } from "@/lib/content/wedding";
-import { clearCouplePhoto, clearStoryPhoto, getOrganiser, saveStoryText, saveWeddingText, setCouplePhoto, setStoryPhoto } from "@/lib/data";
+import { clearCouplePhoto, clearStoryPhoto, getOrganiser, saveStoryText, saveWeddingText, setCouplePhoto, setMusic, setStoryPhoto } from "@/lib/data";
 import { MAX_PHOTO_BYTES, parseDetailsForm, parsePhotoFocus, parseStoryText, type DetailsFormState, type PhotoFormState } from "@/lib/wedding-form";
 
 async function requireOrganiser() {
@@ -108,3 +108,31 @@ export async function removeStory(slot: number) {
   revalidatePath("/", "layout");
   redirect(`/admin/details?removed=${slot + 1}#story-title`);
 }
+
+/** Files MusicForm uploads: music/<uuid>.<ext>. Anything else is refused. */
+const MUSIC_PATH = /^music\/[0-9a-f-]{36}\.(mp3|m4a|aac)$/;
+
+/**
+ * Makes an already-uploaded file the background song. The browser uploads it
+ * straight to Storage (see MusicForm); this only records it.
+ */
+export async function saveMusic(path: string, name: string): Promise<{ ok: true } | { ok: false; message: string }> {
+  await requireOrganiser();
+  if (!MUSIC_PATH.test(path)) return { ok: false, message: "That upload didn't work. Try again." };
+  try {
+    await setMusic({ path, name: name.trim().slice(0, 80) || "Song" });
+  } catch (err) {
+    console.error("Saving the song failed", err);
+    return { ok: false, message: "The song uploaded but didn't save. Try again." };
+  }
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export async function removeMusic() {
+  await requireOrganiser();
+  await setMusic(null);
+  revalidatePath("/", "layout");
+  redirect("/admin/details?music=removed#music-title");
+}
+

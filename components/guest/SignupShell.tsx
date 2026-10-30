@@ -14,6 +14,7 @@ export function SignupShell({
   title,
   lead,
   details,
+  intro,
   children,
 }: {
   eyebrow?: string;
@@ -22,10 +23,13 @@ export function SignupShell({
   lead?: ReactNode;
   /** On the paper between the photo and the panel, e.g. the day's details. */
   details?: ReactNode;
+  /** An EnvelopeIntro over the page. */
+  intro?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <GuestPage>
+    <GuestPage sealed={!!intro}>
+      {intro}
       <HeroPhoto eyebrow={eyebrow} byline={byline} height="short" stacked={false} names="lg" />
       {details}
       <section className={cn("motion-reveal flex flex-col gap-[26px] bg-panel px-7 pt-12 pb-14", details ? "mt-14" : undefined)}>

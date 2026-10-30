@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { CouplePhotoForm } from "@/components/organiser/CouplePhotoForm";
 import { DetailsForm } from "@/components/organiser/DetailsForm";
+import { MusicForm } from "@/components/organiser/MusicForm";
 import { StorySlotForm } from "@/components/organiser/StorySlotForm";
 import { Notice } from "@/components/ui";
 import { STORY_SLOTS } from "@/lib/content/wedding";
 import { getWedding } from "@/lib/data";
 import { detailsToValues } from "@/lib/wedding-form";
-import { removeStory, resetCouplePhoto, saveCouplePhoto, saveStory } from "./actions";
+import { removeMusic, removeStory, resetCouplePhoto, saveCouplePhoto, saveMusic, saveStory } from "./actions";
 
 export const metadata: Metadata = { title: "Wedding details" };
 
@@ -44,6 +45,23 @@ export default async function DetailsPage({ searchParams }: PageProps<"/admin/de
           action={saveCouplePhoto}
           reset={resetCouplePhoto}
         />
+      </section>
+
+      <section aria-labelledby="music-title" className="flex flex-col gap-5 border-t-2 border-ink pt-5">
+        <div className="flex max-w-[760px] flex-col gap-1">
+          <h2 id="music-title" className="m-0 text-[22px] font-normal">
+            Music
+          </h2>
+          <p className="m-0 text-[15px] text-ink-2">
+            A song that starts when a guest opens their invitation envelope. Phones only play sound after a tap, so it never starts on its own; guests can pause it any time.
+          </p>
+        </div>
+        {sp.music === "removed" && (
+          <Notice tone="success" icon="check">
+            Song removed.
+          </Notice>
+        )}
+        <MusicForm song={details.music} save={saveMusic} remove={removeMusic} />
       </section>
 
       <section aria-labelledby="story-title" className="flex flex-col gap-5 border-t-2 border-ink pt-5">

@@ -104,5 +104,23 @@ begin
       for insert to authenticated with check (bucket_id = 'wedding-photos');
     create policy "Organisers remove wedding photos" on storage.objects
       for delete to authenticated using (bucket_id = 'wedding-photos');
+
+    -- The background song organisers upload on /admin/details. The browser
+    -- uploads it straight to Storage (songs are bigger than a server action
+    -- allows); the site then saves its path. Public, so guests can play it.
+    insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+    values ('wedding-music', 'wedding-music', true, 10485760, array['audio/mpeg', 'audio/mp4', 'audio/x-m4a', 'audio/aac'])
+    on conflict (id) do update
+      set public = true, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+
+    drop policy if exists "Organisers read wedding music" on storage.objects;
+    drop policy if exists "Organisers add wedding music" on storage.objects;
+    drop policy if exists "Organisers remove wedding music" on storage.objects;
+    create policy "Organisers read wedding music" on storage.objects
+      for select to authenticated using (bucket_id = 'wedding-music');
+    create policy "Organisers add wedding music" on storage.objects
+      for insert to authenticated with check (bucket_id = 'wedding-music');
+    create policy "Organisers remove wedding music" on storage.objects
+      for delete to authenticated using (bucket_id = 'wedding-music');
   end if;
 end $$;

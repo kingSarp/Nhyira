@@ -78,7 +78,11 @@ export function DayExtras({ event, programme }: { event: WeddingEvent; programme
     <>
       {hasExtras && (
         <>
-          <span aria-hidden className="block h-px w-12 bg-line" />
+          <span aria-hidden className="flex items-center gap-2">
+            <span className="block h-px w-8 bg-gold" />
+            <span className="block size-1.5 rotate-45 bg-gold" />
+            <span className="block h-px w-8 bg-gold" />
+          </span>
           <dl className="m-0 flex flex-col items-center gap-6">
             {programme.length > 0 && (
               <Row label="Programme">
@@ -99,7 +103,7 @@ export function DayExtras({ event, programme }: { event: WeddingEvent; programme
                     <li key={c.name} className="flex flex-col items-center gap-2 text-[15px]">
                       <span
                         aria-hidden
-                        className="block size-8 rounded-full border border-border"
+                        className="block size-8 rounded-full border border-border outline outline-1 outline-offset-2 outline-gold"
                         style={{
                           backgroundColor: c.hex,
                           backgroundImage: swatchImage(c.name) ? `url(${swatchImage(c.name)})` : undefined,

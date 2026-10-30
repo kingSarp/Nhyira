@@ -78,7 +78,7 @@ proxy.ts                     Refreshes the staff session on /admin, /login and /
 db/schema.sql                Tables, indexes, RLS. `npm run db:setup` runs it.
 components/
   ui/                        Design-system primitives. No data fetching, no copy.
-  guest/                     Guest-screen sections (Hero, Story, EventList + EventCard, GuestPass, RsvpForm…)
+  guest/                     Guest-screen sections (Hero, Story, EventList + EventCard, Countdown, EnvelopeIntro, MusicPlayer, GuestPass, RsvpForm…)
   organiser/                 Dashboard sections (HeadcountCards, HouseholdList, DetailsForm, CouplePhotoForm,
                              StorySlotForm, CheckInDesk…)
   dev/                       Styleguide and screen stubs. Not used by real screens.

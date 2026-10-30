@@ -66,6 +66,16 @@ export type UploadedPhoto = {
   path: string;
 };
 
+/** The background song in Supabase Storage. */
+export type UploadedAudio = {
+  /** Public URL. */
+  src: string;
+  /** Object path in the music bucket, so a replaced song can be deleted. */
+  path: string;
+  /** The file's name as uploaded, shown on the dashboard. */
+  name: string;
+};
+
 /** Which part of the main photo stays in view when it's cropped. */
 export type PhotoFocus = "top" | "center" | "bottom";
 export const PHOTO_FOCUS: Record<PhotoFocus, { label: string; position: string }> = {
@@ -91,6 +101,8 @@ export type WeddingDetails = {
   couplePhotoFocus: PhotoFocus;
   /** Four slots in display order; null is an empty slot. */
   story: (StoryPhoto | null)[];
+  /** Plays after a guest opens their invitation; null for none. */
+  music: UploadedAudio | null;
 };
 
 export const defaultDetails: WeddingDetails = {
@@ -119,6 +131,7 @@ export const defaultDetails: WeddingDetails = {
   couplePhoto: null,
   couplePhotoFocus: "center",
   story: [null, null, null, null],
+  music: null,
 };
 
 /** Not edited from the dashboard. */

@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn";
 import { getWedding } from "@/lib/data";
 import { dotDate } from "@/lib/format";
 import type { Img } from "@/lib/wedding";
+import { FloatingHearts } from "./FloatingHearts";
 import { fullColumn, fullHeight } from "./sizes";
 
 /**
@@ -42,6 +43,7 @@ export async function HeroPhoto({
   return (
     <header className="motion-settle">
       <Photo src={img.src} alt={img.alt} focus={img.focus} sizes={height === "tall" ? fullHeight : fullColumn} priority scrimHeight="55%" className={h}>
+        <FloatingHearts />
         <div
           role={live ? "status" : undefined}
           className={cn(
@@ -50,10 +52,10 @@ export async function HeroPhoto({
           )}
         >
           {eyebrow && <p className="motion-rise m-0 text-[12px] uppercase tracking-[0.32em] [--rise-delay:300ms]">{eyebrow}</p>}
-          <CoupleNames partners={w.partners} as="h1" size={names} stacked={stacked} className="motion-rise [--rise-delay:550ms]" />
-          {byline && <p className="motion-rise m-0 font-display text-[26px] italic leading-tight [--rise-delay:750ms]">{byline}</p>}
-          <p className="type-dateline motion-rise m-0 mt-1.5 [--rise-delay:950ms]">{dotDate(w.date)}</p>
-          {children && <div className="motion-rise [--rise-delay:1150ms]">{children}</div>}
+          <CoupleNames partners={w.partners} as="h1" size={names} stacked={stacked} entrance />
+          {byline && <p className="motion-rise m-0 font-display text-[26px] italic leading-tight [--rise-delay:1150ms]">{byline}</p>}
+          <p className="type-dateline motion-rise m-0 mt-1.5 [--rise-delay:1350ms]">{dotDate(w.date)}</p>
+          {children && <div className="motion-rise [--rise-delay:1550ms]">{children}</div>}
         </div>
       </Photo>
     </header>

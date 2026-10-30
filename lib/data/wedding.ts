@@ -2,7 +2,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { connection } from "next/server";
 import { cache } from "react";
-import { defaultDetails, type PhotoFocus, type UploadedPhoto, type WeddingDetails } from "@/lib/content/wedding";
+import { defaultDetails, type PhotoFocus, type UploadedAudio, type UploadedPhoto, type WeddingDetails } from "@/lib/content/wedding";
 import { db } from "@/lib/db";
 import { createSupabase } from "@/lib/supabase/server";
 import { normaliseDetails, toWedding, type Wedding } from "@/lib/wedding";
@@ -13,6 +13,7 @@ import type { DetailsText } from "@/lib/wedding-form";
 // `wedding-photos` Storage bucket; the row keeps their URLs and object paths.
 
 export const PHOTO_BUCKET = "wedding-photos";
+export const MUSIC_BUCKET = "wedding-music";
 
 async function readDetails(): Promise<WeddingDetails> {
   try {
@@ -140,4 +141,25 @@ export async function setCouplePhoto(jpeg: Buffer | null, focus: PhotoFocus) {
 /** Goes back to the built-in main photo and deletes the uploaded one. */
 export async function clearCouplePhoto() {
   await withPhoto(null, (d) => ({ next: { ...d, couplePhoto: null, couplePhotoFocus: defaultDetails.couplePhotoFocus }, replaced: d.couplePhoto }));
+}
+
+/**
+ * Sets the background song to a file the organiser's browser already uploaded
+ * to the music bucket (see MusicForm), or removes it (`null`), deleting the
+ * file it replaced.
+ */
+export async function setMusic(upload: { path: string; name: string } | null) {
+  const supabase = await createSupabase();
+  const bucket = supabase.storage.from(MUSIC_BUCKET);
+  const next = upload ? { ...upload, src: bucket.getPublicUrl(upload.path).data.publicUrl } : null;
+  let replaced: UploadedAudio | null = null;
+  await updateDetails((d) => {
+    replaced = d.music;
+    return { ...d, music: next };
+  });
+  const old = replaced as UploadedAudio | null;
+  if (old && old.path !== next?.path) {
+    const { error } = await bucket.remove([old.path]);
+    if (error) console.error("Couldn't delete old song", old.path, error.message);
+  }
 }

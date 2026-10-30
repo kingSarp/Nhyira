@@ -1,50 +1,42 @@
 import { ClosingPhoto } from "@/components/guest/ClosingPhoto";
 import { DayExtras, MapLink } from "@/components/guest/EventCard";
+import { FloatingHearts } from "@/components/guest/FloatingHearts";
+import { Music } from "@/components/guest/Music";
 import { Roses } from "@/components/guest/Roses";
 import { fullHeight } from "@/components/guest/sizes";
 import { Story } from "@/components/guest/Story";
+import { WeddingCountdown } from "@/components/guest/WeddingCountdown";
 import { CoupleNames, Photo } from "@/components/ui";
 import { wedding } from "@/lib/content/wedding";
 import { getWedding } from "@/lib/data";
 import { dotDate, fullDate } from "@/lib/format";
 import { displayTime } from "@/lib/wedding";
 
-/** Whole days from today (Accra) to the wedding date; 0 on the day, negative after. */
-function daysUntil(isoDate: string) {
-  const today = new Date().toISOString().slice(0, 10); // Accra is UTC all year
-  return Math.round((Date.parse(isoDate) - Date.parse(today)) / 86_400_000);
-}
-
 /** 3 · Home / save the date. For anyone who opens the bare address. */
 export default async function HomePage() {
   const w = await getWedding();
   const img = w.images.couple;
   const day = w.events[0];
-  const days = daysUntil(w.date);
 
   return (
     <main className="mx-auto w-full max-w-[520px] overflow-x-clip bg-paper">
       <header className="motion-settle">
         <Photo src={img.src} alt={img.alt} focus={img.focus} sizes={fullHeight} priority scrimHeight="60%" className="h-dvh min-h-[600px]">
+          <FloatingHearts />
           <div className="absolute inset-x-0 bottom-14 flex flex-col items-center gap-3 px-8 text-center text-white">
             <p className="motion-rise m-0 text-[12px] uppercase tracking-[0.32em] [--rise-delay:300ms]">Save the date</p>
-            <CoupleNames partners={w.partners} as="h1" size="hero" stacked className="motion-rise [--rise-delay:550ms]" />
-            <p className="type-dateline motion-rise m-0 mt-1 [--rise-delay:850ms]">{dotDate(w.date)}</p>
-            <p className="motion-rise m-0 max-w-[30ch] text-[14px] [--rise-delay:1000ms]">{day.venue}</p>
+            <CoupleNames partners={w.partners} as="h1" size="hero" stacked entrance />
+            <p className="type-dateline motion-rise m-0 mt-1 [--rise-delay:1150ms]">{dotDate(w.date)}</p>
+            <p className="motion-rise m-0 max-w-[30ch] text-[14px] [--rise-delay:1350ms]">{day.venue}</p>
           </div>
         </Photo>
       </header>
 
-      <section aria-label="Countdown" className="motion-reveal flex flex-col items-center gap-2.5 px-8 pt-12 pb-14 text-center">
+      <section aria-label="Countdown" className="motion-reveal relative flex flex-col items-center gap-2.5 overflow-hidden px-8 pt-12 pb-14 text-center">
+        <FloatingHearts onPaper />
         <Roses />
         <p className="m-0 text-ink-2">{wedding.tagline}</p>
-        {days > 0 && (
-          <p className="m-0 mt-6 flex flex-col items-center gap-3">
-            <span className="font-display text-[72px] font-light leading-none [font-variant-numeric:lining-nums]">{days}</span>
-            <span className="type-eyebrow">{days === 1 ? "Day to go" : "Days to go"}</span>
-          </p>
-        )}
-        {days === 0 && <p className="type-title m-0 mt-6">Today’s the day</p>}
+        <WeddingCountdown className="mt-8" />
       </section>
 
       <Story />
@@ -70,6 +62,7 @@ export default async function HomePage() {
       </section>
 
       <ClosingPhoto />
+      <Music />
     </main>
   );
 }

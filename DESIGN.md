@@ -37,6 +37,7 @@ Semantic tokens (Tailwind classes in brackets). Values per surface are in `token
 | `script` | #9C5D6E | #3A3A3A | Great Vibes lines |
 | `success` / `error` | #4F6B4A / #A3261F | same | States, always with an icon or word |
 | `success-tint`, `error-tint`, `quiet-tint` | — | #E7EEE5, #F8E3E0, #F1EFED | Dashboard badges and notices |
+| `gold`, `gold-deep` (`bg-gold`, `text-gold`) | #C9A24B, #9A7428 | same | **Decorative only** (2.2:1): wax seal, hearts, countdown and card dividers, swatch rings. Gold-looking text uses `eyebrow`. |
 
 **Contrast (WCAG 2.2 AA), all checked:** every text pairing above is ≥ 4.5:1 except `script` and `eyebrow` (4.68:1, still pass). `border` passes the 3:1 non-text rule (3.02 guest, 3.36 organiser). `line` (1.4:1) is never a functional boundary. White text sits on photos only over the scrim.
 
@@ -90,7 +91,14 @@ Built in `components/ui/`. Every one reads semantic tokens only, so it works on 
 | `EventCard`, `DayExtras` | The day as a centred printed card: event name and `seats` badge, When / Where with a Google Maps link, a short `line` rule, then Programme (italic display names, times after), Dress code (32px swatches, name below) and the note to guests in a `panel` box. `DayExtras` is the part after the rule, reused on the home page (no venue there). | Sign-up, invite, home |
 | `Icon` | Inline stroke SVGs: alert, mail, lock, search, close, whatsapp, check, chevron, copy, users, pencil, plus, upload, send. `aria-hidden` unless labelled. | All |
 
+| `EnvelopeIntro` | Full-screen cream envelope with a gold S&B wax seal over the first-open invitation and the sign-up link; tap opens it (flap lifts, card rises, fades) and starts the music. Once per session; hidden without JavaScript. | Invite 1a, sign-up |
+| `Countdown` | Days · Hours · Mins · Secs in display numerals with gold diamond dividers, ticking each second; server-rendered values without JavaScript; "Today's the day" on the day. | Home, invite 1a, sign-up |
+| `MusicPlayer` | Round 48px play/pause button fixed bottom-right (`shadow-float`), `aria-pressed`. Never autoplays: starts on the envelope tap or its own. Shown only when a song is uploaded. | Guest pages |
+| `FloatingHearts` | A few gold (and white over photos) hearts drifting up; `aria-hidden`. | Hero photos, home countdown |
+
 Focus is always visible: 2px accent outline, 3px offset.
+
+**Motion** (guest only, all CSS in `globals.css`, all off under `prefers-reduced-motion`): hero photo zoom-and-drift (`motion-settle`); names slide in from left and right (`CoupleNames entrance`, `motion-from-left/right`); text fades up (`motion-rise`, staggered with `--rise-delay`); sections fade up and photos slide in on scroll (`motion-reveal`, `motion-reveal-left/right`; browsers without scroll timelines show them as is); hearts float (`motion-float`). Load animations wait behind the envelope (`[data-sealed]`).
 
 ## 5. Layout
 

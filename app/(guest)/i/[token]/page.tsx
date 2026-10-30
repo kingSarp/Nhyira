@@ -7,7 +7,9 @@ import { EventList } from "@/components/guest/EventList";
 import { Greeting } from "@/components/guest/Greeting";
 import { GuestPass } from "@/components/guest/GuestPass";
 import { GuestPage } from "@/components/guest/GuestPage";
+import { EnvelopeIntro } from "@/components/guest/EnvelopeIntro";
 import { HeroPhoto } from "@/components/guest/HeroPhoto";
+import { WeddingCountdown } from "@/components/guest/WeddingCountdown";
 import { ReplySummary } from "@/components/guest/ReplySummary";
 import { Roses } from "@/components/guest/Roses";
 import { RsvpForm } from "@/components/guest/RsvpForm";
@@ -136,11 +138,13 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
     );
   }
 
-  /* 1a · First open (1b errors render inside the form) */
+  /* 1a · First open (1b errors render inside the form). The envelope only until they've replied. */
   return (
-    <GuestPage>
+    <GuestPage sealed={!replied}>
+      {!replied && <EnvelopeIntro to={`For ${name}`} monogram={w.monogram} storageKey={`nhyira:opened:${token}`} />}
       <HeroPhoto byline="invite you" />
       <Greeting name={name} />
+      <WeddingCountdown className="motion-reveal px-4 pb-6" />
       <Story />
       <EventList events={events} programme={w.programme} />
       <RsvpSection>{form(replied ? "Update my reply" : "Send my reply")}</RsvpSection>
