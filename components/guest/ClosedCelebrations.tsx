@@ -3,7 +3,8 @@ import type { Invitation } from "@/lib/data/types";
 import { shortDate } from "@/lib/format";
 import { displayTime } from "@/lib/wedding";
 import type { ProgrammeItem } from "@/lib/content/wedding";
-import { DressColours, MapLink, Programme, type InvitedEvent } from "./EventList";
+import { EventCard } from "./EventCard";
+import type { InvitedEvent } from "./EventList";
 
 /** After replies close: each event with who is going, or "Not attending". */
 export function ClosedCelebrations({ events, invitation, programme }: { events: InvitedEvent[]; invitation: Invitation; programme: ProgrammeItem[] }) {
@@ -17,23 +18,18 @@ export function ClosedCelebrations({ events, invitation, programme }: { events: 
           const r = invitation.responses?.[e.id];
           const declined = r && !r.attending;
           return (
-            <li key={e.id} className={cn("flex flex-col gap-1.5 border-t border-line py-6", i === events.length - 1 && "border-b")}>
-              <h3 className={cn("m-0 font-display text-[28px] font-normal leading-tight", declined && "text-ink-2")}>{e.name}</h3>
+            <li key={e.id} className={cn("border-t border-line", declined ? "py-6" : "py-10", i === events.length - 1 && "border-b")}>
               {declined ? (
-                <p className="type-meta m-0">
-                  {shortDate(e.date)} · {displayTime(e.time)} · Not attending
-                </p>
-              ) : (
-                <>
+                <div className="flex flex-col items-center gap-1.5 text-center">
+                  <h3 className="m-0 font-display text-[28px] font-normal leading-tight text-ink-2">{e.name}</h3>
                   <p className="type-meta m-0">
-                    {shortDate(e.date)} · {displayTime(e.time)}
-                    <br />
-                    {e.venue} · <MapLink event={e} />
+                    {shortDate(e.date)} · {displayTime(e.time)} · Not attending
                   </p>
+                </div>
+              ) : (
+                <EventCard event={e} programme={programme}>
                   {r?.names.length ? <p className="m-0 text-[15px] text-success">{r.names.join(", ")}</p> : null}
-                  <Programme items={programme} />
-                  <DressColours colours={e.dressColours} />
-                </>
+                </EventCard>
               )}
             </li>
           );

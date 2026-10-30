@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { CoupleNames } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { getWedding } from "@/lib/data";
 import { ContactLine } from "./ContactLine";
 import { GuestPage } from "./GuestPage";
@@ -11,17 +12,21 @@ export function SignupShell({
   eyebrow,
   title,
   lead,
+  details,
   children,
 }: {
   eyebrow: string;
   title: string;
   lead?: ReactNode;
+  /** On the paper between the photo and the panel, e.g. the day's details. */
+  details?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <GuestPage>
       <HeroPhoto eyebrow={eyebrow} height="short" stacked={false} names="lg" />
-      <section className="flex flex-col gap-[26px] bg-panel px-7 pt-12 pb-14">
+      {details}
+      <section className={cn("motion-reveal flex flex-col gap-[26px] bg-panel px-7 pt-12 pb-14", details ? "mt-14" : undefined)}>
         <div className="flex flex-col gap-2 text-center">
           <h2 className="type-title m-0">{title}</h2>
           {lead && <p className="type-meta m-0">{lead}</p>}

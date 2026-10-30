@@ -125,6 +125,12 @@ export function DetailsForm({ initial }: { initial: Record<string, string> }) {
             })}
             <p className="m-0 text-[14px] text-ink-2">Clear a name to remove that colour.</p>
           </div>
+
+          {text(`${e.id}_note`, "Note to guests (optional)", {
+            maxLength: 80,
+            placeholder: "e.g. No kids allowed",
+            hint: "One short line shown with the dress colours. Leave blank to hide it.",
+          })}
         </Group>
       ))}
 

@@ -102,6 +102,7 @@ export function normaliseDetails(raw: unknown): WeddingDetails {
             venue: str(e.venue, fallback.venue),
             mapUrl: str(e.mapUrl, fallback.mapUrl),
             dressColours: colours,
+            note: str(e.note, fallback.note),
           },
         ];
       }),

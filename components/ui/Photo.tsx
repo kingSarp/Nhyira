@@ -4,7 +4,8 @@ import { cn } from "@/lib/cn";
 
 /**
  * Full-bleed photo with an optional bottom scrim and overlay content.
- * The parent sets the height; the image covers it.
+ * The parent sets the height; the image covers it. `priority` photos (the
+ * first thing on a page) are also encoded at higher quality.
  */
 export function Photo({
   src,
@@ -28,7 +29,16 @@ export function Photo({
 }) {
   return (
     <div className={cn("relative overflow-hidden bg-line", className)}>
-      <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className="object-cover" style={{ objectPosition: focus }} />
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={sizes}
+        priority={priority}
+        quality={priority ? 90 : 75}
+        className="object-cover"
+        style={{ objectPosition: focus }}
+      />
       {scrimHeight && <div aria-hidden className="scrim absolute inset-x-0 bottom-0" style={{ height: scrimHeight }} />}
       {children}
     </div>

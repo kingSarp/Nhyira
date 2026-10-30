@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DayDetails } from "@/components/guest/DayDetails";
+import { EventList } from "@/components/guest/EventList";
 import { OpenSignupForm } from "@/components/guest/SignupForms";
 import { SignupClosed, SignupShell } from "@/components/guest/SignupShell";
 import { getWedding, openLinkEvents, resolveSignupLink } from "@/lib/data";
@@ -43,7 +43,8 @@ export default async function JoinPage({ params }: PageProps<"/join/[code]">) {
     );
   }
 
-  const events = (await openLinkEvents(link)).map((e) => ({
+  const [w, open] = await Promise.all([getWedding(), openLinkEvents(link)]);
+  const events = open.map((e) => ({
     id: e.id,
     name: e.name,
     when: `${shortDate(e.date)} · ${displayTime(e.time)} · ${e.venue}`,
@@ -54,8 +55,8 @@ export default async function JoinPage({ params }: PageProps<"/join/[code]">) {
       eyebrow="You're invited"
       title="Will you join us?"
       lead="Add your name and number to confirm your place. One person per sign-up."
+      details={<EventList events={open} programme={w.programme} />}
     >
-      <DayDetails className="border-y border-line py-5" />
       <OpenSignupForm action={submitOpenSignup.bind(null, code)} events={events} />
     </SignupShell>
   );

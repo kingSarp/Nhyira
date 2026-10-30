@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    // 90 for the full-screen photos at the top of guest pages (Photo's `priority`).
+    qualities: [75, 90],
     // Story photos organisers upload to Supabase Storage.
     remotePatterns: supabaseHost ? [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/public/wedding-photos/**" }] : [],
   },

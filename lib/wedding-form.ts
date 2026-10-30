@@ -44,6 +44,7 @@ export function detailsToValues(d: WeddingDetails): Record<string, string> {
     v[`${id}_time`] = e.time;
     v[`${id}_venue`] = e.venue;
     v[`${id}_mapUrl`] = e.mapUrl;
+    v[`${id}_note`] = e.note;
     for (let i = 0; i < MAX_COLOURS; i++) {
       v[`${id}_colour${i}_name`] = e.dressColours[i]?.name ?? "";
       v[`${id}_colour${i}_hex`] = e.dressColours[i]?.hex ?? "#C9A27E";
@@ -113,7 +114,8 @@ export function parseDetailsForm(form: FormData): {
       if (!HEX.test(hex)) add(errors, `${e.id}_colour${i}_hex`, `Pick a colour for “${name}”.`);
       else dressColours.push({ name, hex: hex.toUpperCase() });
     }
-    events[e.id] = { date: eDate, time, venue, mapUrl, dressColours };
+    const note = field(`${e.id}_note`, 80);
+    events[e.id] = { date: eDate, time, venue, mapUrl, dressColours, note };
   }
 
   const programme = [];

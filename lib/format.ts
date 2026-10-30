@@ -14,6 +14,11 @@ export function dayMonth(isoDate: string) {
   return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", timeZone: TZ }).format(at(isoDate));
 }
 
+/** "Saturday 26 December 2026" */
+export function fullDate(isoDate: string) {
+  return new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: TZ }).format(at(isoDate));
+}
+
 /** "31 January 2027" */
 export function longDate(isoDate: string) {
   return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: TZ }).format(at(isoDate));

@@ -76,12 +76,36 @@ function couplePhoto(src: string) {
   return photoCache.data;
 }
 
-function Names({ partners: [a, b], size }: { partners: readonly [string, string]; size: number }) {
+/** Cormorant italic 300 averages about 0.42em per character. */
+const fitsOnOneLine = (text: string, size: number, width: number) => text.length * size * 0.42 <= width;
+
+/**
+ * "A & B" on one line when it fits `width`, otherwise "A" over "& B" (as on
+ * the hero), shrunk further if the longer line still doesn't fit.
+ */
+function Names({ partners: [a, b], size, width }: { partners: readonly [string, string]; size: number; width: number }) {
+  const amp = (s: number) => (
+    <span style={{ fontFamily: "Vibes", fontStyle: "normal", fontSize: s * 0.8, margin: `0 ${s * 0.18}px` }}>&amp;</span>
+  );
+  const base = { display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 300, lineHeight: 1, color: C.accent } as const;
+  if (fitsOnOneLine(`${a} & ${b}`, size, width)) {
+    return (
+      <div style={{ ...base, alignItems: "baseline", fontSize: size }}>
+        <span>{a}</span>
+        {amp(size)}
+        <span>{b}</span>
+      </div>
+    );
+  }
+  const longest = Math.max(a.length, b.length + 2);
+  const s = Math.min(size, Math.floor(width / (longest * 0.42)));
   return (
-    <div style={{ display: "flex", alignItems: "baseline", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 300, fontSize: size, lineHeight: 1, color: C.accent }}>
+    <div style={{ ...base, flexDirection: "column", alignItems: "center", fontSize: s }}>
       <span>{a}</span>
-      <span style={{ fontFamily: "Vibes", fontStyle: "normal", fontSize: size * 0.8, margin: `0 ${size * 0.18}px` }}>&amp;</span>
-      <span>{b}</span>
+      <div style={{ display: "flex", alignItems: "baseline" }}>
+        {amp(s)}
+        <span>{b}</span>
+      </div>
     </div>
   );
 }
@@ -108,7 +132,7 @@ export async function inviteCard({ who, withPhoto = true }: { who?: string; with
             ))}
           </div>
           <div style={{ display: "flex", marginTop: 18 }}>
-            <Names partners={w.partners} size={110} />
+            <Names partners={w.partners} size={110} width={580} />
           </div>
           <div style={{ display: "flex", marginTop: 22, fontSize: 22, letterSpacing: 6.6 }}>{dotDate(w.date)}</div>
         </div>
@@ -125,7 +149,7 @@ export async function inviteCard({ who, withPhoto = true }: { who?: string; with
             ))}
           </div>
           <div style={{ display: "flex", marginTop: 16 }}>
-            <Names partners={w.partners} size={124} />
+            <Names partners={w.partners} size={124} width={880} />
           </div>
           <div style={{ display: "flex", marginTop: 24, fontSize: 22, letterSpacing: 6.6 }}>{dotDate(w.date)}</div>
         </div>

@@ -221,6 +221,64 @@
   );
 }
 
+/*
+ * Guest page motion. Only when the guest hasn't asked for reduced motion, and
+ * only ever from hidden to shown, so a browser that skips it shows the page
+ * as designed.
+ */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+@keyframes settle {
+  from {
+    opacity: 0.4;
+    transform: scale(1.05);
+  }
+}
+@keyframes drift {
+  to {
+    transform: scale(1.03);
+  }
+}
+
+/* On load: fade up. Stagger with [--rise-delay:200ms]. */
+@utility motion-rise {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: rise 900ms cubic-bezier(0.2, 0, 0, 1) var(--rise-delay, 0ms) both;
+  }
+}
+
+/*
+ * A photo inside eases back from a zoom on load, then drifts slowly for as
+ * long as it's on screen, so it still moves if the photo arrives late. Keep
+ * the zoom small: every bit of scale softens the photo.
+ */
+@utility motion-settle {
+  @media (prefers-reduced-motion: no-preference) {
+    & img {
+      animation:
+        settle 3200ms cubic-bezier(0.2, 0, 0, 1) both,
+        drift 20s ease-in-out 3200ms infinite alternate;
+    }
+  }
+}
+
+/* On scroll: fade up as it comes into view. Browsers without scroll timelines show it as is. */
+@utility motion-reveal {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: rise linear both;
+      animation-timeline: view();
+      /* Done after the first 180px in view, however tall the section. */
+      animation-range-start: entry 0%;
+      animation-range-end: entry 180px;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -1,6 +1,6 @@
 // What's fixed in code, and the starting values for what organisers edit.
 //
-// Names, dates, venues, times, dress colours, the contact, the RSVP deadline
+// Names, dates, venues, times, dress colours, the note to guests, the contact, the RSVP deadline
 // and the story photos are edited on /admin/details and stored in the
 // database. Screens read them with getWedding() from "@/lib/data"; the
 // defaults below are used until the first save (and if the database can't be
@@ -40,6 +40,8 @@ export type EventDetails = {
   /** Empty: a Google Maps search for the venue. */
   mapUrl: string;
   dressColours: DressColour[];
+  /** One line guests should know, e.g. "No kids allowed". Empty hides it. */
+  note: string;
 };
 
 export type StoryPhoto = UploadedPhoto & {
@@ -85,11 +87,11 @@ export type WeddingDetails = {
 };
 
 export const defaultDetails: WeddingDetails = {
-  partners: ["Kay", "Ama"],
+  partners: ["Shakespeare", "Bevlyn"],
   date: "2026-12-26",
   city: "Accra, Ghana",
   rsvpDeadline: "2026-12-12",
-  contact: { name: "Auntie Efua", phone: "" },
+  contact: { name: "David Ohemeng", phone: "" },
   events: {
     wedding: {
       date: "2026-12-26",
@@ -97,14 +99,14 @@ export const defaultDetails: WeddingDetails = {
       venue: "20 Asikuma Ave, GD-134-4557",
       mapUrl: "",
       dressColours: [
-        { name: "Ivory", hex: "#FFFFF0" },
-        { name: "Burgundy", hex: "#6E1423" },
+        { name: "All white", hex: "#FFFFFF" },
+        { name: "Kente", hex: "#D4A017" },
       ],
+      note: "No kids allowed",
     },
   },
   programme: [
     { name: "Engagement", time: "" },
-    { name: "Church service", time: "" },
     { name: "Reception", time: "" },
   ],
   couplePhoto: null,

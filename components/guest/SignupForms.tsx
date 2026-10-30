@@ -42,11 +42,10 @@ function PersonFields({ values, errors, phoneHint }: { values: Record<string, st
         label="WhatsApp number"
         autoComplete="tel"
         inputMode="tel"
-        placeholder="024 123 4567"
         maxLength={20}
         defaultValue={values.phone}
         error={errors.phone}
-        hint={phoneHint}
+        hint={`e.g. 024 123 4567. ${phoneHint}`}
       />
     </>
   );

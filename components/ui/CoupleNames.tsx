@@ -30,7 +30,10 @@ export function CoupleNames({
     <Tag className={cn("m-0 font-display font-light italic", s.name, className)}>
       {a}
       {stacked ? <br /> : " "}
-      <span className={cn("font-script not-italic", s.amp)}>&amp;</span> {b}
+      {/* Keep "& B" together so a long pair breaks before the ampersand, not after it. */}
+      <span className="whitespace-nowrap">
+        <span className={cn("font-script not-italic", s.amp)}>&amp;</span> {b}
+      </span>
     </Tag>
   );
 }

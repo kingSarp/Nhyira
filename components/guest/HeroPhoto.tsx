@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 import { getWedding } from "@/lib/data";
 import { dotDate } from "@/lib/format";
 import type { Img } from "@/lib/wedding";
-import { fullColumn } from "./sizes";
+import { fullColumn, fullHeight } from "./sizes";
 
 /**
  * Full-bleed photo with the couple's names over a bottom scrim.
@@ -37,8 +37,8 @@ export async function HeroPhoto({
   }[height];
 
   return (
-    <header>
-      <Photo src={img.src} alt={img.alt} focus={img.focus} sizes={fullColumn} priority scrimHeight="55%" className={h}>
+    <header className="motion-settle">
+      <Photo src={img.src} alt={img.alt} focus={img.focus} sizes={height === "tall" ? fullHeight : fullColumn} priority scrimHeight="55%" className={h}>
         <div
           role={live ? "status" : undefined}
           className={cn(
@@ -46,10 +46,10 @@ export async function HeroPhoto({
             height === "tall" ? "bottom-12" : "bottom-9",
           )}
         >
-          {eyebrow && <p className="m-0 text-[12px] uppercase tracking-[0.32em]">{eyebrow}</p>}
-          <CoupleNames partners={w.partners} as="h1" size={names} stacked={stacked} />
-          <p className="type-dateline m-0 mt-1.5">{dotDate(w.date)}</p>
-          {children}
+          {eyebrow && <p className="motion-rise m-0 text-[12px] uppercase tracking-[0.32em] [--rise-delay:300ms]">{eyebrow}</p>}
+          <CoupleNames partners={w.partners} as="h1" size={names} stacked={stacked} className="motion-rise [--rise-delay:550ms]" />
+          <p className="type-dateline motion-rise m-0 mt-1.5 [--rise-delay:850ms]">{dotDate(w.date)}</p>
+          {children && <div className="motion-rise [--rise-delay:1050ms]">{children}</div>}
         </div>
       </Photo>
     </header>

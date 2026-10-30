@@ -87,7 +87,7 @@ Built in `components/ui/`. Every one reads semantic tokens only, so it works on 
 | `Photo` | `next/image` fill, cover, optional bottom scrim and caption (year + label). Placeholder fill `line`. | Hero, story, thanks |
 | `ExpandableRow` | One-line list row for long organiser lists: optional tick box, a summary button that opens a full-width details panel, round icon actions (≥ 44px). Used by Guests and Requests. | Dashboard |
 | `GuestPass` | White box on paper, 1px `line`: eyebrow "YOUR PASS", QR code (black on white, 220px, whatever the theme), name in display 30px, `seats` badge, date/venue meta, instruction or "Checked in at …" in success. | Invite 1c/1d/1e |
-| `DayDetails`, `Programme` | When / Where / Programme / Dress colours as eyebrow-labelled rows; the programme is a list with a left `line` rule, time right-aligned. | Sign-up, invite |
+| `EventCard`, `DayExtras` | The day as a centred printed card: event name and `seats` badge, When / Where with a Google Maps link, a short `line` rule, then Programme (italic display names, times after), Dress code (32px swatches, name below) and the note to guests in a `panel` box. `DayExtras` is the part after the rule, reused on the home page (no venue there). | Sign-up, invite, home |
 | `Icon` | Inline stroke SVGs: alert, mail, lock, search, close, whatsapp, check, chevron, copy, users, pencil, plus, upload, send. `aria-hidden` unless labelled. | All |
 
 Focus is always visible: 2px accent outline, 3px offset.

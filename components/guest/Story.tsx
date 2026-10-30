@@ -18,7 +18,7 @@ export async function Story() {
 
   return (
     <>
-      <section aria-label="Our story" className="flex flex-col gap-1.5">
+      <section aria-label="Our story" className="motion-reveal flex flex-col gap-1.5">
         {card(first, "h-[500px]", fullColumn)}
         <div className="grid grid-cols-2 gap-1.5">
           {card(second, "h-[300px]", halfColumn, true)}

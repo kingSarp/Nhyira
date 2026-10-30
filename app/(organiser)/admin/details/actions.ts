@@ -15,7 +15,7 @@ function checkSlot(slot: number) {
   if (!Number.isInteger(slot) || slot < 0 || slot >= STORY_SLOTS) throw new Error(`Bad story slot ${slot}`);
 }
 
-/** Names, dates, venues, times, dress colours, contact and deadline. */
+/** Names, dates, venues, times, dress colours, note to guests, contact and deadline. */
 export async function saveDetails(_prev: DetailsFormState, form: FormData): Promise<DetailsFormState> {
   await requireOrganiser();
   const { values, errors, details } = parseDetailsForm(form);
