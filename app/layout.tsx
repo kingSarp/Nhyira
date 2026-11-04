@@ -4,7 +4,7 @@ import { fontVariables } from "@/lib/fonts";
 import { wedding } from "@/lib/content/wedding";
 import { getWedding } from "@/lib/data";
 import { previewImages } from "@/lib/og";
-import { siteUrl } from "@/lib/site";
+import { SITE_NAME, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -13,9 +13,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     // Absolute URLs for the WhatsApp preview image.
     metadataBase: new URL(siteUrl()),
-    title: { default: w.coupleNames, template: `%s · ${w.coupleNames}` },
+    // The brand rides in the home page title for search; share cards keep just the names.
+    title: { default: `${w.coupleNames} · ${SITE_NAME}`, template: `%s · ${w.coupleNames}` },
+    applicationName: SITE_NAME,
     description: wedding.tagline,
-    openGraph: { type: "website", title: w.coupleNames, description: wedding.tagline, images: card.og },
+    openGraph: { type: "website", siteName: SITE_NAME, title: w.coupleNames, description: wedding.tagline, images: card.og },
     twitter: { card: "summary_large_image", title: w.coupleNames, description: wedding.tagline, images: card.twitter },
   };
 }

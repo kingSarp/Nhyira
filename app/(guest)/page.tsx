@@ -6,11 +6,15 @@ import { Roses } from "@/components/guest/Roses";
 import { fullHeight } from "@/components/guest/sizes";
 import { Story } from "@/components/guest/Story";
 import { WeddingCountdown } from "@/components/guest/WeddingCountdown";
+import type { Metadata } from "next";
 import { CoupleNames, Photo } from "@/components/ui";
 import { wedding } from "@/lib/content/wedding";
 import { getWedding } from "@/lib/data";
 import { dotDate, fullDate } from "@/lib/format";
 import { displayTime } from "@/lib/wedding";
+
+// One address for search engines, whichever host (www, bare, vercel.app) was opened.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 /** 3 · Home / save the date. For anyone who opens the bare address. */
 export default async function HomePage() {
