@@ -31,7 +31,7 @@ To confirm a change: open the live home page source and check that `og:image` st
 | Shared sign-up (WhatsApp) | `/rsvp/<code>` | `/rsvp/22797c5e35` |
 | Request a place | `/request/<code>` | `/request/ask-7hd2kx0pmz` |
 
-The random part of each link is what stops people guessing someone else's invite; keep it. Older `/i/…` and `/join/…` links redirect (`next.config.ts`), and the check-in scanner reads both old and new QR codes (`lib/checkin.ts`). Sign-up codes made before Nov 2026 start with `join-`; "Make a new link" issues the shorter form, but retires the old link for good.
+The random part of each link is what stops people guessing someone else's invite; keep it. Older `/i/…` and `/join/…` links redirect (`next.config.ts`), and the check-in scanner reads both old and new QR codes (`lib/checkin.ts`). Sign-up codes made before Nov 2026 are stored as `join-…`; the app answers them with or without the prefix and the dashboard shows the short form, so no new link is needed.
 
 ## Search: what is in place
 

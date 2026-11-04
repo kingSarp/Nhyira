@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { CopyLink } from "@/components/organiser/CopyLink";
 import { Button, Icon, Notice } from "@/components/ui";
 import { EVENTS, wedding, type EventId } from "@/lib/content/wedding";
-import { countOpenSignups, getSignupLinks, getWedding, listJoinRequests, type SignupLink, type SignupLinkKind } from "@/lib/data";
+import { countOpenSignups, getSignupLinks, getWedding, listJoinRequests, shareCode, type SignupLink, type SignupLinkKind } from "@/lib/data";
 import { previewImages } from "@/lib/og";
 import { siteUrl } from "@/lib/site";
 import { replaceLink, saveOpenLink, saveRequestLink, toggleLink } from "../actions";
@@ -163,7 +163,7 @@ async function LinkSection({
   replaced: boolean;
   children: ReactNode;
 }) {
-  const url = `${siteUrl()}/${path[link.kind]}/${link.code}`;
+  const url = `${siteUrl()}/${path[link.kind]}/${shareCode(link)}`;
   const { coupleNames } = await getWedding();
   return (
     <section aria-labelledby={`${link.kind}-title`} className="flex flex-col gap-5 border-t-2 border-ink pt-5">

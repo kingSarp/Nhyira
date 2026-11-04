@@ -42,9 +42,18 @@ export async function countOpenSignups() {
   return countOpen(db());
 }
 
+// Open-link codes made before Nov 2026 start "join-"; they answer with or without it.
+const LEGACY_OPEN = "join-";
+const sameCode = (stored: string, c: string) => stored === c || stored === LEGACY_OPEN + c;
+
+/** The code as it goes in a shared link: "22797c5e35", not "join-22797c5e35". */
+export function shareCode(link: SignupLink) {
+  return link.kind === "open" && link.code.startsWith(LEGACY_OPEN) ? link.code.slice(LEGACY_OPEN.length) : link.code;
+}
+
 function stateOf(link: SignupLink, c: string, openCount: number): SignupLinkState {
-  if (link.retiredCodes.includes(c)) return "retired";
-  if (link.code !== c) return "unknown";
+  if (link.retiredCodes.some((r) => sameCode(r, c))) return "retired";
+  if (!sameCode(link.code, c)) return "unknown";
   if (!link.enabled) return "off";
   if (link.kind === "open" && link.limit !== null && openCount >= link.limit) return "full";
   return "active";
