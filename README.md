@@ -10,7 +10,7 @@ Data lives in Supabase Postgres; organisers sign in with email and password (Sup
 2. Copy `.env.example` to `.env.local` and fill in `DATABASE_URL` (Supabase → **Connect** → **Transaction pooler**, with your database password).
 3. `npm run db:setup`: creates the tables. Safe to run again; it never deletes anything.
 4. In Supabase → **Authentication**:
-   - **URL Configuration**: Site URL is the live address (`https://nhyira-cyan.vercel.app`). Add `http://localhost:3000/**` and `https://nhyira-cyan.vercel.app/**` under Redirect URLs.
+   - **URL Configuration**: Site URL is the live address (`https://www.akwaabainvites.com`, the same as `NEXT_PUBLIC_SITE_URL` in Vercel). Under Redirect URLs add `http://localhost:3000/**`, `https://www.akwaabainvites.com/**`, `https://*.akwaabainvites.com/**` (couples' subdomains) and `https://nhyira-cyan.vercel.app/**` (the old address).
    - **Emails → Reset Password**: replace the link in the template with
      `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery`
      so the link works even when the email opens in a different browser.
