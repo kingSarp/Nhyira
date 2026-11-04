@@ -20,8 +20,10 @@ import type { Invitation, JoinRequest, RequestStatus, SignupLink, SignupLinkKind
 
 type Tx = postgres.TransactionSql | postgres.Sql;
 
-function code(prefix: string) {
-  return `${prefix}-${randomBytes(6).toString("base64url").toLowerCase().replace(/[^a-z0-9]/g, "x")}`;
+/** "ask-k3x9ab2cqp" for /request/; the open link is just "k3x9ab2cqp", as /rsvp/ already says what it is. */
+function code(prefix?: string) {
+  const random = randomBytes(6).toString("base64url").toLowerCase().replace(/[^a-z0-9]/g, "x");
+  return prefix ? `${prefix}-${random}` : random;
 }
 
 export async function getSignupLinks(): Promise<Record<SignupLinkKind, SignupLink>> {
@@ -61,7 +63,7 @@ export async function setSignupLinkEnabled(kind: SignupLinkKind, enabled: boolea
 
 /** Retires the current link for good and issues a new one (left switched off). */
 export async function replaceSignupLink(kind: SignupLinkKind) {
-  const next = code(kind === "request" ? "ask" : "join");
+  const next = code(kind === "request" ? "ask" : undefined);
   await db()`
     update signup_links
     set retired_codes = array_append(retired_codes, code), code = ${next}, enabled = false

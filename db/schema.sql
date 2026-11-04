@@ -52,7 +52,7 @@ create table if not exists signup_links (
 -- Both shared links start switched off.
 insert into signup_links (kind, code) values
   ('request', 'ask-' || substr(replace(gen_random_uuid()::text, '-', ''), 1, 10)),
-  ('open', 'join-' || substr(replace(gen_random_uuid()::text, '-', ''), 1, 10))
+  ('open', substr(replace(gen_random_uuid()::text, '-', ''), 1, 10))
 on conflict (kind) do nothing;
 
 -- Arrival at the entrance (/checkin). Added after launch, so added here too.
