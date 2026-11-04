@@ -22,7 +22,7 @@ import { dayMonth, dotDate } from "@/lib/format";
 import { previewImages } from "@/lib/og";
 import { submitRsvp } from "./actions";
 
-export async function generateMetadata({ params }: PageProps<"/i/[token]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/invite/[token]">): Promise<Metadata> {
   const { token } = await params;
   const [invitation, w] = await Promise.all([getInvitation(token), getWedding()]);
   const title = invitation ? `Invitation for ${invitation.greeting ?? invitation.householdName}` : "Invitation";
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PageProps<"/i/[token]">): Pro
   };
 }
 
-export default async function InvitePage({ params, searchParams }: PageProps<"/i/[token]">) {
+export default async function InvitePage({ params, searchParams }: PageProps<"/invite/[token]">) {
   const { token } = await params;
   const sp = await searchParams;
   const invitation = await getInvitation(token);
@@ -108,7 +108,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
           {invitation.source !== "open" && <ReplySummary events={events} invitation={invitation} />}
         </section>
         <section className="flex flex-col items-center gap-[18px] px-7 pt-10 pb-14">
-          <Button href={`/i/${token}`} variant="secondary" fullWidth>
+          <Button href={`/invite/${token}`} variant="secondary" fullWidth>
             Change my reply
           </Button>
           <p className="m-0 text-center text-[14px] text-ink-2">Changes allowed until {deadline}</p>
@@ -130,7 +130,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
         {coming && <GuestPass invitation={invitation} className="px-7 pt-8" />}
         <RsvpSection heading={false}>
           {form("Update my reply")}
-          <Link href={`/i/${token}?view=full`} className="flex min-h-11 items-center self-center text-[15px]">
+          <Link href={`/invite/${token}?view=full`} className="flex min-h-11 items-center self-center text-[15px]">
             See the full invitation
           </Link>
         </RsvpSection>

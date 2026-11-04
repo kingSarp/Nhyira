@@ -12,11 +12,11 @@ One shared sign-up link, sent on WhatsApp. Each guest sees the day, confirms wit
 
 | Way in | URL | Who sets the seats | Couple can switch off |
 |---|---|---|---|
-| **Open sign-up (the main one)** | `/join/<code>` | Fixed: 1 seat, confirmed straight away | Yes, plus an optional sign-up limit |
-| Personal invite (guest list) | `/i/<token>` | The couple, when adding the household | No, always on |
+| **Open sign-up (the main one)** | `/rsvp/<code>` | Fixed: 1 seat, confirmed straight away | Yes, plus an optional sign-up limit |
+| Personal invite (guest list) | `/invite/<token>` | The couple, when adding the household | No, always on |
 | Request a place | `/request/<code>` | The couple, when approving the request | Yes |
 
-Both shared links start **off**. Requests are approved with default seats (the party size they asked for); "Adjust seats" on a row overrides that for one person, and ticked rows can be approved or declined together. "Make a new link" retires the current `<code>` for good (it shows "no longer taking sign-ups" forever) and issues a new one, left off. Approved requests and open sign-ups become ordinary invitations with their own `/i/<token>`, marked `source: "request" | "open"`. A phone number can hold only one invitation or pending request.
+Both shared links start **off**. Requests are approved with default seats (the party size they asked for); "Adjust seats" on a row overrides that for one person, and ticked rows can be approved or declined together. "Make a new link" retires the current `<code>` for good (it shows "no longer taking sign-ups" forever) and issues a new one, left off. Approved requests and open sign-ups become ordinary invitations with their own `/invite/<token>`, marked `source: "request" | "open"`. A phone number can hold only one invitation or pending request.
 
 ## 2. Stack
 
@@ -44,12 +44,12 @@ app/
   (guest)/                   data-surface="guest"
     layout.tsx
     page.tsx                 /            Home, save the date
-    i/[token]/
-      page.tsx               /i/[token]   Invite + RSVP (states 1a–1e)
+    invite/[token]/
+      page.tsx               /invite/[token]  Invite + RSVP (states 1a–1e)
       actions.ts             submitRsvp server action
       not-found.tsx          Invitation not found
     request/[code]/          /request/<code>  Request a place (form, sent, closed)
-    join/[code]/             /join/<code>     Open one-seat sign-up (form, full, closed)
+    rsvp/[code]/             /rsvp/<code>     Open one-seat sign-up (form, full, closed)
   (organiser)/               data-surface="organiser"
     layout.tsx
     login/page.tsx           /login       Sign in, forgot password, reset sent, link expired
@@ -168,7 +168,7 @@ For review, `?preview=closed` forces 1e anywhere except Vercel production.
 
 Organisers are the users in Supabase → Authentication → Users, added there by hand; there is no list in the code. They sign in at `/login` with email and password; Supabase gives the same "doesn't match" error for an unknown email and a wrong password. Other states come from search params (`?forgot=1`, `?reset=sent&email=`, `?error=link`). "Forgot password?" emails a reset link (Supabase only sends to existing users and says "sent" either way). The link lands on `/auth/confirm` (token hash from our email template, or a PKCE code from Supabase's default one) and opens `/login/new-password`; links that carry the session after `#` (sent from the Supabase dashboard) are picked up in the browser by `AuthLinkHandler`. Every account is staff (an organiser, or an usher when `app_metadata.role = "usher"`), so Supabase sign-ups must stay off: `getStaff()` reads that setting (cached 5 minutes) and locks everything while sign-ups are on. After sign-in, organisers land on `/admin` and ushers on `/checkin`. `proxy.ts` renews the session cookie; `getOrganiser()` verifies it on every dashboard page and action.
 
-**The guest flow (one link).** The organiser shares the open sign-up link (`/join/<code>`). The guest sees the day (date, time, address, programme, dress colours), enters name and phone, and taps "Confirm my place": there are no event choices, because the day is one event (`EVENTS` in `lib/content/wedding.ts`) and the engagement, church service and reception are its `programme`, wording only. They land on their invitation (`/i/<token>?sent=1`), which shows their **pass**: a QR code of their invitation URL (`components/guest/GuestPass.tsx`, generated with `qrcode`). Self sign-ups never enter the "Send invites" queue (`needsInvite()` in `lib/households.ts`). The pass also shows on return visits and after replies close, i.e. on the day.
+**The guest flow (one link).** The organiser shares the open sign-up link (`/rsvp/<code>`). The guest sees the day (date, time, address, programme, dress colours), enters name and phone, and taps "Confirm my place": there are no event choices, because the day is one event (`EVENTS` in `lib/content/wedding.ts`) and the engagement, church service and reception are its `programme`, wording only. They land on their invitation (`/invite/<token>?sent=1`), which shows their **pass**: a QR code of their invitation URL (`components/guest/GuestPass.tsx`, generated with `qrcode`). Self sign-ups never enter the "Send invites" queue (`needsInvite()` in `lib/households.ts`). The pass also shows on return visits and after replies close, i.e. on the day.
 
 **Check-in.** `/checkin` (organisers and ushers) scans passes with the camera (the browser's `BarcodeDetector` where there is one, else `jsqr`), reads the token from the URL (`tokenFromScan`), and stamps `checked_in_at` / `checked_in_by` once; a second scan shows when and by whom. Guests without a pass are found by name or phone. Ushers are Supabase users with `app_metadata.role = "usher"`; `getStaff()` returns the role, ushers only reach `/checkin`.
 

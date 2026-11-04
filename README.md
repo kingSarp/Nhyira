@@ -21,7 +21,7 @@ Data lives in Supabase Postgres; organisers sign in with email and password (Sup
 | URL | What |
 | --- | --- |
 | `/` | Home, save the date |
-| `/i/<token>` | A household's invitation (copy one from the dashboard) |
+| `/invite/<token>` | A household's invitation (copy one from the dashboard) |
 | `/login`, `/admin` | Organiser sign-in and dashboard |
 | `/styleguide` | Design tokens and components (not on the live site) |
 

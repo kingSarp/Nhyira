@@ -48,7 +48,7 @@ function stateOf(link: SignupLink, c: string, openCount: number): SignupLinkStat
   return "active";
 }
 
-/** What a visitor sees when they open /request/<code> or /join/<code>. */
+/** What a visitor sees when they open /request/<code> or /rsvp/<code>. */
 export async function resolveSignupLink(kind: SignupLinkKind, c: string): Promise<{ state: SignupLinkState; link: SignupLink }> {
   const link = (await getSignupLinks())[kind];
   const openCount = kind === "open" && link.limit !== null ? await countOpenSignups() : 0;

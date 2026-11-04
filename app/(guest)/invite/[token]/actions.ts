@@ -6,7 +6,7 @@ import { parseRsvp, toResponses, validateRsvp, type RsvpState } from "@/lib/rsvp
 
 export async function submitRsvp(token: string, _prev: RsvpState, form: FormData): Promise<RsvpState> {
   const invitation = await getInvitation(token);
-  if (!invitation) redirect(`/i/${token}`);
+  if (!invitation) redirect(`/invite/${token}`);
 
   const events = await invitedEvents(invitation);
   const values = parseRsvp(form, events);
@@ -26,5 +26,5 @@ export async function submitRsvp(token: string, _prev: RsvpState, form: FormData
     return { status: "failed", values, message: "We couldn't save your reply. Please try again in a moment." };
   }
 
-  redirect(`/i/${token}?sent=1`);
+  redirect(`/invite/${token}?sent=1`);
 }

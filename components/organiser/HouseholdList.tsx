@@ -94,7 +94,7 @@ function Row({ h }: { h: Household }) {
             {h.note && <p className="m-0 mt-1">&ldquo;{h.note}&rdquo;</p>}
           </div>
           <div className="flex flex-wrap items-center gap-4 lg:ml-auto lg:self-start">
-            <Link href={`/i/${h.token}`} target="_blank" className="flex min-h-11 items-center text-[15px]">
+            <Link href={`/invite/${h.token}`} target="_blank" className="flex min-h-11 items-center text-[15px]">
               View invite
             </Link>
             <Link href={`/admin/guests/${h.token}`} className="flex min-h-11 items-center text-[15px]">

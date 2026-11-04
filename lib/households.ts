@@ -28,7 +28,7 @@ export function answerLines(inv: Invitation) {
 }
 
 export function inviteUrl(token: string) {
-  return `${siteUrl()}/i/${token}`;
+  return `${siteUrl()}/invite/${token}`;
 }
 
 /** The prefilled WhatsApp message for a household. `reminder` for a gentle nudge. */

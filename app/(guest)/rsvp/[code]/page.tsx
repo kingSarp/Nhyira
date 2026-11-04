@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function JoinPage({ params }: PageProps<"/join/[code]">) {
+export default async function JoinPage({ params }: PageProps<"/rsvp/[code]">) {
   const { code } = await params;
   const { state, link } = await resolveSignupLink("open", code);
 

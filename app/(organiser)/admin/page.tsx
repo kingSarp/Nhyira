@@ -42,7 +42,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
 
       {saved && (
         <Notice tone="success" icon="check" title={`${saved.householdName} saved`}>
-          <Link href={`/i/${saved.token}`} target="_blank">View their invite</Link>
+          <Link href={`/invite/${saved.token}`} target="_blank">View their invite</Link>
           {saved.phone && !saved.sentAt && (
             <>
               {" · "}

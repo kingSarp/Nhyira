@@ -17,6 +17,13 @@ const nextConfig: NextConfig = {
     // Story photos organisers upload to Supabase Storage.
     remotePatterns: supabaseHost ? [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/public/wedding-photos/**" }] : [],
   },
+  // Links and QR passes sent before Nov 2026 used /i/ and /join/; keep them working.
+  async redirects() {
+    return [
+      { source: "/i/:token", destination: "/invite/:token", permanent: true },
+      { source: "/join/:code", destination: "/rsvp/:code", permanent: true },
+    ];
+  },
   experimental: {
     // Story photo uploads. Phones shrink photos before sending; this covers the
     // rest (and forms posted without JavaScript). Vercel caps requests at 4.5 MB.

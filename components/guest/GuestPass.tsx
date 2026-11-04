@@ -14,7 +14,7 @@ import { displayTime } from "@/lib/wedding";
 export async function GuestPass({ invitation, className }: { invitation: Invitation; className?: string }) {
   const [w, svg] = await Promise.all([
     getWedding(),
-    QRCode.toString(`${siteUrl()}/i/${invitation.token}`, {
+    QRCode.toString(`${siteUrl()}/invite/${invitation.token}`, {
       type: "svg",
       errorCorrectionLevel: "M",
       margin: 2,

@@ -12,8 +12,8 @@ export async function submitOpenSignup(code: string, _prev: SignupState, form: F
   const result = await registerOpenSignup(code, { name: values.name, phone: values.phone, attending });
   if (!result.ok) {
     if (result.reason === "duplicate") return { status: "failed", values, message: duplicateMessage };
-    redirect(`/join/${code}`); // switched off or full meanwhile
+    redirect(`/rsvp/${code}`); // switched off or full meanwhile
   }
   // Their own personal invitation, on the thank-you state.
-  redirect(`/i/${result.value.token}?sent=1&new=1`);
+  redirect(`/invite/${result.value.token}?sent=1&new=1`);
 }

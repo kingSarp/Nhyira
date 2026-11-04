@@ -132,11 +132,11 @@ The main photo and the four story photos are uploaded by organisers on `/admin/d
 | Route | Surface | Boards |
 |---|---|---|
 | `/` | guest | 3 · Home / save the date |
-| `/i/[token]` | guest | 1a first open · 1b filling in, errors · 1c submitted · 1d returning · 1e closed (1c/1d/1e show the pass when coming) |
-| `/i/[token]` (unknown) | guest | 2 · Invitation not found |
+| `/invite/[token]` | guest | 1a first open · 1b filling in, errors · 1c submitted · 1d returning · 1e closed (1c/1d/1e show the pass when coming) |
+| `/invite/[token]` (unknown) | guest | 2 · Invitation not found |
 | `/og`, `/og/[token]` | guest | 6 · WhatsApp preview, with and without photo |
 | `/request/<code>` | guest | Request a place: form, sent, closed (no board; built from the system) |
-| `/join/<code>` | guest | The main sign-up: the day's details, name + phone, "Confirm my place"; full; closed (no board; built from the system) |
+| `/rsvp/<code>` | guest | The main sign-up: the day's details, name + phone, "Confirm my place"; full; closed (no board; built from the system) |
 | `/login` | organiser | 4a sign in · forgot password · 4b reset sent · 4c link expired · new password (built from the system) |
 | `/admin` | organiser | 5a dashboard mobile + desktop · 5b search, no matches |
 | `/admin/requests`, `/admin/links`, `/admin/details` | organiser | Requests, Sign-up links and Wedding details tabs (no board; built from the system) |

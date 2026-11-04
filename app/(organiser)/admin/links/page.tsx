@@ -11,7 +11,7 @@ import { replaceLink, saveOpenLink, saveRequestLink, toggleLink } from "../actio
 
 export const metadata: Metadata = { title: "Sign-up links" };
 
-const path = { request: "request", open: "join" } as const;
+const path = { request: "request", open: "rsvp" } as const;
 
 function shareText(coupleNames: string, kind: SignupLinkKind, url: string) {
   return kind === "request"

@@ -259,7 +259,7 @@ export default async function RequestsPage({ searchParams }: PageProps<"/admin/r
                 <span className="flex items-center gap-4">
                   <Badge tone={r.status === "approved" ? "attending" : "declined"}>{r.status === "approved" ? "Approved" : "Declined"}</Badge>
                   {r.token && (
-                    <Link href={`/i/${r.token}`} target="_blank" className="flex min-h-11 items-center text-[15px]">
+                    <Link href={`/invite/${r.token}`} target="_blank" className="flex min-h-11 items-center text-[15px]">
                       View invite
                     </Link>
                   )}

@@ -19,7 +19,7 @@ export function HouseholdActions({ household, kind = "invite", inline }: { house
           Add a phone number to send
         </Button>
       )}
-      <Link href={`/i/${household.token}`} target="_blank" className="flex min-h-11 items-center text-[15px]">
+      <Link href={`/invite/${household.token}`} target="_blank" className="flex min-h-11 items-center text-[15px]">
         View invite<span className="sr-only"> for {household.householdName} (opens in a new tab)</span>
       </Link>
     </div>
